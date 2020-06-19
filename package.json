@@ -31,7 +31,6 @@
     "@ckeditor/ckeditor5-build-balloon": "^19.0.2",
     "@ckeditor/ckeditor5-build-balloon-block": "^19.0.2",
     "@ckeditor/ckeditor5-build-classic": "^19.0.2",
-    "@ckeditor/ckeditor5-build-decoupled-document": "^19.0.2",
     "@ckeditor/ckeditor5-build-inline": "^19.0.2",
     "@ckeditor/ckeditor5-ckfinder": "^19.0.1",
     "@ckeditor/ckeditor5-clipboard": "^19.0.1",
@@ -76,6 +75,7 @@
     "@ckeditor/ckeditor5-word-count": "^19.0.1"
   },
   "devDependencies": {
+    "@ckeditor/ckeditor5-build-decoupled-document": "file:packages/ckeditor5-build-decoupled-document",
     "@ckeditor/ckeditor5-comments": "^19.0.2",
     "@ckeditor/ckeditor5-dev-docs": "^20.0.0",
     "@ckeditor/ckeditor5-dev-env": "^20.1.0",

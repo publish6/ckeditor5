@@ -48,8 +48,8 @@
     "@ckeditor/ckeditor5-paragraph": "^19.1.0",
     "@ckeditor/ckeditor5-paste-from-office": "^19.0.2",
     "@ckeditor/ckeditor5-table": "^19.1.0",
-    "@ckeditor/ckeditor5-typing": "^19.0.1",
     "@ckeditor/ckeditor5-theme-lark": "^19.1.0",
+    "@ckeditor/ckeditor5-typing": "^19.0.1",
     "postcss-loader": "^3.0.0",
     "raw-loader": "^3.1.0",
     "style-loader": "^1.0.0",
@@ -73,5 +73,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "preversion": "npm run build"
+  },
+  "dependencies": {
+    "@ckeditor/ckeditor5-ui": "^19.0.1"
   }
 }

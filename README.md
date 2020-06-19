@@ -1,3 +1,26 @@
+# Building / Developing for the Press Editor
+The following readme contains documentation on how to build our Press app's customized version of CKEditor5. Note that we are maintaining our own version of ckeditor so that we can add customizations (such as custom plugins, which can only be developed/added at BUILD time).
+
+You can find detailed information about how CKEditor5's build process works on their website, but as of June 2020, it seems to be out of date (i.e. ckeditor builds are no longer kept in separate git repos). So developers should read this Readme to get started.
+
+## Updating CKEditor
+We are maintaining our own version of CKEditor, but it's important that we stay in sync with the official stable branch. Therefore, before making any changes, you should run the following commands:
+
+```
+# Run once to set things up
+git remote add upstream https://github.com/ckeditor/ckeditor5
+
+# Run to perform the update. It's important that we only update from the stable branch
+git pull upstream stable
+```
+
+## Developing CKEditor
+To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is packages/ckeditor5-build-decoupled-document) and run `npm install`
+
+Once you've made your changes, run `npm run build` (note that this is different from their documentation, as of June 2020). As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project.
+
+
+===== Original Readme contents below ======
 CKEditor 5 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20CKEditor%205%20on%20GitHub&url=https%3A%2F%2Fgithub.com%2Fckeditor%2Fckeditor5)
 ===================================
 

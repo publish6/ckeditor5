@@ -37,6 +37,7 @@ import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefrom
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation';
+import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -72,7 +73,11 @@ DecoupledEditor.builtinPlugins = [
 	PasteFromOffice,
 	Table,
 	TableToolbar,
-	TextTransformation
+	TextTransformation,
+	RemoveMarkings
+
+
+	
 ];
 
 // Editor configuration.
@@ -91,6 +96,8 @@ DecoupledEditor.defaultConfig = {
 			'underline',
 			'strikethrough',
 			'|',
+			'removeMarkings',
+			'|',
 			'alignment',
 			'|',
 			'numberedList',
@@ -106,7 +113,7 @@ DecoupledEditor.defaultConfig = {
 			'mediaEmbed',
 			'|',
 			'undo',
-			'redo'
+			'redo',
 		]
 	},
 	image: {
