@@ -47,7 +47,7 @@
 		box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 	}
 </style>
-
+<script src="../node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
 <script src="../build/ckeditor.js"></script>
 <script>
 	const editorData = `<h2>Sample</h2>
@@ -57,10 +57,64 @@
 		</figure>
 		<p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>`;
 
-	DecoupledEditor.create( editorData )
+		function ConvertDivAttributes( editor ) {
+    // Allow <div> elements in the model.
+    editor.model.schema.register( 'img', {
+        allowWhere: '$block',
+        allowContentOf: '$root'
+    } );
+
+    // Allow <div> elements in the model to have all attributes.
+    editor.model.schema.addAttributeCheck( context => {
+        if ( context.endsWith( 'img' ) ) {
+            return true;
+        }
+    } );
+
+    // View-to-model converter converting a view <div> with all its attributes to the model.
+    editor.conversion.for( 'upcast' ).elementToElement( {
+        view: 'img',
+        model: ( viewElement, modelWriter ) => {
+            return modelWriter.createElement( 'img', viewElement.getAttributes() );
+        }
+    } );
+
+    // Model-to-view converter for the <div> element (attributes are converted separately).
+    editor.conversion.for( 'downcast' ).elementToElement( {
+        model: 'img',
+        view: 'img'
+    } );
+
+    // Model-to-view converter for <div> attributes.
+    // Note that a lower-level, event-based API is used here.
+    editor.conversion.for( 'downcast' ).add( dispatcher => {
+        dispatcher.on( 'attribute', ( evt, data, conversionApi ) => {
+            // Convert <div> attributes only.
+            if ( data.item.name != 'img' ) {
+                return;
+            }
+
+            const viewWriter = conversionApi.writer;
+            const viewDiv = conversionApi.mapper.toViewElement( data.item );
+
+            // In the model-to-view conversion we convert changes.
+            // An attribute can be added or removed or changed.
+            // The below code handles all 3 cases.
+            if ( data.attributeNewValue ) {
+                viewWriter.setAttribute( data.attributeKey, data.attributeNewValue, viewDiv );
+            } else {
+                viewWriter.removeAttribute( data.attributeKey, viewDiv );
+            }
+        } );
+    } );
+}
+
+	DecoupledEditor.create( editorData, {
+		extraPlugins: [ ConvertDivAttributes ],
+	} )
 		.then( editor => {
 			window.editor = editor;
-
+			CKEditorInspector.attach( editor );
 			document.querySelector( '.toolbar-container' ).appendChild( editor.ui.view.toolbar.element );
 			document.querySelector( '.editable-container' ).appendChild( editor.ui.view.editable.element );
 		} )
