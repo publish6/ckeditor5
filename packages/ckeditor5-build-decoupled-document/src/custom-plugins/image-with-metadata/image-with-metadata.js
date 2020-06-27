@@ -77,7 +77,7 @@ export class RenderServerResponseAsImage extends Command {
     // Expects "url", "style", and "db"
     execute(url, style, assetID, assetType) {
         
-        editor.model.change( writer => {
+        this.editor.model.change( writer => {
             const imageElement = writer.createElement( 'image', {
                 src: url,
                 imageStyle: style,
@@ -86,7 +86,7 @@ export class RenderServerResponseAsImage extends Command {
             } );
     
             // Insert the image in the current selection location.
-            editor.model.insertContent( imageElement, editor.model.document.selection );
+            this.editor.model.insertContent( imageElement, this.editor.model.document.selection );
         } );
     }
 }
