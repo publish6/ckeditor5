@@ -19,6 +19,8 @@ To add or modify our CKEditor build, navigate to the package of the build that w
 
 Once you've made your changes, run `npm run build` (note that this is different from their documentation, as of June 2020). As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project.
 
+To test out your changes, you can navigate to our build of the editor (at this time of writing, this is packages/ckeditor5-build-decoupled-document), build it, and then load sample/index.html in your browser.
+
 
 ===== Original Readme contents below ======
 CKEditor 5 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20CKEditor%205%20on%20GitHub&url=https%3A%2F%2Fgithub.com%2Fckeditor%2Fckeditor5)

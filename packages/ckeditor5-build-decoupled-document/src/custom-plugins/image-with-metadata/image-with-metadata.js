@@ -22,6 +22,7 @@ export default class ImageWithMetadata extends Plugin {
 
         // Define a command that external code can call to add an image with metadata to the editor
         editor.commands.add('renderServerResponseAsImage', new RenderServerResponseAsImage(editor));
+        editor.commands.add('modifyExistingImage', new modifyExistingImage(editor));
         
         // Define the plugin
         editor.ui.componentFactory.add( 'imageWithMetadata', locale => {
@@ -127,14 +128,12 @@ export class EditImageWithMetadata extends Plugin {
         } );
     }
 }
-
 // The command that consumers will invoke to add an image, with metadata, to the editor
-export class modifyExistingImage extends Command {
+export class RenderServerResponseAsImage extends Command {
     // Expects "url", "style", and "db"
     execute(url, style, assetID, assetType, assetSHClass) {
         
         this.editor.model.change( writer => {
-            const = editor.model.document.selection.getSelectedElement();
             const imageElement = writer.createElement( 'image', {
                 src: url,
                 imageStyle: style,
@@ -145,6 +144,22 @@ export class modifyExistingImage extends Command {
     
             // Insert the image in the current selection location.
             this.editor.model.insertContent( imageElement, this.editor.model.document.selection );
+        } );
+    }
+}
+
+// The command that consumers will invoke to add an image, with metadata, to the editor
+export class modifyExistingImage extends Command {
+    // Expects "url", "style", and "db"
+    execute(url, style, assetID, assetType, assetSHClass) {
+        
+        this.editor.model.change( writer => {
+            const element = editor.model.document.selection.getSelectedElement();
+            writer.setAttribute("src", url, element);
+            writer.setAttribute("imageStyle", style, element);
+            writer.setAttribute("assetID", assetID, element);
+            writer.setAttribute("assetType", assetType, element);
+            writer.setAttribute("class", assetSHClass, element);
         } );
     }
 }
