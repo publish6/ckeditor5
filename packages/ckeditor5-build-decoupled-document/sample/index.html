@@ -50,7 +50,8 @@
 <script src="../node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
 <script src="../build/ckeditor.js"></script>
 <script>
-	const editorData = `<h2>Sample</h2>
+	const editorData = `<h1>Here is a preloaded image!</h1>
+	<figure class="image ck-widget ck-widget_with-resizer image-style-align-left asset-sh-ld ck-widget_selected" assetid="999999" assettype="embeddedImage" contenteditable="false"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c6/King_Dedede.png/220px-King_Dedede.png"><div class="ck ck-reset_all ck-widget__type-around"><div class="ck ck-widget__type-around__button ck-widget__type-around__button_before" title="Insert paragraph before block"><svg viewBox="0 0 10 8" xmlns="http://www.w3.org/2000/svg"><polyline points="8.05541992 0.263427734 8.05541992 4.23461914 1.28417969 4.23461914" transform="translate(1,0)"></polyline><line x1="0" y1="4.21581031" x2="2" y2="2.17810059" transform="translate(1, 0)"></line><line x1="0" y1="6.21581031" x2="2" y2="4.17810059" transform="translate(2, 5.196955) scale(1, -1) translate(-1, -5.196955)"></line></svg></div><div class="ck ck-widget__type-around__button ck-widget__type-around__button_after" title="Insert paragraph after block"><svg viewBox="0 0 10 8" xmlns="http://www.w3.org/2000/svg"><polyline points="8.05541992 0.263427734 8.05541992 4.23461914 1.28417969 4.23461914" transform="translate(1,0)"></polyline><line x1="0" y1="4.21581031" x2="2" y2="2.17810059" transform="translate(1, 0)"></line><line x1="0" y1="6.21581031" x2="2" y2="4.17810059" transform="translate(2, 5.196955) scale(1, -1) translate(-1, -5.196955)"></line></svg></div><div class="ck ck-widget__type-around__fake-caret"></div></div><div class="ck ck-reset_all ck-widget__resizer" style="height:219px;left:0px;top:0px;width:220px;"><div class="ck-widget__resizer__handle ck-widget__resizer__handle-top-left"></div><div class="ck-widget__resizer__handle ck-widget__resizer__handle-top-right"></div><div class="ck-widget__resizer__handle ck-widget__resizer__handle-bottom-right"></div><div class="ck-widget__resizer__handle ck-widget__resizer__handle-bottom-left"></div><div class="ck ck-size-view" style="display: none;"></div></div><figcaption class="ck-editor__editable ck-editor__nested-editable ck-placeholder" data-placeholder="Enter image caption" contenteditable="true"><br data-cke-filler="true"></figcaption></figure>
 		<p>This is an instance of the <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#document-editor">document editor build</a>.</p>
 		<figure class="image">
 			<img src="../tests/manual/sample.jpg" alt="Autumn fields" />
@@ -64,12 +65,15 @@
 			CKEditorInspector.attach( editor );
 			document.querySelector( '.toolbar-container' ).appendChild( editor.ui.view.toolbar.element );
 			document.querySelector( '.editable-container' ).appendChild( editor.ui.view.editable.element );
-			editor.execute("renderServerResponseAsImage", 
-			"https://upload.wikimedia.org/wikipedia/en/thumb/c/c6/King_Dedede.png/220px-King_Dedede.png",
-			"alignLeft",999999, "embeddedImage", "sh-ld");
-			editor.config.imageWithMetadata = function() {
+			editor.config.asset = {};
+			editor.config.asset.pluginWasClickedCallback = function() {
 				alert("HI");
 			}
+			/*
+			editor.config.asset.pluginWasClickedCallback = function() {
+				alert("HI");
+			}
+			*/
 		} )
 		.catch( error => {
 			console.error( 'There was a problem initializing the editor.', error );

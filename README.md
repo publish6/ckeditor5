@@ -17,7 +17,7 @@ git pull upstream stable
 ## Developing CKEditor
 To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is packages/ckeditor5-build-decoupled-document) and run `yarn install`
 
-*NOTE FOR WSL users OR Ubuntu users*: Run the following commands to get this working
+**NOTE FOR WSL users OR Ubuntu users**: Run the following commands to get yarn working
 ```
 sudo apt remove cmdtest
 sudo apt remove yarn
@@ -32,7 +32,10 @@ Once you've made your changes, run `yarn run build`. As long as this command suc
 
 To test out your changes, you can navigate to our build of the editor (at this time of writing, this is packages/ckeditor5-build-decoupled-document), build it, and then load sample/index.html in your browser.
 
-*IMPORTANT NOTE*: If you get errors
+**IMPORTANT NOTE**: If you get errors about duplicated modules, try the following things (if one doesn't work, move to the next one):
+1. Remove all package-lock.json, node_modules/, and yarn.lock files. Re-install your dependencies and re-build the project
+2. Either copy the latest package.json file from upstream's stable branch into this project, or look for discrepancies in versions for the packages that are in both the upstream branch and your local file and correct them.
+    a. If someone has modified package.json, it's possible for it to get "out of sync" with the correct package.json, which may lead to multiple versions of the same core CKEditor module being pulled in.
 
 ===== Original Readme contents below ======
 CKEditor 5 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20CKEditor%205%20on%20GitHub&url=https%3A%2F%2Fgithub.com%2Fckeditor%2Fckeditor5)
