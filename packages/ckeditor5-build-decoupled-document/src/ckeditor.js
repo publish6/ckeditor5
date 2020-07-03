@@ -38,9 +38,6 @@ import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation';
 import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
-import ImageWithMetadata from './custom-plugins/image-with-metadata/image-with-metadata';
-import {EditImageWithMetadata} from './custom-plugins/image-with-metadata/image-with-metadata';
-import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -67,7 +64,6 @@ DecoupledEditor.builtinPlugins = [
 	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
-	ImageResize,
 	Indent,
 	IndentBlock,
 	Link,

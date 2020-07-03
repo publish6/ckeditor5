@@ -17,7 +17,18 @@ git pull upstream stable
 ## Developing CKEditor
 To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is packages/ckeditor5-build-decoupled-document) and run `npm install`
 
-Once you've made your changes, run `npm run build` (note that this is different from their documentation, as of June 2020). As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project.
+*NOTE FOR WSL users OR Ubuntu users*: Run the following commands to get this working
+```
+sudo apt remove cmdtest
+sudo apt remove yarn
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update  
+sudo apt install --no-install-recommends yarn
+# Run "sudo apt-get install yarn" if you don't already have node/npm installed
+```
+
+Once you've made your changes, run `yarn run build`. As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project.
 
 To test out your changes, you can navigate to our build of the editor (at this time of writing, this is packages/ckeditor5-build-decoupled-document), build it, and then load sample/index.html in your browser.
 

@@ -1,13 +1,11 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import imageIcon from './upload_image.svg';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import DowncastHelpers from '@ckeditor/ckeditor5-engine/src/conversion/downcasthelpers';
-import UpcastHelpers from '@ckeditor/ckeditor5-engine/src/conversion/upcasthelpers';
 import Command from '@ckeditor/ckeditor5-core/src/command';
 import editIcon from './editicon2.svg'
 
 
-export default class ImageWithMetadata extends Plugin {
+export class ImageWithMetadata extends Plugin {
     init() {
         const editor = this.editor;
         let modalFunction = null;
