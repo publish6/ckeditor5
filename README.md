@@ -15,7 +15,7 @@ git pull upstream stable
 ```
 
 ## Developing CKEditor
-To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is packages/ckeditor5-build-decoupled-document) and run `npm install`
+To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is packages/ckeditor5-build-decoupled-document) and run `yarn install`
 
 *NOTE FOR WSL users OR Ubuntu users*: Run the following commands to get this working
 ```
@@ -32,6 +32,7 @@ Once you've made your changes, run `yarn run build`. As long as this command suc
 
 To test out your changes, you can navigate to our build of the editor (at this time of writing, this is packages/ckeditor5-build-decoupled-document), build it, and then load sample/index.html in your browser.
 
+*IMPORTANT NOTE*: If you get errors
 
 ===== Original Readme contents below ======
 CKEditor 5 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20CKEditor%205%20on%20GitHub&url=https%3A%2F%2Fgithub.com%2Fckeditor%2Fckeditor5)
