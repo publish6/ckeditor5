@@ -59,21 +59,27 @@
 		<p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>`;
 
 	DecoupledEditor.create( editorData, {
+		asset : {
+			image: {
+				editButtonCallback : function() {
+					 alert("edit button was clicked");
+				},
+				previewButtonCallback : function() {
+					 alert("preview button was clicked");
+				}
+			},
+			imageWithMetadata: {
+				toolbarButtonCallback : function() {
+					alert("Toolbar button clicked!");
+				}
+			}
+		}
 	} )
 		.then( editor => {
 			window.editor = editor;
 			CKEditorInspector.attach( editor );
 			document.querySelector( '.toolbar-container' ).appendChild( editor.ui.view.toolbar.element );
 			document.querySelector( '.editable-container' ).appendChild( editor.ui.view.editable.element );
-			editor.config.asset = {};
-			editor.config.asset.pluginWasClickedCallback = function() {
-				alert("HI");
-			}
-			/*
-			editor.config.asset.pluginWasClickedCallback = function() {
-				alert("HI");
-			}
-			*/
 		} )
 		.catch( error => {
 			console.error( 'There was a problem initializing the editor.', error );

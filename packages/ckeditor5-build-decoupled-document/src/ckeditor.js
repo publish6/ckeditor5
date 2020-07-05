@@ -38,7 +38,8 @@ import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation';
 import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
-import { ImageWithMetadataPlugin, EditImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata';
+import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custom-plugins/asset-plugins/image-based-asset-plugin';
+import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
@@ -79,7 +80,8 @@ DecoupledEditor.builtinPlugins = [
 	TextTransformation,
 	RemoveMarkings,
 	ImageWithMetadataPlugin,
-	EditImageWithMetadataPlugin
+	EditImageBasedAssetPlugin,
+	PreviewImageBasedAssetPlugin
 ];
 
 // Editor configuration.
@@ -126,11 +128,13 @@ DecoupledEditor.defaultConfig = {
 			'alignRight'
 		],
 		toolbar: [
+			'previewImageBasedAsset',
+			'|',
 			'imageStyle:alignLeft',
 			'imageStyle:full',
 			'imageStyle:alignRight',
 			'|',
-			'editImageWithMetadata'
+			'editImageBasedAsset'
 		]
 	},
 	table: {
