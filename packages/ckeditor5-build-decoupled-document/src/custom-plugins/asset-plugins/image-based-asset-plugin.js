@@ -15,19 +15,13 @@ import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import editIcon from './icons/editicon.svg'
 import previewIcon from './icons/previewicon.svg'
 import Command from '@ckeditor/ckeditor5-core/src/command';
-/* NOTE: all of these asset names are entirely lowercase. I've found that things don't quite work right (specifically upcasts) 
-         if uppercase letters are used (camel case).
-*/
-export const ASSET_ID_PROPERTY_NAME = "assetid";
-export const ASSET_TYPE_PROPERTY_NAME = "assettype";
-export const ASSET_SH_RH_CLASS = "asset-sh-rh";
-export const ASSET_SH_RS_CLASS = "asset-sh-rs";
-export const ASSET_SH_LD_CLASS = "asset-sh-ld";
-export const ASSET_SH_EO_CLASS = "asset-sh-eo";
-
-function getNested(obj, ...args) {
-    return args.reduce((obj, level) => obj && obj[level], obj)
-}
+import { AssetPluginHelper } from './asset-plugin-helper';
+export const ASSET_ID_PROPERTY_NAME = AssetPluginHelper.getAssetIdPropertyName();
+export const ASSET_TYPE_PROPERTY_NAME = AssetPluginHelper.getAssetTypePropertyName();
+export const ASSET_SH_RH_CLASS = AssetPluginHelper.getAssetSpecialHandlingRH();
+export const ASSET_SH_RS_CLASS = AssetPluginHelper.getAssetSpecialHandlingRS();
+export const ASSET_SH_LD_CLASS = AssetPluginHelper.getAssetSpecialHandlingLD();
+export const ASSET_SH_EO_CLASS = AssetPluginHelper.getAssetSpecialHandlingEO();
 
 export class ImageBasedAssetPlugin extends Plugin {
     constructor(editor, pluginName, displayLabel, svgIcon, assetType) {
@@ -37,29 +31,13 @@ export class ImageBasedAssetPlugin extends Plugin {
         this.svgIcon = svgIcon;
         this.assetType = assetType;
     }
-
-    parseAssetPluginConfig() {
-        // Ensure that callbacks are defined for adding, editing, and previewing
-        const editorConfig = this.editor.config.get("asset");
-        console.log("FROM EDITOR");
-        console.log(editorConfig);
-        console.log("======");
-        const toolbarButtonCallback = getNested(editorConfig, this.pluginName, "toolbarButtonCallback");
-        if (toolbarButtonCallback == null) {
-            console.error("editor.config.asset."+this.pluginName+" is not configured properly! This plugin likely won't work as expecteed!");
-            this.toolbarButtonCallback = () => { alert("No toolbarButtonCallback function was defined!"); }
-        } else{
-            this.toolbarButtonCallback = toolbarButtonCallback;
-        }   
-    }
-
     init() {
         const editor = this.editor;
 
         // Use the configuration of the editor to define what happens when the plugin is clicked. This allows applications using this plugin
         // to define exactly what happens when a plugin is clicked on, rather than hard-coding that logic here. For example, if a user wants to show
         // an angular modal popup to show a form (i.e. for image upload), then they can do that, and then call a plugin command with form data.
-        this.parseAssetPluginConfig();
+        this.toolbarButtonCallback = AssetPluginHelper.getToolbarButtonCallbackFromConfig(editor.config, this.pluginName);
 
         // Define a command that external code can call to add an image with metadata to the editor, or edit an existing one
         this.editor.commands.add('addNewImageBasedAsset', new AddNewImage(this.editor));
@@ -148,21 +126,9 @@ class AddNewImage extends Command {
 
 export class EditImageBasedAssetPlugin extends Plugin 
 {
-    parseAssetPluginConfig() {
-        // Ensure that callbacks are defined for adding, editing, and previewing
-        const editorConfig = this.editor.config.get("asset");
-        const editButtonCallback = getNested(editorConfig, "image", "editButtonCallback");
-        if (editButtonCallback == null) {
-            console.error("editor.config.asset.image is not configured properly! This plugin likely won't work as expecteed!");
-            this.editButtonCallback = () => { alert("No editButtonCallback function was defined!"); }
-        } else{
-            this.editButtonCallback = editButtonCallback;
-        }   
-    }
-
     init() {
         const editor = this.editor;
-        this.parseAssetPluginConfig();
+        this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig(editor.config, this.pluginName);
         
         // Define the plugin
         editor.ui.componentFactory.add( "editImageBasedAsset", locale => {
@@ -203,21 +169,9 @@ class EditImage extends Command {
 
 export class PreviewImageBasedAssetPlugin extends Plugin 
 {
-    parseAssetPluginConfig() {
-        // Ensure that callbacks are defined for adding, editing, and previewing
-        const editorConfig = this.editor.config.get("asset");
-        const previewButtonCallback = getNested(editorConfig, "image", "previewButtonCallback");
-        if (previewButtonCallback == null) {
-            console.error("editor.config.asset.image is not configured properly! This plugin likely won't work as expecteed!");
-            this.previewButtonCallback = () => { alert("No editButtonCallback function was defined!"); }
-        } else{
-            this.previewButtonCallback = previewButtonCallback;
-        }   
-    }
-
     init() {
         const editor = this.editor;
-        this.parseAssetPluginConfig();
+        this.previewButtonCallback = AssetPluginHelper.getPreviewButtonCallbackFromConfig(editor.config, this.pluginName);
         
         // Define the plugin
         editor.ui.componentFactory.add( "previewImageBasedAsset", locale => {

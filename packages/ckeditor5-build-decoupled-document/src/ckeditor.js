@@ -39,8 +39,10 @@ import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation';
 import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
 import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custom-plugins/asset-plugins/image-based-asset-plugin';
-import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata';
+import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata/image-with-metadata';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
+import { HTML5VideoPlugin } from './custom-plugins/asset-plugins/html5-video-asset/html5-video-asset-plugin';
+import VideoToolbar from './custom-plugins/asset-plugins/html5-video-asset/video-toolbar';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -81,7 +83,9 @@ DecoupledEditor.builtinPlugins = [
 	RemoveMarkings,
 	ImageWithMetadataPlugin,
 	EditImageBasedAssetPlugin,
-	PreviewImageBasedAssetPlugin
+	PreviewImageBasedAssetPlugin,
+	VideoToolbar,
+	HTML5VideoPlugin
 ];
 
 // Editor configuration.
@@ -102,6 +106,7 @@ DecoupledEditor.defaultConfig = {
 			'|',
 			'removeMarkings',
 			'imageWithMetadata',
+			"html5Video",
 			'|',
 			'alignment',
 			'|',
@@ -142,6 +147,17 @@ DecoupledEditor.defaultConfig = {
 			'tableColumn',
 			'tableRow',
 			'mergeTableCells'
+		]
+	},
+	video: {
+		toolbar: [
+			'previewImageBasedAsset',
+			'|',
+			'imageStyle:alignLeft',
+			'imageStyle:full',
+			'imageStyle:alignRight',
+			'|',
+			'editImageBasedAsset'
 		]
 	},
 	// This value must be kept in sync with the language defined in webpack.config.js.
