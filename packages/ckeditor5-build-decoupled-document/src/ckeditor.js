@@ -41,8 +41,7 @@ import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
 import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custom-plugins/asset-plugins/image-based-asset-plugin';
 import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata/image-with-metadata';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
-import { HTML5VideoPlugin } from './custom-plugins/asset-plugins/html5-video-asset/html5-video-asset-plugin';
-import VideoToolbar from './custom-plugins/asset-plugins/html5-video-asset/video-toolbar';
+import { HTML5VideoPlugin, VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5-video-asset-plugin';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -84,8 +83,8 @@ DecoupledEditor.builtinPlugins = [
 	ImageWithMetadataPlugin,
 	EditImageBasedAssetPlugin,
 	PreviewImageBasedAssetPlugin,
-	VideoToolbar,
-	HTML5VideoPlugin
+	HTML5VideoPlugin,
+	VideoCaption
 ];
 
 // Editor configuration.
@@ -151,13 +150,14 @@ DecoupledEditor.defaultConfig = {
 	},
 	video: {
 		toolbar: [
-			'previewImageBasedAsset',
+			'previewHTML5Video',
 			'|',
-			'imageStyle:alignLeft',
-			'imageStyle:full',
-			'imageStyle:alignRight',
+			'videoStyle:alignLeft',
+			'videoStyle:alignCenter',
+			'videoStyle:full',
+			'videoStyle:alignRight',
 			'|',
-			'editImageBasedAsset'
+			'editHTML5Video'
 		]
 	},
 	// This value must be kept in sync with the language defined in webpack.config.js.

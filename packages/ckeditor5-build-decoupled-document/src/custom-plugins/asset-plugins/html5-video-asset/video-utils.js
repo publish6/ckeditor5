@@ -1,5 +1,7 @@
 // Functions used by multiple files
 import { findOptimalInsertionPosition, isWidget, toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
+import { enablePlaceholder } from '@ckeditor/ckeditor5-engine/src/view/placeholder';
+import { toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
 
 export function getSelectedVideoWidget( selection ) {
 	const viewElement = selection.getSelectedElement();
@@ -58,7 +60,7 @@ export function viewFigureToModel() {
 
 export function  createVideoViewElement(writer) {
     const figureElement = writer.createContainerElement('figure', {class: "html5video"});
-    const videoElement = writer.createContainerElement('video');
+    const videoElement = writer.createContainerElement('video', {disablePictureInPicture: true, alt: "", controls: 'controls'});
     writer.insert(writer.createPositionAt(figureElement, 0), videoElement);
 
     return figureElement; 
@@ -68,6 +70,14 @@ export function toVideoWidget( viewElement, writer, label ) {
 	writer.setCustomProperty( 'video', true, viewElement );
 	return toWidget( viewElement, writer, { label: label } );
 }
+
+export function convertMapIteratorToMap(data) {
+    const map = {};
+    for (let item of data) {
+      map[item[0]] = item[1];
+    }
+    return map;
+  }
 
 export function modelToViewAttributeConverter( attributeKey ) {
 	return dispatcher => {
@@ -84,6 +94,11 @@ export function modelToViewAttributeConverter( attributeKey ) {
         });
 	};
 }
+
+export function isVideo( modelElement ) {
+	return !!modelElement && modelElement.is( 'video' );
+}
+
 export function getViewVideoFromWidget( figureView ) {
 	const figureChildren = [];
 
@@ -96,4 +111,44 @@ export function getViewVideoFromWidget( figureView ) {
 	}
 
 	return figureChildren.find( viewChild => viewChild.is( 'video' ) );
+}
+
+export function captionElementCreator( view, placeholderText ) {
+	return writer => {
+		const editable = writer.createEditableElement( 'figcaption' );
+		writer.setCustomProperty( 'videoCaption', true, editable );
+
+		enablePlaceholder( {
+			view,
+			element: editable,
+			text: placeholderText
+		} );
+
+		return toWidgetEditable( editable, writer );
+	};
+}
+
+export function isCaption( viewElement ) {
+	return !!viewElement.getCustomProperty( 'videoCaption' );
+}
+
+export function getCaptionFromVideo( imageModelElement ) {
+	for ( const node of imageModelElement.getChildren() ) {
+		if ( !!node && node.is( 'caption' ) ) {
+			return node;
+		}
+	}
+
+	return null;
+}
+
+export function matchVideoCaption( element ) {
+	const parent = element.parent;
+
+	// Convert only captions for images.
+	if ( element.name == 'figcaption' && parent && parent.name == 'figure' && parent.hasClass( 'html5video' ) ) {
+		return { name: true };
+	}
+
+	return null;
 }

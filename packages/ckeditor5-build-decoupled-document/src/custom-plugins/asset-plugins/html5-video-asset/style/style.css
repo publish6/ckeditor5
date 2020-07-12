@@ -4,15 +4,29 @@
 NOTE: These are styles that are ONLY applicable to editing a document using CKEditor, NOT for rendering. If you need to add css rules
 that should be applied to the actual, consumable, document, following the guide for modifying the built content-styles.css stylesheet
 */
-.video {
+.html5video > video {
     /* 
       CKEditor REALLY doesnt like playing HTML5 video in the editor. Therefore, allow it to render as it would in the browser, but DONT let the user
       play it, or interact with it in any way.
     */
     pointer-events: none;
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
-/**
-    NOTE: THESE styles are styles that will be applied to both the editor, as well as the final, finished product
-    
-*/
+.html5video {
+  display: table;
+}
+
+.html5video > figcaption {
+  display: table-caption;
+  caption-side: bottom;
+  word-break: break-word;
+  color: #333;
+  background-color: #f7f7f7;
+  padding: .6em;
+  font-size: .75em;
+  outline-offset: -1px;
+  text-align: center;
+}

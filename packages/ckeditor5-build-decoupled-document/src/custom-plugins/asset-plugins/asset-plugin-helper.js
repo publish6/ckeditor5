@@ -12,6 +12,7 @@
 
 export const ASSET_ID_PROPERTY_NAME = "assetid";
 export const ASSET_TYPE_PROPERTY_NAME = "assettype";
+import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 export const ASSET_SH_RH_CLASS = "asset-sh-rh";
 export const ASSET_SH_RS_CLASS = "asset-sh-rs";
 export const ASSET_SH_LD_CLASS = "asset-sh-ld";
@@ -72,7 +73,7 @@ export class AssetPluginHelper {
         const editorConfig = config.get("asset");
         let toolbarButtonCallback = this.getNested(editorConfig, pluginName, "toolbarButtonCallback");
         if (toolbarButtonCallback == null) {
-            console.error("editor.config.asset."+pluginName+" is not configured properly! This plugin likely won't work as expecteed!");
+            console.error("editor.config.asset."+pluginName+".toolbarButtonCallback is not configured properly! This plugin likely won't work as expecteed!");
             toolbarButtonCallback = () => { alert("No toolbarButtonCallback function was defined!"); }
         } 
         return toolbarButtonCallback;
@@ -83,7 +84,7 @@ export class AssetPluginHelper {
         const editorConfig = config.get("asset");
         let toolbarButtonCallback = this.getNested(editorConfig, pluginName, "editButtonCallback");
         if (toolbarButtonCallback == null) {
-            console.error("editor.config.asset."+pluginName+" is not configured properly! This plugin likely won't work as expecteed!");
+            console.error("editor.config.asset."+pluginName+".editButtonCallback is not configured properly! This plugin likely won't work as expecteed!");
             toolbarButtonCallback = () => { alert("No editButtonCallback function was defined!"); }
         } 
         return toolbarButtonCallback;
@@ -94,9 +95,27 @@ export class AssetPluginHelper {
         const editorConfig = config.get("asset");
         let toolbarButtonCallback = this.getNested(editorConfig, pluginName, "previewButtonCallback");
         if (toolbarButtonCallback == null) {
-            console.error("editor.config.asset."+pluginName+" is not configured properly! This plugin likely won't work as expecteed!");
+            console.error("editor.config.asset."+pluginName+".previewButtonCallback is not configured properly! This plugin likely won't work as expecteed!");
             toolbarButtonCallback = () => { alert("No previewButtonCallback function was defined!"); }
         } 
         return toolbarButtonCallback;
+    }
+
+    static createComponent(editor, componentName, label, icon, executeCallback) {
+        editor.ui.componentFactory.add( componentName, locale => {
+            const view = new ButtonView( locale );
+
+            view.set( {
+                label: label,
+                icon: icon,
+                tooltip: true
+            } );
+
+            view.on( 'execute', () => {
+                executeCallback();
+            } );
+
+            return view;
+        } );
     }
 }

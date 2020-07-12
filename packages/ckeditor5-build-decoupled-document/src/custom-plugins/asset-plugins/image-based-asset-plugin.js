@@ -128,24 +128,11 @@ export class EditImageBasedAssetPlugin extends Plugin
 {
     init() {
         const editor = this.editor;
-        this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig(editor.config, this.pluginName);
-        
-        // Define the plugin
-        editor.ui.componentFactory.add( "editImageBasedAsset", locale => {
-            const view = new ButtonView( locale );
-            view.set( {
-                label: "Edit Asset",
-                icon: editIcon,
-                tooltip: true
-            } );
-
-            view.on( 'execute', () => {
-                const t = editor.model.document.selection.getSelectedElement();
-                this.editButtonCallback(t.getAttributes());
-            } );
-
-            return view;
-        } );
+        this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig(editor.config, "editImageBasedAsset");
+        AssetPluginHelper.createComponent(editor, "editImageBasedAsset", "Edit Asset", editIcon, () => {
+            const t = editor.model.document.selection.getSelectedElement();
+            this.editButtonCallback(t.getAttributes());
+        });
     }
 }
 
@@ -171,23 +158,10 @@ export class PreviewImageBasedAssetPlugin extends Plugin
 {
     init() {
         const editor = this.editor;
-        this.previewButtonCallback = AssetPluginHelper.getPreviewButtonCallbackFromConfig(editor.config, this.pluginName);
-        
-        // Define the plugin
-        editor.ui.componentFactory.add( "previewImageBasedAsset", locale => {
-            const view = new ButtonView( locale );
-            view.set( {
-                label: "Preview Asset",
-                icon: previewIcon,
-                tooltip: true
-            } );
-
-            view.on( 'execute', () => {
-                const t = editor.model.document.selection.getSelectedElement();
-                this.previewButtonCallback(t.getAttributes());
-            } );
-
-            return view;
-        } );
+        this.previewButtonCallback = AssetPluginHelper.getPreviewButtonCallbackFromConfig(editor.config, "previewImageBasedAsset");
+        AssetPluginHelper.createComponent(editor, "previewImageBasedAsset", "Preview Asset", previewIcon, () => {
+            const t = editor.model.document.selection.getSelectedElement();
+            this.previewButtonCallback(t.getAttributes());
+        });
     }
 }
