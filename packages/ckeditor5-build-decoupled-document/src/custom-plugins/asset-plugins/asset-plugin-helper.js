@@ -10,6 +10,10 @@
  * This plugin should NOT be instantiated directly. Instead, subclasses of this plugin should be created and used
  */
 
+ /* 
+ IMPORTANT NOTE: only use lowercase letters and hyphens in the attribute names! CKEditor automatically conerts all uppercaseletters
+ to lowercase. See https://github.com/ckeditor/ckeditor5/issues/7228. As of July 2020, it's still open.
+ */
 export const ASSET_ID_PROPERTY_NAME = "assetid";
 export const ASSET_TYPE_PROPERTY_NAME = "assettype";
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';

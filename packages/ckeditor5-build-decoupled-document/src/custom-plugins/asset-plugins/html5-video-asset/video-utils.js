@@ -17,8 +17,11 @@ export function isVideoWidget( viewElement ) {
 	return !!viewElement.getCustomProperty( 'video' ) && isWidget( viewElement );
 }
 
+
+// Converts a figure representing a video to a CKEditor video model
 export function viewFigureToModel() {
 	return dispatcher => {
+		// Fired when a figure is inserted
 		dispatcher.on( 'element:figure', converter );
 	};
 
@@ -58,6 +61,7 @@ export function viewFigureToModel() {
 	}
 }
 
+// Creates an empty video view representation, consisting of a figure that contains a "video" element
 export function  createVideoViewElement(writer) {
     const figureElement = writer.createContainerElement('figure', {class: "html5video"});
     const videoElement = writer.createContainerElement('video', {disablePictureInPicture: true, alt: "", controls: 'controls'});
@@ -145,7 +149,7 @@ export function getCaptionFromVideo( imageModelElement ) {
 export function matchVideoCaption( element ) {
 	const parent = element.parent;
 
-	// Convert only captions for images.
+	// Convert only captions for videos.
 	if ( element.name == 'figcaption' && parent && parent.name == 'figure' && parent.hasClass( 'html5video' ) ) {
 		return { name: true };
 	}
