@@ -7,7 +7,7 @@
  * when any of these buttons are clicked is defined by external applications (i.e. our "press" app). This is so that external applications can
  * use their own designs and code to define HOW the user interacts with the plugin (i.e. UI/UX, form validation, usage of frameworks like Angular, etc).
  * 
- * Heavily leverages the existing Image-based plugins already included in CKEditor 5
+ * Heavily leverages the existing Image-based plugins already included in CKEditor 5, so we get things like image styles and captions for free.
  * 
  * This plugin should NOT be instantiated directly. Instead, subclasses of this plugin should be created and used
  */
