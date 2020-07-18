@@ -16,7 +16,7 @@ import fullWidthIcon from '@ckeditor/ckeditor5-core/theme/icons/object-full-widt
 import leftIcon from '@ckeditor/ckeditor5-core/theme/icons/object-left.svg';
 import centerIcon from '@ckeditor/ckeditor5-core/theme/icons/object-center.svg';
 import rightIcon from '@ckeditor/ckeditor5-core/theme/icons/object-right.svg';
-import { AssetPluginHelper } from '../asset-plugin-helper';
+import AssetPluginHelper from '../asset-plugin-helper';
 import { getSelectedVideoWidget, captionElementCreator, getCaptionFromVideo, matchVideoCaption, convertMapIteratorToMap, viewFigureToModel, createVideoViewElement, toVideoWidget, modelToViewAttributeConverter, isVideo, isVideoWidget } from './video-utils';
 import Observer from '@ckeditor/ckeditor5-engine/src/view/observer/observer';
 import './style/style.css';
@@ -32,10 +32,11 @@ export const VIDEO_ALIGN_LEFT_STYLE = "alignLeft";
 export const VIDEO_ALIGN_RIGHT_STYLE = "alignRight";
 export const VIDEO_ALIGN_CENTER_STYLE = "alignCenter";
 export const VIDEO_ALIGN_FULL_STYLE = "full";
-export const ASSET_SH_RH_CLASS = AssetPluginHelper.getAssetSpecialHandlingRH();
-export const ASSET_SH_RS_CLASS = AssetPluginHelper.getAssetSpecialHandlingRS();
-export const ASSET_SH_LD_CLASS = AssetPluginHelper.getAssetSpecialHandlingLD();
-export const ASSET_SH_EO_CLASS = AssetPluginHelper.getAssetSpecialHandlingEO();
+export const ASSET_SH_RH_CLASS = AssetPluginHelper.getClassForSpecialHandlingRH();
+export const ASSET_SH_RS_CLASS = AssetPluginHelper.getClassForSpecialHandlingRS();
+export const ASSET_SH_LD_CLASS = AssetPluginHelper.getClassForSpecialHandlingLD();
+export const ASSET_SH_EO_CLASS = AssetPluginHelper.getClassForSpecialHandlingEO();
+export const ASSET_SH_NONE_CLASS = AssetPluginHelper.getClassForSpecialHandlingNone();
 
 // Define the styles available for video. Each one contains the name, title, icon, and associate classname
 export const VIDEO_STYLES = {};
@@ -102,8 +103,9 @@ export class HTML5VideoPlugin extends Plugin {
         // Registers a new element in the CKEditor schema that represents a video.
         this.addVideoSchema(editor);
 
-        // Add the command that external code can invoke to programmatically add a video to the editor
-        this.editor.commands.add('addNewVideo', new AddNewVideo(this.editor));
+        // Add the command that external code can invoke to programmatically add or edit a video to the editor
+		this.editor.commands.add('addNewVideo', new AddNewVideo(this.editor));
+		this.editor.commands.add('editVideo', new EditVideo(this.editor));
         
         // Define the components for Add, Edit, and Preview videoc components, which call their respective callback functions when executed
         AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, "Add HTML5 Video", addVideoIcon, () => {
@@ -233,34 +235,46 @@ export class HTML5VideoPlugin extends Plugin {
             view: videoStyleViewDef
         });
 
+        const specialHandlingModelToViewMap = {};
+        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingEO()] = {
+            name: 'figure',
+            key: 'class',
+            value: ['video', ASSET_SH_EO_CLASS]
+        };
+        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingLD()] = {
+            name: 'figure',
+            key: 'class',
+            value: ['video', ASSET_SH_LD_CLASS]
+        };
+        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRH()] = {
+            name: 'figure',
+            key: 'class',
+            value: ['video', ASSET_SH_RH_CLASS]
+        };
+        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRS()] = {
+            name: 'figure',
+            key: 'class',
+            value: ['video', ASSET_SH_RS_CLASS]
+        };
+        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingNone()] = {
+            name: 'figure',
+            key: 'class',
+            value: ['video', ASSET_SH_NONE_CLASS]
+        };
+
         editor.conversion.attributeToAttribute({
             model: {
                 name: 'video',
                 key: 'specialHandling',
-                values: [ASSET_SH_RH_CLASS, ASSET_SH_RS_CLASS, ASSET_SH_EO_CLASS, ASSET_SH_LD_CLASS]
+                values: [
+                    AssetPluginHelper.getAbbrForSpecialHandlingEO(),
+                    AssetPluginHelper.getAbbrForSpecialHandlingLD(),
+                    AssetPluginHelper.getAbbrForSpecialHandlingRS(),
+                    AssetPluginHelper.getAbbrForSpecialHandlingRH(),
+                    AssetPluginHelper.getAbbrForSpecialHandlingNone()
+                ]
             },
-            view: {
-                'asset-sh-rh': {
-                    name: 'figure',
-                    key: 'class',
-                    value: ['video', ASSET_SH_RH_CLASS]
-                }, 
-                'asset-sh-ld': {
-                    name: 'figure',
-                    key: 'class',
-                    value: ['video', ASSET_SH_LD_CLASS]
-                }, 
-                'asset-sh-eo' : {
-                    name: 'figure',
-                    key: 'class',
-                    value: ['video', ASSET_SH_EO_CLASS]
-                }, 
-                'asset-sh-rs': {
-                    name: 'figure',
-                    key: 'class',
-                    value: ['video', ASSET_SH_RS_CLASS]
-                }
-            }
+            view: specialHandlingModelToViewMap
         });
     }
 }
@@ -288,7 +302,7 @@ class EditVideo extends Command {
             const element = editor.model.document.selection.getSelectedElement();
             writer.setAttribute("src", url, element);
             writer.setAttribute( AssetPluginHelper.getAssetIdPropertyName(), assetID, element);
-            writer.setAttribute("class", assetSHClass, element);
+            writer.setAttribute("specialHandling", assetSHClass, element);
         } );
     }
 }

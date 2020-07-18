@@ -17,13 +17,14 @@ import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import editIcon from './icons/editicon.svg'
 import previewIcon from './icons/previewicon.svg'
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import { AssetPluginHelper } from './asset-plugin-helper';
+import AssetPluginHelper from './asset-plugin-helper';
 export const ASSET_ID_PROPERTY_NAME = AssetPluginHelper.getAssetIdPropertyName();
 export const ASSET_TYPE_PROPERTY_NAME = AssetPluginHelper.getAssetTypePropertyName();
-export const ASSET_SH_RH_CLASS = AssetPluginHelper.getAssetSpecialHandlingRH();
-export const ASSET_SH_RS_CLASS = AssetPluginHelper.getAssetSpecialHandlingRS();
-export const ASSET_SH_LD_CLASS = AssetPluginHelper.getAssetSpecialHandlingLD();
-export const ASSET_SH_EO_CLASS = AssetPluginHelper.getAssetSpecialHandlingEO();
+export const ASSET_SH_RH_CLASS = AssetPluginHelper.getClassForSpecialHandlingRH();
+export const ASSET_SH_RS_CLASS = AssetPluginHelper.getClassForSpecialHandlingRS();
+export const ASSET_SH_LD_CLASS = AssetPluginHelper.getClassForSpecialHandlingLD();
+export const ASSET_SH_EO_CLASS = AssetPluginHelper.getClassForSpecialHandlingEO();
+export const ASSET_SH_NONE_CLASS = AssetPluginHelper.getClassForSpecialHandlingNone();
 
 export class ImageBasedAssetPlugin extends Plugin {
     constructor(editor, pluginName, displayLabel, svgIcon, assetType) {
@@ -52,37 +53,49 @@ export class ImageBasedAssetPlugin extends Plugin {
             // Configure the editor to allow "asset-id" and "asset-type" attributes, as well as special handling
             // classes. The idea here is to define mappings for upcasting and downcasting (going from view to
             // model, and from model to view).
-            editor.model.schema.extend( 'image', { allowAttributes: [ASSET_ID_PROPERTY_NAME, ASSET_TYPE_PROPERTY_NAME, 'class'] } );
+            editor.model.schema.extend( 'image', { allowAttributes: [ASSET_ID_PROPERTY_NAME, ASSET_TYPE_PROPERTY_NAME, 'specialHandling'] } );
             editor.conversion.attributeToAttribute({ model: ASSET_TYPE_PROPERTY_NAME, view: ASSET_TYPE_PROPERTY_NAME });
             editor.conversion.attributeToAttribute({ model: ASSET_ID_PROPERTY_NAME, view: ASSET_ID_PROPERTY_NAME });
+            const specialHandlingModelToViewMap = {};
+            specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingEO()] = {
+                name: 'figure',
+                key: 'class',
+                value: ['image', ASSET_SH_EO_CLASS]
+            };
+            specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingLD()] = {
+                name: 'figure',
+                key: 'class',
+                value: ['image', ASSET_SH_LD_CLASS]
+            };
+            specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRH()] = {
+                name: 'figure',
+                key: 'class',
+                value: ['image', ASSET_SH_RH_CLASS]
+            };
+            specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRS()] = {
+                name: 'figure',
+                key: 'class',
+                value: ['image', ASSET_SH_RS_CLASS]
+            };
+            specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingNone()] = {
+                name: 'figure',
+                key: 'class',
+                value: ['image', ASSET_SH_NONE_CLASS]
+            };
+
             editor.conversion.attributeToAttribute({
                 model: {
                     name: 'image',
-                    key: 'class',
-                    values: [ASSET_SH_RH_CLASS, ASSET_SH_RS_CLASS, ASSET_SH_EO_CLASS, ASSET_SH_LD_CLASS]
+                    key: 'specialHandling',
+                    values: [
+                        AssetPluginHelper.getAbbrForSpecialHandlingEO(),
+                        AssetPluginHelper.getAbbrForSpecialHandlingLD(),
+                        AssetPluginHelper.getAbbrForSpecialHandlingRS(),
+                        AssetPluginHelper.getAbbrForSpecialHandlingRH(),
+                        AssetPluginHelper.getAbbrForSpecialHandlingNone()
+                    ]
                 },
-                view: {
-                    'asset-sh-rh': {
-                        name: 'figure',
-                        key: 'class',
-                        value: ['image', ASSET_SH_RH_CLASS]
-                    }, 
-                    'asset-sh-ld': {
-                        name: 'figure',
-                        key: 'class',
-                        value: ['image', ASSET_SH_LD_CLASS]
-                    }, 
-                    'asset-sh-eo' : {
-                        name: 'figure',
-                        key: 'class',
-                        value: ['image', ASSET_SH_EO_CLASS]
-                    }, 
-                    'asset-sh-rs': {
-                        name: 'figure',
-                        key: 'class',
-                        value: ['image', ASSET_SH_RS_CLASS]
-                    }
-                }
+                view: specialHandlingModelToViewMap
             });
 
             // Create the button using the plugin label and the plugin icon
@@ -114,7 +127,7 @@ class AddNewImage extends Command {
             const newData = {
                 src: url,
                 imageStyle: style,
-                class: assetSHClass
+                specialHandling: assetSHClass
             };
             newData[ASSET_ID_PROPERTY_NAME] = assetID;
             newData[ASSET_TYPE_PROPERTY_NAME] = assetType;
@@ -150,7 +163,7 @@ class EditImage extends Command {
             writer.setAttribute("imageStyle", style, element);
             writer.setAttribute(ASSET_ID_PROPERTY_NAME, assetID, element);
             writer.setAttribute(ASSET_TYPE_PROPERTY_NAME, assetType, element);
-            writer.setAttribute("class", assetSHClass, element);
+            writer.setAttribute("specialHandling", assetSHClass, element);
         } );
     }
 }

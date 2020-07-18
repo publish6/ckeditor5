@@ -21,8 +21,14 @@ export const ASSET_SH_RH_CLASS = "asset-sh-rh";
 export const ASSET_SH_RS_CLASS = "asset-sh-rs";
 export const ASSET_SH_LD_CLASS = "asset-sh-ld";
 export const ASSET_SH_EO_CLASS = "asset-sh-eo";
+export const ASSET_SH_NONE_CLASS = "asset-sh-none";
+export const ASSET_SH_RH = "rh";
+export const ASSET_SH_RS = "rs";
+export const ASSET_SH_LD = "ld";
+export const ASSET_SH_EO = "eo";
+export const ASSET_SH_NONE = "none";
 
-export class AssetPluginHelper {
+export default class AssetPluginHelper {
     static getAssetIdPropertyName() {
         return ASSET_ID_PROPERTY_NAME;
     }
@@ -31,20 +37,49 @@ export class AssetPluginHelper {
         return ASSET_TYPE_PROPERTY_NAME;
     }
 
-    static getAssetSpecialHandlingRH() {
+    static getClassForSpecialHandlingRH() {
         return ASSET_SH_RH_CLASS;
     }
 
-    static getAssetSpecialHandlingRS() {
+    static getClassForSpecialHandlingRS() {
         return ASSET_SH_RS_CLASS;
     }
     
-    static getAssetSpecialHandlingLD() {
+    static getClassForSpecialHandlingLD() {
         return ASSET_SH_LD_CLASS;
     }
 
-    static getAssetSpecialHandlingEO() {
+    static getClassForSpecialHandlingEO() {
         return ASSET_SH_EO_CLASS;
+    }
+
+    static getClassForSpecialHandlingNone() {
+        return ASSET_SH_NONE_CLASS;
+    }
+
+
+    static getAssetTypePropertyName() {
+        return ASSET_TYPE_PROPERTY_NAME;
+    }
+
+    static getAbbrForSpecialHandlingRH() {
+        return ASSET_SH_RH;
+    }
+
+    static getAbbrForSpecialHandlingRS() {
+        return ASSET_SH_RS;
+    }
+    
+    static getAbbrForSpecialHandlingLD() {
+        return ASSET_SH_LD;
+    }
+
+    static getAbbrForSpecialHandlingEO() {
+        return ASSET_SH_EO;
+    }
+
+    static getAbbrForSpecialHandlingNone() {
+        return ASSET_SH_NONE;
     }
 
     /**
