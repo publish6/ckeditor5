@@ -297,7 +297,7 @@ class AddNewVideo extends Command {
 }
 
 class EditVideo extends Command {
-    execute(url, style, assetID, assetSHClass) {
+    execute(url, assetID, assetSHClass) {
         this.editor.model.change( writer => {
             const element = editor.model.document.selection.getSelectedElement();
             writer.setAttribute("src", url, element);

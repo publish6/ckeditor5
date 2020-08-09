@@ -156,11 +156,10 @@ export class EditImageBasedAssetPlugin extends Plugin
  * A command that should be invoked by external applications for editing the currently-selected image
  */
 class EditImage extends Command {
-    execute(url, style, assetID, assetType, assetSHClass) {
+    execute(url, assetID, assetType, assetSHClass) {
         this.editor.model.change( writer => {
             const element = editor.model.document.selection.getSelectedElement();
             writer.setAttribute("src", url, element);
-            writer.setAttribute("imageStyle", style, element);
             writer.setAttribute(ASSET_ID_PROPERTY_NAME, assetID, element);
             writer.setAttribute(ASSET_TYPE_PROPERTY_NAME, assetType, element);
             writer.setAttribute("specialHandling", assetSHClass, element);
