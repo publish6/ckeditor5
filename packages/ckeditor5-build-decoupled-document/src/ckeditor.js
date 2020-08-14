@@ -42,6 +42,7 @@ import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custo
 import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata/image-with-metadata';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import { HTML5VideoPlugin, VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5-video-asset-plugin';
+import { ClassifyPlugin } from './custom-plugins/generic-plugins/classify';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -84,13 +85,15 @@ DecoupledEditor.builtinPlugins = [
 	EditImageBasedAssetPlugin,
 	PreviewImageBasedAssetPlugin,
 	HTML5VideoPlugin,
-	VideoCaption
+	VideoCaption,
+	ClassifyPlugin
 ];
 
 // Editor configuration.
 DecoupledEditor.defaultConfig = {
 	toolbar: {
 		items: [
+			'classify',
 			'heading',
 			'|',
 			'fontfamily',
