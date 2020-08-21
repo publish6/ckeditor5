@@ -435,7 +435,7 @@ export class VideoCaption extends Plugin {
 		const modelSelection = this.editor.model.document.selection;
 		const selectedElement = modelSelection.getSelectedElement();
 
-		if ( selectedElement && selectedElement.is( 'video' ) ) {
+		if ( selectedElement && selectedElement.is( 'element', 'video' ) ) {
 			const modelCaption = getCaptionFromVideo( selectedElement );
 			viewCaption = mapper.toViewElement( modelCaption );
 		}
@@ -509,13 +509,13 @@ export class VideoCaption extends Plugin {
 			if ( entry.type == 'insert' && entry.name != '$text' ) {
 				const item = entry.position.nodeAfter;
 
-				if ( item.is( 'video' ) && !getCaptionFromVideo( item ) ) {
+				if ( item.is( 'element', 'video' ) && !getCaptionFromVideo( item ) ) {
 					videosWithoutCaption.push( item );
 				}
 
-				if ( !item.is( 'video' ) && item.childCount ) {
+				if ( !item.is( 'element', 'video' ) && item.childCount ) {
 					for ( const nestedItem of model.createRangeIn( item ).getItems() ) {
-						if ( nestedItem.is( 'video' ) && !getCaptionFromVideo( nestedItem ) ) {
+						if ( nestedItem.is( 'element', 'video' ) && !getCaptionFromVideo( nestedItem ) ) {
 							videosWithoutCaption.push( nestedItem );
 						}
 					}

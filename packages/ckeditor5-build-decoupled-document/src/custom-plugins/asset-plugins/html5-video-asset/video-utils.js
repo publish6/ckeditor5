@@ -100,7 +100,7 @@ export function modelToViewAttributeConverter( attributeKey ) {
 }
 
 export function isVideo( modelElement ) {
-	return !!modelElement && modelElement.is( 'video' );
+	return !!modelElement && modelElement.is( 'element', 'video' );
 }
 
 export function getViewVideoFromWidget( figureView ) {
@@ -114,7 +114,7 @@ export function getViewVideoFromWidget( figureView ) {
 		}
 	}
 
-	return figureChildren.find( viewChild => viewChild.is( 'video' ) );
+	return figureChildren.find( viewChild => viewChild.is( 'element', 'video' ) );
 }
 
 export function captionElementCreator( view, placeholderText ) {
@@ -138,7 +138,7 @@ export function isCaption( viewElement ) {
 
 export function getCaptionFromVideo( imageModelElement ) {
 	for ( const node of imageModelElement.getChildren() ) {
-		if ( !!node && node.is( 'caption' ) ) {
+		if ( !!node && node.is( 'element', 'caption' ) ) {
 			return node;
 		}
 	}
