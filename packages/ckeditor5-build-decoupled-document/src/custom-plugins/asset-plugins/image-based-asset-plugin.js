@@ -145,7 +145,7 @@ export class EditImageBasedAssetPlugin extends Plugin
 		this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig( editor.config, 'editImageBasedAsset' );
 		AssetPluginHelper.createComponent( editor, 'editImageBasedAsset', 'Edit Asset', editIcon, () => {
 			const t = editor.model.document.selection.getSelectedElement();
-			this.editButtonCallback( t.getAttributes() );
+			this.editButtonCallback( t, t.getAttributes() );
 		} );
 	}
 }
@@ -154,13 +154,17 @@ export class EditImageBasedAssetPlugin extends Plugin
  * A command that should be invoked by external applications for editing the currently-selected image
  */
 class EditImage extends Command {
-	execute( url, assetID, assetType, assetSHClass ) {
-		const editor = this.editor;
+	execute( element, url, assetID, assetType, assetSHClass ) {
 		this.editor.model.change( writer => {
-			const element = editor.model.document.selection.getSelectedElement();
+			console.log("ELEMENT IS : ");
+			console.warn(element);
+			console.log("Writing url: "+url);
 			writer.setAttribute( 'src', url, element );
+			console.log("Writing assetid: "+assetID);
 			writer.setAttribute( ASSET_ID_PROPERTY_NAME, assetID, element );
+			console.log("Writing type: "+assetType);
 			writer.setAttribute( ASSET_TYPE_PROPERTY_NAME, assetType, element );
+			console.log("Writing sh: "+assetSHClass);
 			writer.setAttribute( 'specialHandling', assetSHClass, element );
 		} );
 	}
