@@ -155,6 +155,7 @@ export class EditImageBasedAssetPlugin extends Plugin
  */
 class EditImage extends Command {
 	execute( url, assetID, assetType, assetSHClass ) {
+		const editor = this.editor;
 		this.editor.model.change( writer => {
 			const element = editor.model.document.selection.getSelectedElement();
 			writer.setAttribute( 'src', url, element );

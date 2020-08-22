@@ -12,6 +12,7 @@ git remote add upstream https://github.com/ckeditor/ckeditor5
 
 # Run to perform the update. It's important that we only update from the stable branch
 git pull upstream stable
+
 ```
 
 ## Developing CKEditor
