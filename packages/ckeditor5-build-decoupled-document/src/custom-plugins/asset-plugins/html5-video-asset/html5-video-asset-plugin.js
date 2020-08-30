@@ -41,270 +41,270 @@ export const ASSET_SH_NONE_CLASS = AssetPluginHelper.getClassForSpecialHandlingN
 // Define the styles available for video. Each one contains the name, title, icon, and associate classname
 export const VIDEO_STYLES = {};
 VIDEO_STYLES[VIDEO_ALIGN_FULL_STYLE] = {
-    name: 'full',
-    title: 'Full size video',
-    icon: fullWidthIcon,
-    isDefault: true,
-    className: 'image-style-full'
+	name: 'full',
+	title: 'Full size video',
+	icon: fullWidthIcon,
+	isDefault: true,
+	className: 'image-style-full'
 };
 VIDEO_STYLES[VIDEO_ALIGN_LEFT_STYLE] = {
-    name: 'alignLeft',
-    title: 'Left-aligned video',
-    icon: leftIcon,
-    className: 'image-style-align-left'
+	name: 'alignLeft',
+	title: 'Left-aligned video',
+	icon: leftIcon,
+	className: 'image-style-align-left'
 };
 VIDEO_STYLES[VIDEO_ALIGN_RIGHT_STYLE] = {
-    name: 'alignRight',
-    title: 'Right-aligned video',
-    icon: rightIcon,
-    className: 'image-style-align-right'
+	name: 'alignRight',
+	title: 'Right-aligned video',
+	icon: rightIcon,
+	className: 'image-style-align-right'
 };
 VIDEO_STYLES[VIDEO_ALIGN_CENTER_STYLE] = {
-    name: 'alignCenter',
-    title: 'Center-aligned video',
-    icon: centerIcon,
-    className: 'image-style-align-center'
+	name: 'alignCenter',
+	title: 'Center-aligned video',
+	icon: centerIcon,
+	className: 'image-style-align-center'
 };
 
 export class HTML5VideoPlugin extends Plugin {
 	static get requires() {
 		return [ Widget ];
-    }
+	}
     
-    constructor(editor) {
-        super(editor);
-        this.pluginName = VIDEO_PLUGIN_NAME;
-    }
+	constructor(editor) {
+		super(editor);
+		this.pluginName = VIDEO_PLUGIN_NAME;
+	}
 
-    // If a preview button handler isn't defined, default to simply showing the source directly in a new tab
-    defaultPreviewButtonHandler(data) {
-        const map = convertMapIteratorToMap(data);
-        if (map["assettype"] == 'video') {
-            window.open(map["src"], "_blank");
-        }
-    }
+	// If a preview button handler isn't defined, default to simply showing the source directly in a new tab
+	defaultPreviewButtonHandler(data) {
+		const map = convertMapIteratorToMap(data);
+		if (map["assettype"] == 'video') {
+			window.open(map["src"], "_blank");
+		}
+	}
 
-    init() {
-        const editor = this.editor;
+	init() {
+		const editor = this.editor;
 
-        // Get the toolbar button callback (fired when the button is clicked) and the edit button callback
-        this.toolbarButtonCallback = AssetPluginHelper.getToolbarButtonCallbackFromConfig(editor.config, this.pluginName);
-        this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig(editor.config, this.pluginName);
+		// Get the toolbar button callback (fired when the button is clicked) and the edit button callback
+		this.toolbarButtonCallback = AssetPluginHelper.getToolbarButtonCallbackFromConfig(editor.config, this.pluginName);
+		this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig(editor.config, this.pluginName);
 
-        // If the user didn't define a preview button callback, use the default one
-        const userSuppliedPreviewCallback = AssetPluginHelper.getNested(editor.config, this.pluginName, "previewButtonCallback");
-        if (userSuppliedPreviewCallback == null) {
-            console.log("No Preview handler defined for HTML5Video plugin. Using default new-tab hander!");
-            this.previewButtonCallback = this.defaultPreviewButtonHandler;
-        } else {
-            this.previewButtonCallback = userSuppliedPreviewCallback;
-        }
+		// If the user didn't define a preview button callback, use the default one
+		const userSuppliedPreviewCallback = AssetPluginHelper.getNested(editor.config, this.pluginName, "previewButtonCallback");
+		if (userSuppliedPreviewCallback == null) {
+			console.log("No Preview handler defined for HTML5Video plugin. Using default new-tab hander!");
+			this.previewButtonCallback = this.defaultPreviewButtonHandler;
+		} else {
+			this.previewButtonCallback = userSuppliedPreviewCallback;
+		}
 
-        // Registers a new element in the CKEditor schema that represents a video.
-        this.addVideoSchema(editor);
+		// Registers a new element in the CKEditor schema that represents a video.
+		this.addVideoSchema(editor);
 
-        // Add the command that external code can invoke to programmatically add or edit a video to the editor
+		// Add the command that external code can invoke to programmatically add or edit a video to the editor
 		this.editor.commands.add('addNewVideo', new AddNewVideo(this.editor));
 		this.editor.commands.add('editVideo', new EditVideo(this.editor));
         
-        // Define the components for Add, Edit, and Preview videoc components, which call their respective callback functions when executed
-        AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, "Add HTML5 Video", addVideoIcon, () => {
-            this.toolbarButtonCallback();
-        });
-        AssetPluginHelper.createComponent(editor, EDIT_VIDEO_PLUGIN_NAME, "Edit HTML5 Video", editIcon, () => {
-            const t = editor.model.document.selection.getSelectedElement();
-            this.editButtonCallback(t.getAttributes());
-        });
-        AssetPluginHelper.createComponent(editor, PREVIEW_VIDEO_PLUGIN_NAME, "Preview Asset", previewIcon, () => {
-            const t = editor.model.document.selection.getSelectedElement();
-            this.previewButtonCallback(t.getAttributes());
-        });
+		// Define the components for Add, Edit, and Preview videoc components, which call their respective callback functions when executed
+		AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, "Add HTML5 Video", addVideoIcon, () => {
+			this.toolbarButtonCallback();
+		});
+		AssetPluginHelper.createComponent(editor, EDIT_VIDEO_PLUGIN_NAME, "Edit HTML5 Video", editIcon, () => {
+			const t = editor.model.document.selection.getSelectedElement();
+			this.editButtonCallback(t.getAttributes());
+		});
+		AssetPluginHelper.createComponent(editor, PREVIEW_VIDEO_PLUGIN_NAME, "Preview Asset", previewIcon, () => {
+			const t = editor.model.document.selection.getSelectedElement();
+			this.previewButtonCallback(t.getAttributes());
+		});
 
-        // Create a component for each style
-        editor.commands.add( 'videoStyle', new VideoStyleCommand( editor, VIDEO_STYLES ) );
-        for (const styleName in VIDEO_STYLES) {
-            const style = VIDEO_STYLES[styleName];
-            const componentName = `videoStyle:${ style.name }`;
-            editor.ui.componentFactory.add( componentName, locale => {
-                const command = editor.commands.get( 'videoStyle' );
-                const view = new ButtonView( locale );
-                view.set( {
-                    label: style.title,
-                    icon: style.icon,
-                    tooltip: true,
-                    isToggleable: true
-                } );
+		// Create a component for each style
+		editor.commands.add( 'videoStyle', new VideoStyleCommand( editor, VIDEO_STYLES ) );
+		for (const styleName in VIDEO_STYLES) {
+			const style = VIDEO_STYLES[styleName];
+			const componentName = `videoStyle:${ style.name }`;
+			editor.ui.componentFactory.add( componentName, locale => {
+				const command = editor.commands.get( 'videoStyle' );
+				const view = new ButtonView( locale );
+				view.set( {
+					label: style.title,
+					icon: style.icon,
+					tooltip: true,
+					isToggleable: true
+				} );
     
-                // Bind the state of the button to the comnand. This makes it so that, when the user clicks the button,
-                // the style is applied AND the button shows that it is enabled and active
-                view.bind( 'isEnabled' ).to( command, 'isEnabled' );
-                view.bind( 'isOn' ).to( command, 'value', value => value === style.name );
-                this.listenTo( view, 'execute', () => {
-                    editor.execute( 'videoStyle', { value: style.name } );
-                    editor.editing.view.focus();
-                } );
+				// Bind the state of the button to the comnand. This makes it so that, when the user clicks the button,
+				// the style is applied AND the button shows that it is enabled and active
+				view.bind( 'isEnabled' ).to( command, 'isEnabled' );
+				view.bind( 'isOn' ).to( command, 'value', value => value === style.name );
+				this.listenTo( view, 'execute', () => {
+					editor.execute( 'videoStyle', { value: style.name } );
+					editor.editing.view.focus();
+				} );
     
-                return view;
-            } );
-        }
-    }
+				return view;
+			} );
+		}
+	}
 
 	afterInit() {
 		const editor = this.editor;
 		const t = editor.t;
 		const widgetToolbarRepository = editor.plugins.get( WidgetToolbarRepository );
 
-        // Registers a widget toolbar for the video. Used to show the style buttons, the edit button, and the preview button
+		// Registers a widget toolbar for the video. Used to show the style buttons, the edit button, and the preview button
 		widgetToolbarRepository.register( 'video', {
 			ariaLabel: t( 'Video toolbar' ),
-			items: editor.config.get( 'video.toolbar' ) || [],
+			items: editor.config.get( VIDEO_PLUGIN_NAME + '.toolbar' ) || [],
 			getRelatedElement: getSelectedVideoWidget
 		} );
 	}
 
-    addVideoSchema(editor) {
-        // Register a new video model element. 
-        const allowedAttributes = ['height', 'class', 'src', 'type', 'width', 'specialHandling', 'videoStyle', AssetPluginHelper.getAssetIdPropertyName(), AssetPluginHelper.getAssetTypePropertyName()];
-        const schema = editor.model.schema;
-        const t = editor.t;
-        editor.editing.view.addObserver( VideoLoadObserver ); // TODO: not sure what this does yet.
-        schema.register("video", {
-            isObject: true,
-            isBlock: true,
-            allowWhere: '$block',
-            allowAttributes: allowedAttributes
-        });
+	addVideoSchema(editor) {
+		// Register a new video model element. 
+		const allowedAttributes = ['height', 'class', 'src', 'type', 'width', 'specialHandling', 'videoStyle', AssetPluginHelper.getAssetIdPropertyName(), AssetPluginHelper.getAssetTypePropertyName()];
+		const schema = editor.model.schema;
+		const t = editor.t;
+		editor.editing.view.addObserver( VideoLoadObserver ); // TODO: not sure what this does yet.
+		schema.register("video", {
+			isObject: true,
+			isBlock: true,
+			allowWhere: '$block',
+			allowAttributes: allowedAttributes
+		});
 
-        // Define how the model element is converted to HTML
-        const conversion = this.editor.conversion;
-        conversion.for( 'downcast' ).add( modelToViewAttributeConverter( 'src' ) );
+		// Define how the model element is converted to HTML
+		const conversion = this.editor.conversion;
+		conversion.for( 'downcast' ).add( modelToViewAttributeConverter( 'src' ) );
 
-        // Define how the model element is converted to HTML specifically when loading from a datasource
+		// Define how the model element is converted to HTML specifically when loading from a datasource
 		conversion.for( 'dataDowncast' ).elementToElement( {
 			model: 'video',
 			view: ( modelElement, viewWriter ) => createVideoViewElement( viewWriter )
 		} );
 
-        // Define how the model element is converted to HTML specifically when editing the model element
+		// Define how the model element is converted to HTML specifically when editing the model element
 		conversion.for( 'editingDowncast' ).elementToElement( {
 			model: 'video',
 			view: ( modelElement, viewWriter ) => toVideoWidget( createVideoViewElement( viewWriter ), viewWriter, t( 'video widget' ) )
-        } );
+		} );
 
-        // Define how the model element is converted FROM HTML to a model element
-        conversion.for( 'upcast' )
-        .elementToElement( {
-            view: {
-                name: 'video',
-                attributes: {
-                    src: true
-                }
-            },
-            model: ( viewImage, modelWriter ) => modelWriter.createElement( 'video', { src: viewImage.getAttribute( 'src' ) } )
-        } )
-        .add( viewFigureToModel() );
+		// Define how the model element is converted FROM HTML to a model element
+		conversion.for( 'upcast' )
+			.elementToElement( {
+				view: {
+					name: 'video',
+					attributes: {
+						src: true
+					}
+				},
+				model: ( viewImage, modelWriter ) => modelWriter.createElement( 'video', { src: viewImage.getAttribute( 'src' ) } )
+			} )
+			.add( viewFigureToModel() );
 
-        // Define how the styles are converted to/from classes. Note that we're re-using the classes that CKEditor already uses for images
-        const videoStyleViewDef = {};
-        videoStyleViewDef[VIDEO_ALIGN_CENTER_STYLE] = {
-            name: 'figure',
-            key: 'class',
-            value: ['image-style-align-center']
-        }
-        videoStyleViewDef[VIDEO_ALIGN_LEFT_STYLE] = {
-            name: 'figure',
-            key: 'class',
-            value: [ 'image-style-align-left']
-        }
-        videoStyleViewDef[VIDEO_ALIGN_RIGHT_STYLE] = {
-            name: 'figure',
-            key: 'class',
-            value: [ 'image-style-align-right']
-        }
-        videoStyleViewDef[VIDEO_ALIGN_FULL_STYLE] = {
-            name: 'figure',
-            key: 'class',
-            value: [ 'image-style-full']
-        }
-        editor.conversion.attributeToAttribute({
-            model: {
-                name: 'video',
-                key: 'videoStyle',
-                values: [VIDEO_ALIGN_CENTER_STYLE, VIDEO_ALIGN_LEFT_STYLE, VIDEO_ALIGN_RIGHT_STYLE, VIDEO_ALIGN_FULL_STYLE]
-            },
-            view: videoStyleViewDef
-        });
+		// Define how the styles are converted to/from classes. Note that we're re-using the classes that CKEditor already uses for images
+		const videoStyleViewDef = {};
+		videoStyleViewDef[VIDEO_ALIGN_CENTER_STYLE] = {
+			name: 'figure',
+			key: 'class',
+			value: ['image-style-align-center']
+		}
+		videoStyleViewDef[VIDEO_ALIGN_LEFT_STYLE] = {
+			name: 'figure',
+			key: 'class',
+			value: [ 'image-style-align-left']
+		}
+		videoStyleViewDef[VIDEO_ALIGN_RIGHT_STYLE] = {
+			name: 'figure',
+			key: 'class',
+			value: [ 'image-style-align-right']
+		}
+		videoStyleViewDef[VIDEO_ALIGN_FULL_STYLE] = {
+			name: 'figure',
+			key: 'class',
+			value: [ 'image-style-full']
+		}
+		editor.conversion.attributeToAttribute({
+			model: {
+				name: 'video',
+				key: 'videoStyle',
+				values: [VIDEO_ALIGN_CENTER_STYLE, VIDEO_ALIGN_LEFT_STYLE, VIDEO_ALIGN_RIGHT_STYLE, VIDEO_ALIGN_FULL_STYLE]
+			},
+			view: videoStyleViewDef
+		});
 
-        const specialHandlingModelToViewMap = {};
-        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingEO()] = {
-            name: 'figure',
-            key: 'class',
-            value: ['video', ASSET_SH_EO_CLASS]
-        };
-        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingLD()] = {
-            name: 'figure',
-            key: 'class',
-            value: ['video', ASSET_SH_LD_CLASS]
-        };
-        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRH()] = {
-            name: 'figure',
-            key: 'class',
-            value: ['video', ASSET_SH_RH_CLASS]
-        };
-        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRS()] = {
-            name: 'figure',
-            key: 'class',
-            value: ['video', ASSET_SH_RS_CLASS]
-        };
-        specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingNone()] = {
-            name: 'figure',
-            key: 'class',
-            value: ['video', ASSET_SH_NONE_CLASS]
-        };
+		const specialHandlingModelToViewMap = {};
+		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingEO()] = {
+			name: 'figure',
+			key: 'class',
+			value: ['video', ASSET_SH_EO_CLASS]
+		};
+		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingLD()] = {
+			name: 'figure',
+			key: 'class',
+			value: ['video', ASSET_SH_LD_CLASS]
+		};
+		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRH()] = {
+			name: 'figure',
+			key: 'class',
+			value: ['video', ASSET_SH_RH_CLASS]
+		};
+		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRS()] = {
+			name: 'figure',
+			key: 'class',
+			value: ['video', ASSET_SH_RS_CLASS]
+		};
+		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingNone()] = {
+			name: 'figure',
+			key: 'class',
+			value: ['video', ASSET_SH_NONE_CLASS]
+		};
 
-        editor.conversion.attributeToAttribute({
-            model: {
-                name: 'video',
-                key: 'specialHandling',
-                values: [
-                    AssetPluginHelper.getAbbrForSpecialHandlingEO(),
-                    AssetPluginHelper.getAbbrForSpecialHandlingLD(),
-                    AssetPluginHelper.getAbbrForSpecialHandlingRS(),
-                    AssetPluginHelper.getAbbrForSpecialHandlingRH(),
-                    AssetPluginHelper.getAbbrForSpecialHandlingNone()
-                ]
-            },
-            view: specialHandlingModelToViewMap
-        });
-    }
+		editor.conversion.attributeToAttribute({
+			model: {
+				name: 'video',
+				key: 'specialHandling',
+				values: [
+					AssetPluginHelper.getAbbrForSpecialHandlingEO(),
+					AssetPluginHelper.getAbbrForSpecialHandlingLD(),
+					AssetPluginHelper.getAbbrForSpecialHandlingRS(),
+					AssetPluginHelper.getAbbrForSpecialHandlingRH(),
+					AssetPluginHelper.getAbbrForSpecialHandlingNone()
+				]
+			},
+			view: specialHandlingModelToViewMap
+		});
+	}
 }
 
 // A commnad that should be executed by external code to add a video to the editor
 class AddNewVideo extends Command {
-    execute(url, videoStyle, dbid, shClass) {
-        this.editor.model.change( writer => {
-            const newData = {
-                src: url,
-                videoStyle: videoStyle,
-                specialHandling: shClass,
-            };
-            newData[AssetPluginHelper.getAssetIdPropertyName()] = dbid;
-            newData[AssetPluginHelper.getAssetTypePropertyName()] = 'video';
-            const videoElement = writer.createElement( 'video', newData );
-            this.editor.model.insertContent( videoElement, this.editor.model.document.selection );
-        } );
-    }
+	execute(url, videoStyle, dbid, shClass) {
+		this.editor.model.change( writer => {
+			const newData = {
+				src: url,
+				videoStyle: videoStyle,
+				specialHandling: shClass,
+			};
+			newData[AssetPluginHelper.getAssetIdPropertyName()] = dbid;
+			newData[AssetPluginHelper.getAssetTypePropertyName()] = 'video';
+			const videoElement = writer.createElement( 'video', newData );
+			this.editor.model.insertContent( videoElement, this.editor.model.document.selection );
+		} );
+	}
 }
 
 class EditVideo extends Command {
-    execute(url, assetID, assetSHClass) {
-        this.editor.model.change( writer => {
-            const element = editor.model.document.selection.getSelectedElement();
-            writer.setAttribute("src", url, element);
-            writer.setAttribute( AssetPluginHelper.getAssetIdPropertyName(), assetID, element);
-            writer.setAttribute("specialHandling", assetSHClass, element);
-        } );
-    }
+	execute(url, assetID, assetSHClass) {
+		this.editor.model.change( writer => {
+			const element = editor.model.document.selection.getSelectedElement();
+			writer.setAttribute("src", url, element);
+			writer.setAttribute( AssetPluginHelper.getAssetIdPropertyName(), assetID, element);
+			writer.setAttribute("specialHandling", assetSHClass, element);
+		} );
+	}
 }
 
 // Not sure why this is needed yet
@@ -332,16 +332,16 @@ export class VideoLoadObserver extends Observer {
 export default class VideoStyleCommand extends Command  {
 	constructor( editor, styles ) {
 		super( editor );
-        this.defaultStyle = false;
+		this.defaultStyle = false;
 
-        // Create a style name to style mapping
-        this.styles = {};
-        for (const s in styles) {
-            this.styles[s] = styles[s];
-        }
-    }
+		// Create a style name to style mapping
+		this.styles = {};
+		for (const s in styles) {
+			this.styles[s] = styles[s];
+		}
+	}
     
-    // Required to implement. Sets the value and "enabled" attribute when the element is clicked on (IF it's clicked on)
+	// Required to implement. Sets the value and "enabled" attribute when the element is clicked on (IF it's clicked on)
 	refresh() {
 		const element = this.editor.model.document.selection.getSelectedElement();
 		this.isEnabled = isVideo( element );
@@ -387,7 +387,7 @@ export class VideoCaption extends Plugin {
 		const schema = editor.model.schema;
 		const data = editor.data;
 		const editing = editor.editing;
-        const t = editor.t;
+		const t = editor.t;
         
 		// Schema configuration.
 		schema.extend( 'caption', {

@@ -151,7 +151,7 @@ DecoupledEditor.defaultConfig = {
 			'mergeTableCells'
 		]
 	},
-	video: {
+	html5Video: {
 		toolbar: [
 			'previewHTML5Video',
 			'|',
