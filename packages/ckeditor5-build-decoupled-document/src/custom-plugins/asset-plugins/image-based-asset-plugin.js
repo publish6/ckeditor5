@@ -107,7 +107,8 @@ export class ImageBasedAssetPlugin extends Plugin {
 
 			// Executed when the icon is clicked on
 			view.on( 'execute', () => {
-				this.toolbarButtonCallback();
+				const selection = this.editor.model.document.selection.getFirstPosition();
+				this.toolbarButtonCallback(selection);
 			} );
 
 			return view;
@@ -119,7 +120,7 @@ export class ImageBasedAssetPlugin extends Plugin {
  * A command that should be invoked by external applications for adding an image to the editor
  */
 class AddNewImage extends Command {
-	execute( url, style, assetID, assetType, assetSHClass ) {
+	execute( selectedPosition, url, style, assetID, assetType, assetSHClass ) {
 		// Create an image model element, and assign it the metadata that was passed in. Note that ALL changes to the model
 		// need to be made through the model.change((writer) => {...}) pattern
 		this.editor.model.change( writer => {
@@ -133,7 +134,7 @@ class AddNewImage extends Command {
 			const imageElement = writer.createElement( 'image', newData );
 
 			// Insert the image in the current selection location.
-			this.editor.model.insertContent( imageElement, this.editor.model.document.selection );
+			this.editor.model.insertContent( imageElement, selectedPosition );
 		} );
 	}
 }

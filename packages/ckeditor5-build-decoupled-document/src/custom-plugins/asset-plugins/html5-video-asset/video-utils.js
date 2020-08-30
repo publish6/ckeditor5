@@ -2,6 +2,7 @@
 import { findOptimalInsertionPosition, isWidget, toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import { enablePlaceholder } from '@ckeditor/ckeditor5-engine/src/view/placeholder';
 import { toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
+import first from '@ckeditor/ckeditor5-utils/src/first';
 
 export function getSelectedVideoWidget( selection ) {
 	const viewElement = selection.getSelectedElement();

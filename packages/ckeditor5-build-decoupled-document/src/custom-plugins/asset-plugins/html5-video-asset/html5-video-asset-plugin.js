@@ -19,6 +19,7 @@ import rightIcon from '@ckeditor/ckeditor5-core/theme/icons/object-right.svg';
 import AssetPluginHelper from '../asset-plugin-helper';
 import { getSelectedVideoWidget, captionElementCreator, getCaptionFromVideo, matchVideoCaption, convertMapIteratorToMap, viewFigureToModel, createVideoViewElement, toVideoWidget, modelToViewAttributeConverter, isVideo, isVideoWidget } from './video-utils';
 import Observer from '@ckeditor/ckeditor5-engine/src/view/observer/observer';
+import Selection from '@ckeditor/ckeditor5-engine/src/view/selection';
 import './style/style.css';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import WidgetToolbarRepository from '@ckeditor/ckeditor5-widget/src/widgettoolbarrepository';
@@ -109,11 +110,13 @@ export class HTML5VideoPlugin extends Plugin {
         
 		// Define the components for Add, Edit, and Preview videoc components, which call their respective callback functions when executed
 		AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, "Add HTML5 Video", addVideoIcon, () => {
-			this.toolbarButtonCallback();
+			// By JUST using model.document.selection, the vid gfets placed at 0,0 every time. not sure why, but I'm guessing that
+			// angular callbacks somehow modify the selection? By passing in the position, we can get around this
+			this.toolbarButtonCallback(this.editor.model.document.selection.getFirstPosition());
 		});
 		AssetPluginHelper.createComponent(editor, EDIT_VIDEO_PLUGIN_NAME, "Edit HTML5 Video", editIcon, () => {
 			const t = editor.model.document.selection.getSelectedElement();
-			this.editButtonCallback(t.getAttributes());
+			this.editButtonCallback(t, t.getAttributes());
 		});
 		AssetPluginHelper.createComponent(editor, PREVIEW_VIDEO_PLUGIN_NAME, "Preview Asset", previewIcon, () => {
 			const t = editor.model.document.selection.getSelectedElement();
@@ -281,25 +284,26 @@ export class HTML5VideoPlugin extends Plugin {
 
 // A commnad that should be executed by external code to add a video to the editor
 class AddNewVideo extends Command {
-	execute(url, videoStyle, dbid, shClass) {
+	execute(caretPos, url, videoStyle, dbid, shClass) {
 		this.editor.model.change( writer => {
 			const newData = {
 				src: url,
 				videoStyle: videoStyle,
-				specialHandling: shClass,
+				specialHandling: shClass
 			};
 			newData[AssetPluginHelper.getAssetIdPropertyName()] = dbid;
 			newData[AssetPluginHelper.getAssetTypePropertyName()] = 'video';
 			const videoElement = writer.createElement( 'video', newData );
-			this.editor.model.insertContent( videoElement, this.editor.model.document.selection );
+			console.log("IN PLUGIN");
+			console.log(caretPos.anchor);
+			this.editor.model.insertContent( videoElement, caretPos );
 		} );
 	}
 }
 
 class EditVideo extends Command {
-	execute(url, assetID, assetSHClass) {
+	execute(element, url, assetID, assetSHClass) {
 		this.editor.model.change( writer => {
-			const element = editor.model.document.selection.getSelectedElement();
 			writer.setAttribute("src", url, element);
 			writer.setAttribute( AssetPluginHelper.getAssetIdPropertyName(), assetID, element);
 			writer.setAttribute("specialHandling", assetSHClass, element);
