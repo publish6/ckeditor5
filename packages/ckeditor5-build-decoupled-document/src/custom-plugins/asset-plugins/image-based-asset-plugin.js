@@ -156,15 +156,9 @@ export class EditImageBasedAssetPlugin extends Plugin
 class EditImage extends Command {
 	execute( element, url, assetID, assetType, assetSHClass ) {
 		this.editor.model.change( writer => {
-			console.log("ELEMENT IS : ");
-			console.warn(element);
-			console.log("Writing url: "+url);
 			writer.setAttribute( 'src', url, element );
-			console.log("Writing assetid: "+assetID);
 			writer.setAttribute( ASSET_ID_PROPERTY_NAME, assetID, element );
-			console.log("Writing type: "+assetType);
 			writer.setAttribute( ASSET_TYPE_PROPERTY_NAME, assetType, element );
-			console.log("Writing sh: "+assetSHClass);
 			writer.setAttribute( 'specialHandling', assetSHClass, element );
 		} );
 	}
