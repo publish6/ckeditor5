@@ -42,6 +42,7 @@ import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custo
 import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata/image-with-metadata';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import { HTML5VideoPlugin, VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5-video-asset-plugin';
+import { HTML5AudioPlugin, AudioCaption } from './custom-plugins/asset-plugins/html5-audio-asset/html5-audio-asset-plugin';
 import { ClassifyPlugin } from './custom-plugins/generic-plugins/classify';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
@@ -86,6 +87,8 @@ DecoupledEditor.builtinPlugins = [
 	PreviewImageBasedAssetPlugin,
 	HTML5VideoPlugin,
 	VideoCaption,
+	HTML5AudioPlugin,
+	AudioCaption,
 	ClassifyPlugin
 ];
 
@@ -108,7 +111,8 @@ DecoupledEditor.defaultConfig = {
 			'|',
 			'removeMarkings',
 			'imageWithMetadata',
-			"html5Video",
+			'html5Video',
+			'html5Audio',
 			'|',
 			'alignment',
 			'|',
@@ -161,6 +165,18 @@ DecoupledEditor.defaultConfig = {
 			'videoStyle:alignRight',
 			'|',
 			'editHTML5Video'
+		]
+	},
+	html5Audio: {
+		toolbar: [
+			'previewHTML5Audio',
+			'|',
+			'audioStyle:alignLeft',
+			'audioStyle:alignCenter',
+			'audioStyle:full',
+			'audioStyle:alignRight',
+			'|',
+			'editHTML5Audio'
 		]
 	},
 	// This value must be kept in sync with the language defined in webpack.config.js.
