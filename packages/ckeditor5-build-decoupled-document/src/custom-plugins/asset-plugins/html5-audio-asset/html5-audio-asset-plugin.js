@@ -3,7 +3,7 @@
  * Date: 2020-07-03
  * Description: A plugin for add/editing/previewing HTML5 Audio. 
  * 
- * Note: I largely copied the logic found in the CKEditor5 Image plugin, but tried to simplify it where I thought it was appropriate. 
+ * TODO: this is blatent copy, paste, find, replace of the video asset. But for now, it works. If people actually use this thing, we'll change that
  */
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';

@@ -1,3 +1,4 @@
+/* eslint-disable object-shorthand */
 /**
  * Author: Alex Campbell
  * Date: 2020-07-03
@@ -24,15 +25,15 @@ import './style/style.css';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import WidgetToolbarRepository from '@ckeditor/ckeditor5-widget/src/widgettoolbarrepository';
 
-export const VIDEO_PLUGIN_NAME = "html5Video";
-export const EDIT_VIDEO_PLUGIN_NAME = "editHTML5Video";
-export const PREVIEW_VIDEO_PLUGIN_NAME = "previewHTML5Video";
-export const ADD_VIDEO_HTML_COMMAND = "addNewHTML5Video";
-export const EDIT_VIDEO_HTML_COMMAND = "editHTML5Video";
-export const VIDEO_ALIGN_LEFT_STYLE = "alignLeft";
-export const VIDEO_ALIGN_RIGHT_STYLE = "alignRight";
-export const VIDEO_ALIGN_CENTER_STYLE = "alignCenter";
-export const VIDEO_ALIGN_FULL_STYLE = "full";
+export const VIDEO_PLUGIN_NAME = 'html5Video';
+export const EDIT_VIDEO_PLUGIN_NAME = 'editHTML5Video';
+export const PREVIEW_VIDEO_PLUGIN_NAME = 'previewHTML5Video';
+export const ADD_VIDEO_HTML_COMMAND = 'addNewHTML5Video';
+export const EDIT_VIDEO_HTML_COMMAND = 'editHTML5Video';
+export const VIDEO_ALIGN_LEFT_STYLE = 'alignLeft';
+export const VIDEO_ALIGN_RIGHT_STYLE = 'alignRight';
+export const VIDEO_ALIGN_CENTER_STYLE = 'alignCenter';
+export const VIDEO_ALIGN_FULL_STYLE = 'full';
 export const ASSET_SH_RH_CLASS = AssetPluginHelper.getClassForSpecialHandlingRH();
 export const ASSET_SH_RS_CLASS = AssetPluginHelper.getClassForSpecialHandlingRS();
 export const ASSET_SH_LD_CLASS = AssetPluginHelper.getClassForSpecialHandlingLD();
@@ -80,8 +81,8 @@ export class HTML5VideoPlugin extends Plugin {
 	// If a preview button handler isn't defined, default to simply showing the source directly in a new tab
 	defaultPreviewButtonHandler(data) {
 		const map = convertMapIteratorToMap(data);
-		if (map["assettype"] == 'video') {
-			window.open(map["src"], "_blank");
+		if (map['assettype'] == 'video') {
+			window.open(map['src'], '_blank');
 		}
 	}
 
@@ -93,9 +94,9 @@ export class HTML5VideoPlugin extends Plugin {
 		this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig(editor.config, this.pluginName);
 
 		// If the user didn't define a preview button callback, use the default one
-		const userSuppliedPreviewCallback = AssetPluginHelper.getNested(editor.config, this.pluginName, "previewButtonCallback");
+		const userSuppliedPreviewCallback = AssetPluginHelper.getNested(editor.config, this.pluginName, 'previewButtonCallback');
 		if (userSuppliedPreviewCallback == null) {
-			console.log("No Preview handler defined for HTML5Video plugin. Using default new-tab hander!");
+			console.log('No Preview handler defined for HTML5Video plugin. Using default new-tab hander!');
 			this.previewButtonCallback = this.defaultPreviewButtonHandler;
 		} else {
 			this.previewButtonCallback = userSuppliedPreviewCallback;
@@ -109,16 +110,16 @@ export class HTML5VideoPlugin extends Plugin {
 		this.editor.commands.add('editVideo', new EditVideo(this.editor));
         
 		// Define the components for Add, Edit, and Preview videoc components, which call their respective callback functions when executed
-		AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, "Add HTML5 Video", addVideoIcon, () => {
+		AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, 'Add HTML5 Video', addVideoIcon, () => {
 			// By JUST using model.document.selection, the vid gfets placed at 0,0 every time. not sure why, but I'm guessing that
 			// angular callbacks somehow modify the selection? By passing in the position, we can get around this
 			this.toolbarButtonCallback(this.editor.model.document.selection.getFirstPosition());
 		});
-		AssetPluginHelper.createComponent(editor, EDIT_VIDEO_PLUGIN_NAME, "Edit HTML5 Video", editIcon, () => {
+		AssetPluginHelper.createComponent(editor, EDIT_VIDEO_PLUGIN_NAME, 'Edit HTML5 Video', editIcon, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.editButtonCallback(t, t.getAttributes());
 		});
-		AssetPluginHelper.createComponent(editor, PREVIEW_VIDEO_PLUGIN_NAME, "Preview Asset", previewIcon, () => {
+		AssetPluginHelper.createComponent(editor, PREVIEW_VIDEO_PLUGIN_NAME, 'Preview Asset', previewIcon, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.previewButtonCallback(t.getAttributes());
 		});
@@ -171,7 +172,7 @@ export class HTML5VideoPlugin extends Plugin {
 		const schema = editor.model.schema;
 		const t = editor.t;
 		editor.editing.view.addObserver( VideoLoadObserver ); // TODO: not sure what this does yet.
-		schema.register("video", {
+		schema.register('video', {
 			isObject: true,
 			isBlock: true,
 			allowWhere: '$block',
@@ -294,8 +295,6 @@ class AddNewVideo extends Command {
 			newData[AssetPluginHelper.getAssetIdPropertyName()] = dbid;
 			newData[AssetPluginHelper.getAssetTypePropertyName()] = 'video';
 			const videoElement = writer.createElement( 'video', newData );
-			console.log("IN PLUGIN");
-			console.log(caretPos.anchor);
 			this.editor.model.insertContent( videoElement, caretPos );
 		} );
 	}
@@ -304,9 +303,9 @@ class AddNewVideo extends Command {
 class EditVideo extends Command {
 	execute(element, url, assetID, assetSHClass) {
 		this.editor.model.change( writer => {
-			writer.setAttribute("src", url, element);
+			writer.setAttribute('src', url, element);
 			writer.setAttribute( AssetPluginHelper.getAssetIdPropertyName(), assetID, element);
-			writer.setAttribute("specialHandling", assetSHClass, element);
+			writer.setAttribute('specialHandling', assetSHClass, element);
 		} );
 	}
 }

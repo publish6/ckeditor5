@@ -816,9 +816,12 @@ export default class Renderer {
 		}
 
 		// Make sure that the selection actually is within the fake selection.
-		if ( domSelection.anchorNode !== container && !container.contains( domSelection.anchorNode ) ) {
-			return true;
-		}
+		try {
+			if ( domSelection.anchorNode !== container && !container.contains( domSelection.anchorNode ) ) {
+				return true;
+			}
+		} catch(err) {}
+
 
 		return container.textContent !== this.selection.fakeSelectionLabel;
 	}

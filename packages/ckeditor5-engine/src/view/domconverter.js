@@ -502,18 +502,23 @@ export default class DomConverter {
 			}
 		}
 
-		const isBackward = this.isDomSelectionBackward( domSelection );
-
+		let isBackward = false;
+		try {
+			isBackward = this.isDomSelectionBackward( domSelection );
+		} catch (err){}
+		
 		const viewRanges = [];
 
 		for ( let i = 0; i < domSelection.rangeCount; i++ ) {
 			// DOM Range have correct start and end, no matter what is the DOM Selection direction. So we don't have to fix anything.
 			const domRange = domSelection.getRangeAt( i );
-			const viewRange = this.domRangeToView( domRange );
+			try {
+				const viewRange = this.domRangeToView( domRange );
 
-			if ( viewRange ) {
-				viewRanges.push( viewRange );
-			}
+				if ( viewRange ) {
+					viewRanges.push( viewRange );
+				}
+			} catch(err){}
 		}
 
 		return new ViewSelection( viewRanges, { backward: isBackward } );
@@ -831,17 +836,21 @@ export default class DomConverter {
 	 * @returns {Boolean} True if a node is considered a block filler for given mode.
 	 */
 	isBlockFiller( domNode ) {
-		if ( this.blockFillerMode == 'br' ) {
-			return domNode.isEqualNode( BR_FILLER_REF );
+		try {
+			if ( this.blockFillerMode == 'br' ) {
+				return domNode.isEqualNode( BR_FILLER_REF );
+			}
+	
+			// Special case for <p><br></p> in which case the <br> should be treated as filler even
+			// when we're in the 'nbsp' mode. See ckeditor5#5564.
+			if ( domNode.tagName === 'BR' && hasBlockParent( domNode, this.blockElements ) && domNode.parentNode.childNodes.length === 1 ) {
+				return true;
+			}
+	
+			return isNbspBlockFiller( domNode, this.blockElements );
+		} catch(err) {
+			return false;
 		}
-
-		// Special case for <p><br></p> in which case the <br> should be treated as filler even
-		// when we're in the 'nbsp' mode. See ckeditor5#5564.
-		if ( domNode.tagName === 'BR' && hasBlockParent( domNode, this.blockElements ) && domNode.parentNode.childNodes.length === 1 ) {
-			return true;
-		}
-
-		return isNbspBlockFiller( domNode, this.blockElements );
 	}
 
 	/**

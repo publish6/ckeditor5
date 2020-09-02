@@ -14,5 +14,11 @@
  * @returns {Boolean}
  */
 export default function isText( obj ) {
-	return Object.prototype.toString.call( obj ) == '[object Text]';
+	try {
+		return Object.prototype.toString.call( obj ) == '[object Text]';
+	} catch(err) {
+		console.warn("isText() threw an exception, thanks CKEditor. Returning false");
+		return false;
+	}
+	
 }
