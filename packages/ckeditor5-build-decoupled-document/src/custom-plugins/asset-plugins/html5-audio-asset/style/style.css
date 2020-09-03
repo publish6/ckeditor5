@@ -62,31 +62,31 @@ that should be applied to the actual, consumable, document, following the guide 
 }
 
 .ck-content {
-	& .image-style-side,
-	& .image-style-align-left,
-	& .image-style-align-center,
-	& .image-style-align-right {
+	& .audio-style-side,
+	& .audio-style-align-left,
+	& .audio-style-align-center,
+	& .audio-style-align-right {
 		max-width: 50%;
 		width: 50%;
 	}
 
-	& .image-style-side {
+	& .audio-style-side {
 		float: right;
-		margin-left: var(--ck-image-style-spacing);
+		margin-left: var(--ck-audio-style-spacing);
 	}
 
-	& .image-style-align-left {
+	& .audio-style-align-left {
 		float: left;
-		margin-right: var(--ck-image-style-spacing);
+		margin-right: var(--ck-audio-style-spacing);
 	}
 
-	& .image-style-align-center {
+	& .audio-style-align-center {
 		margin-left: auto;
 		margin-right: auto;
 	}
 
-	& .image-style-align-right {
+	& .audio-style-align-right {
 		float: right;
-		margin-left: var(--ck-image-style-spacing);
+		margin-left: var(--ck-audio-style-spacing);
 	}
 }

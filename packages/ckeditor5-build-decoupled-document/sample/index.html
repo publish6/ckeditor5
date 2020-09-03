@@ -62,29 +62,64 @@
 		asset : {
 			image: {
 				editButtonCallback : function() {
-					 alert("edit button was clicked");
+					 alert("image edit button was clicked");
 				},
 				previewButtonCallback : function() {
-					 alert("preview button was clicked");
+					 alert("image preview button was clicked");
 				}
 			},
 			imageWithMetadata: {
 				toolbarButtonCallback : function() {
-					alert("Toolbar button clicked!");
+					alert("Image With metadata Toolbar button clicked!");
+				}
+			},
+			html5Video: {
+				toolbarButtonCallback : function() {
+					alert("video Toolbar button clicked!");
+				},
+				editButtonCallback : function() {
+					 alert("video edit button was clicked");
+				},
+				previewButtonCallback : function() {
+					 alert("video preview button was clicked");
+				}
+			},
+			html5Audio: {
+				toolbarButtonCallback : function() {
+					alert("audio Toolbar button clicked!");
+				},
+				editButtonCallback : function() {
+					 alert("audio edit button was clicked");
+				},
+				previewButtonCallback : function() {
+					 alert("audio preview button was clicked");
+				}
+			},
+			editImageBasedAsset: {
+				editButtonCallback: function() {
+					 alert("edito image based asset button was clicked");
+				},
+			},
+			previewImageBasedAsset: {
+				previewButtonCallback : function() {
+					 alert("preview image based asset button was clicked");
 				}
 			}
 		}
 	} )
-		.then( editor => {
-			window.editor = editor;
-			CKEditorInspector.attach( editor );
-			document.querySelector( '.toolbar-container' ).appendChild( editor.ui.view.toolbar.element );
-			document.querySelector( '.editable-container' ).appendChild( editor.ui.view.editable.element );
-			editor.execute( 'addNewVideo',"https://akilli.github.io/demo-browser/file/sample.ogv", "alignLeft", 12345, 'rs' );
-		} )
-		.catch( error => {
-			console.error( 'There was a problem initializing the editor.', error );
-		} );
+	.then( editor => {
+		window.editor = editor;
+		CKEditorInspector.attach( editor );
+		document.querySelector( '.toolbar-container' ).appendChild( editor.ui.view.toolbar.element );
+		document.querySelector( '.editable-container' ).appendChild( editor.ui.view.editable.element );
+		editor.execute( 'addNewAudio',null, "https://www2.cs.uic.edu/~i101/SoundFiles/Fanfare60.wav", "alignLeft", 12345, 'rs' );
+		editor.execute( 'addNewVideo',null, "https://archive.org/serve/SampleVideo1280x7205mb/SampleVideo_1280x720_5mb.mp4", "alignLeft", 12345, 'rs' );
+		editor.execute( 'addNewImageBasedAsset',null, "https://upload.wikimedia.org/wikipedia/en/c/c6/King_Dedede.png", "alignLeft", 12345, 'rs' );
+	} )
+	.catch( error => {
+		console.error( 'There was a problem initializing the editor.');
+		console.error(error);
+	} );
 		
 </script>
 

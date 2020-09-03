@@ -134,6 +134,7 @@ class AddNewImage extends Command {
 			const imageElement = writer.createElement( 'image', newData );
 
 			// Insert the image in the current selection location.
+			selectedPosition = selectedPosition != null ? selectedPosition : this.editor.model.document.selection.getFirstPosition();
 			this.editor.model.insertContent( imageElement, selectedPosition );
 		} );
 	}

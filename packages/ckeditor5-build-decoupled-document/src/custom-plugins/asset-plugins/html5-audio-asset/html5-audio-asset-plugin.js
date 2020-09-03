@@ -45,25 +45,25 @@ AUDIO_STYLES[AUDIO_ALIGN_FULL_STYLE] = {
 	title: 'Full size audio',
 	icon: fullWidthIcon,
 	isDefault: true,
-	className: 'image-style-full'
+	className: 'audio-style-full'
 };
 AUDIO_STYLES[AUDIO_ALIGN_LEFT_STYLE] = {
 	name: 'alignLeft',
 	title: 'Left-aligned audio',
 	icon: leftIcon,
-	className: 'image-style-align-left'
+	className: 'audio-style-align-left'
 };
 AUDIO_STYLES[AUDIO_ALIGN_RIGHT_STYLE] = {
 	name: 'alignRight',
 	title: 'Right-aligned audio',
 	icon: rightIcon,
-	className: 'image-style-align-right'
+	className: 'audio-style-align-right'
 };
 AUDIO_STYLES[AUDIO_ALIGN_CENTER_STYLE] = {
 	name: 'alignCenter',
 	title: 'Center-aligned audio',
 	icon: centerIcon,
-	className: 'image-style-align-center'
+	className: 'audio-style-align-center'
 };
 
 export class HTML5AudioPlugin extends Plugin {
@@ -211,22 +211,22 @@ export class HTML5AudioPlugin extends Plugin {
 		audioStyleViewDef[AUDIO_ALIGN_CENTER_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: ['image-style-align-center']
+			value: ['audio-style-align-center']
 		}
 		audioStyleViewDef[AUDIO_ALIGN_LEFT_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: [ 'image-style-align-left']
+			value: [ 'audio-style-align-left']
 		}
 		audioStyleViewDef[AUDIO_ALIGN_RIGHT_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: [ 'image-style-align-right']
+			value: [ 'audio-style-align-right']
 		}
 		audioStyleViewDef[AUDIO_ALIGN_FULL_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: [ 'image-style-full']
+			value: [ 'audio-style-full']
 		}
 		editor.conversion.attributeToAttribute({
 			model: {
@@ -293,8 +293,7 @@ class AddNewAudio extends Command {
 			newData[AssetPluginHelper.getAssetIdPropertyName()] = dbid;
 			newData[AssetPluginHelper.getAssetTypePropertyName()] = 'audio';
 			const audioElement = writer.createElement( 'audio', newData );
-			console.log("IN PLUGIN");
-			console.log(caretPos.anchor);
+			caretPos = caretPos != null ? caretPos : this.editor.model.document.selection.getFirstPosition();
 			this.editor.model.insertContent( audioElement, caretPos );
 		} );
 	}

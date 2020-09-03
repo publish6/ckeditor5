@@ -47,25 +47,25 @@ VIDEO_STYLES[VIDEO_ALIGN_FULL_STYLE] = {
 	title: 'Full size video',
 	icon: fullWidthIcon,
 	isDefault: true,
-	className: 'image-style-full'
+	className: 'video-style-full'
 };
 VIDEO_STYLES[VIDEO_ALIGN_LEFT_STYLE] = {
 	name: 'alignLeft',
 	title: 'Left-aligned video',
 	icon: leftIcon,
-	className: 'image-style-align-left'
+	className: 'video-style-align-left'
 };
 VIDEO_STYLES[VIDEO_ALIGN_RIGHT_STYLE] = {
 	name: 'alignRight',
 	title: 'Right-aligned video',
 	icon: rightIcon,
-	className: 'image-style-align-right'
+	className: 'video-style-align-right'
 };
 VIDEO_STYLES[VIDEO_ALIGN_CENTER_STYLE] = {
 	name: 'alignCenter',
 	title: 'Center-aligned video',
 	icon: centerIcon,
-	className: 'image-style-align-center'
+	className: 'video-style-align-center'
 };
 
 export class HTML5VideoPlugin extends Plugin {
@@ -213,22 +213,22 @@ export class HTML5VideoPlugin extends Plugin {
 		videoStyleViewDef[VIDEO_ALIGN_CENTER_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: ['image-style-align-center']
+			value: ['video-style-align-center']
 		}
 		videoStyleViewDef[VIDEO_ALIGN_LEFT_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: [ 'image-style-align-left']
+			value: [ 'video-style-align-left']
 		}
 		videoStyleViewDef[VIDEO_ALIGN_RIGHT_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: [ 'image-style-align-right']
+			value: [ 'video-style-align-right']
 		}
 		videoStyleViewDef[VIDEO_ALIGN_FULL_STYLE] = {
 			name: 'figure',
 			key: 'class',
-			value: [ 'image-style-full']
+			value: [ 'video-style-full']
 		}
 		editor.conversion.attributeToAttribute({
 			model: {
@@ -295,6 +295,7 @@ class AddNewVideo extends Command {
 			newData[AssetPluginHelper.getAssetIdPropertyName()] = dbid;
 			newData[AssetPluginHelper.getAssetTypePropertyName()] = 'video';
 			const videoElement = writer.createElement( 'video', newData );
+			caretPos = caretPos != null ? caretPos : this.editor.model.document.selection.getFirstPosition();
 			this.editor.model.insertContent( videoElement, caretPos );
 		} );
 	}

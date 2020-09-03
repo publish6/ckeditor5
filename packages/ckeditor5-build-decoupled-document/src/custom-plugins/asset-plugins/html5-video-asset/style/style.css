@@ -39,11 +39,13 @@ that should be applied to the actual, consumable, document, following the guide 
     pointer-events: none;
     display: block;
     max-width: 100%;
-    margin: 0 auto;
+	margin: 0 auto;
+	width: 100%;
 }
 
 .html5video {
   display: table;
+  width: 100%;
 }
 
 .html5video > figcaption {
@@ -59,30 +61,30 @@ that should be applied to the actual, consumable, document, following the guide 
 }
 
 .ck-content {
-	& .image-style-side,
-	& .image-style-align-left,
-	& .image-style-align-center,
-	& .image-style-align-right {
+	& .video-style-side,
+	& .video-style-align-left,
+	& .video-style-align-center,
+	& .video-style-align-right {
 		max-width: 50%;
 	}
 
-	& .image-style-side {
+	& .video-style-side {
 		float: right;
-		margin-left: var(--ck-image-style-spacing);
+		margin-left: var(--ck-video-style-spacing);
 	}
 
-	& .image-style-align-left {
+	& .video-style-align-left {
 		float: left;
-		margin-right: var(--ck-image-style-spacing);
+		margin-right: var(--ck-video-style-spacing);
 	}
 
-	& .image-style-align-center {
+	& .video-style-align-center {
 		margin-left: auto;
 		margin-right: auto;
 	}
 
-	& .image-style-align-right {
+	& .video-style-align-right {
 		float: right;
-		margin-left: var(--ck-image-style-spacing);
+		margin-left: var(--ck-video-style-spacing);
 	}
 }
