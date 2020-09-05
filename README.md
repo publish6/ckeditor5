@@ -38,6 +38,16 @@ To test out your changes, you can navigate to our build of the editor (at this t
 2. Either copy the latest package.json file from upstream's stable branch into this project, or look for discrepancies in versions for the packages that are in both the upstream branch and your local file and correct them.
     a. If someone has modified package.json, it's possible for it to get "out of sync" with the correct package.json, which may lead to multiple versions of the same core CKEditor module being pulled in.
 
+## Exporting Editor CSS styles
+In order to render content produced by the editor in other environments (i.e. a mobile app, a PDF, etc), you will need the CSS styles from ALL of the editor features and plugins. To get this file, run the following command: `yarn docs:content-styles`.
+
+**Some VERY important things to keep in mind:**
+1. In order to apply the css rules to an HTML element, you need to add the "ck-content" class to the container. This is because ALL CKEDTIOR CSS rules are pre-fixed with 'ck-content'. This is done intentionally by the ckeditor team (and should ALSO be done for any custom plugins we write) so that the rules for documents are completely encapsulated from the rest of an app's css logic. 
+2. In order for your plugin's CSS rules to get exported by the command above, it MUST adhere to the following rules:
+    1. The plugin class name MUST ONLY contain letters and numbers. This means no hyphens or underscores!
+	2. Your plugin's main class (the one that matches the filename) MUST be exported as the default class (i.e. `export default class HTML5VideoPlugin extends Plugin`). It must also directly extend `Plugin`
+These rules are necessary due to implementation oversights by the ckeditor team in the build-content-styles.js script
+
 ===== Original Readme contents below ======
 CKEditor 5 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Check%20out%20CKEditor%205%20on%20GitHub&url=https%3A%2F%2Fgithub.com%2Fckeditor%2Fckeditor5)
 ===================================

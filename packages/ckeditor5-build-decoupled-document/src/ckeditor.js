@@ -41,8 +41,8 @@ import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
 import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custom-plugins/asset-plugins/image-based-asset-plugin';
 import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata/image-with-metadata';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
-import HTML5VideoPlugin, { VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5VideoAssetPlugin';
-import HTML5AudioPlugin, { AudioCaption } from './custom-plugins/asset-plugins/html5-audio-asset/html5AudioAssetPlugin.js';
+import HTML5VideoPlugin, { VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5VideoPlugin';
+import HTML5AudioPlugin, { AudioCaption } from './custom-plugins/asset-plugins/html5-audio-asset/html5AudioPlugin.js';
 import { ClassifyPlugin } from './custom-plugins/generic-plugins/classify';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}

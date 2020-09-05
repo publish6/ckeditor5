@@ -32,7 +32,7 @@ that should be applied to the actual, consumable, document, following the guide 
 	}
 }
 
-.html5audio > audio {
+.ck-content .html5audio > audio {
     /* 
       CKEditor REALLY doesnt like playing HTML5 audio in the editor. Therefore, allow it to render as it would in the browser, but DONT let the user
       play it, or interact with it in any way.
@@ -44,12 +44,12 @@ that should be applied to the actual, consumable, document, following the guide 
 	width: 100%;
 }
 
-.html5audio {
+.ck-content .html5audio {
   display: table;
   width: 100%;
 }
 
-.html5audio > figcaption {
+.ck-content .html5audio > figcaption {
   display: table-caption;
   caption-side: bottom;
   word-break: break-word;
