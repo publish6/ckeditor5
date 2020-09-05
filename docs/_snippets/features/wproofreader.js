@@ -58,7 +58,7 @@ ClassicEditor
 		},
 		table: {
 			contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
-		},
+		}
 	} )
 	.then( editor => {
 		window.editor = editor;

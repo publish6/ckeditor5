@@ -184,13 +184,13 @@ export default class HTML5AudioPlugin extends Plugin {
 		// Define how the model element is converted to HTML specifically when loading from a datasource
 		conversion.for( 'dataDowncast' ).elementToElement( {
 			model: 'audio',
-			view: ( modelElement, viewWriter ) => createAudioViewElement( viewWriter )
+			view: ( modelElement, {writer} ) => createAudioViewElement( writer )
 		} );
 
 		// Define how the model element is converted to HTML specifically when editing the model element
 		conversion.for( 'editingDowncast' ).elementToElement( {
 			model: 'audio',
-			view: ( modelElement, viewWriter ) => toAudioWidget( createAudioViewElement( viewWriter ), viewWriter, t( 'audio widget' ) )
+			view: ( modelElement, {writer} ) => toAudioWidget( createAudioViewElement( writer ), writer, t( 'audio widget' ) )
 		} );
 
 		// Define how the model element is converted FROM HTML to a model element
@@ -202,7 +202,7 @@ export default class HTML5AudioPlugin extends Plugin {
 						src: true
 					}
 				},
-				model: ( viewImage, modelWriter ) => modelWriter.createElement( 'audio', { src: viewImage.getAttribute( 'src' ) } )
+				model: ( viewImage, {writer} ) => writer.createElement( 'audio', { src: viewImage.getAttribute( 'src' ) } )
 			} )
 			.add( viewFigureToModel() );
 
@@ -212,22 +212,22 @@ export default class HTML5AudioPlugin extends Plugin {
 			name: 'figure',
 			key: 'class',
 			value: ['audio-style-align-center']
-		}
+		};
 		audioStyleViewDef[AUDIO_ALIGN_LEFT_STYLE] = {
 			name: 'figure',
 			key: 'class',
 			value: [ 'audio-style-align-left']
-		}
+		};
 		audioStyleViewDef[AUDIO_ALIGN_RIGHT_STYLE] = {
 			name: 'figure',
 			key: 'class',
 			value: [ 'audio-style-align-right']
-		}
+		};
 		audioStyleViewDef[AUDIO_ALIGN_FULL_STYLE] = {
 			name: 'figure',
 			key: 'class',
 			value: [ 'audio-style-full']
-		}
+		};
 		editor.conversion.attributeToAttribute({
 			model: {
 				name: 'audio',

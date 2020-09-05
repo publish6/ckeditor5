@@ -63,7 +63,7 @@ export function viewFigureToModel() {
 }
 
 // Creates an empty video view representation, consisting of a figure that contains a "video" element
-export function  createVideoViewElement(writer) {
+export function createVideoViewElement(writer) {
     const figureElement = writer.createContainerElement('figure', {class: "html5video"});
     const videoElement = writer.createContainerElement('video', {disablePictureInPicture: true, alt: "", controls: 'controls'});
     writer.insert(writer.createPositionAt(figureElement, 0), videoElement);

@@ -186,13 +186,13 @@ export default class HTML5VideoPlugin extends Plugin {
 		// Define how the model element is converted to HTML specifically when loading from a datasource
 		conversion.for( 'dataDowncast' ).elementToElement( {
 			model: 'video',
-			view: ( modelElement, viewWriter ) => createVideoViewElement( viewWriter )
+			view: ( modelElement, {writer} ) => createVideoViewElement( writer )
 		} );
 
 		// Define how the model element is converted to HTML specifically when editing the model element
 		conversion.for( 'editingDowncast' ).elementToElement( {
 			model: 'video',
-			view: ( modelElement, viewWriter ) => toVideoWidget( createVideoViewElement( viewWriter ), viewWriter, t( 'video widget' ) )
+			view: ( modelElement, {writer} ) => toVideoWidget( createVideoViewElement( writer ), writer, t( 'video widget' ) )
 		} );
 
 		// Define how the model element is converted FROM HTML to a model element
@@ -204,7 +204,7 @@ export default class HTML5VideoPlugin extends Plugin {
 						src: true
 					}
 				},
-				model: ( viewImage, modelWriter ) => modelWriter.createElement( 'video', { src: viewImage.getAttribute( 'src' ) } )
+				model: ( viewImage, {writer} ) => writer.createElement( 'video', { src: viewImage.getAttribute( 'src' ) } )
 			} )
 			.add( viewFigureToModel() );
 
