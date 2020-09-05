@@ -66,7 +66,7 @@ AUDIO_STYLES[AUDIO_ALIGN_CENTER_STYLE] = {
 	className: 'audio-style-align-center'
 };
 
-export class HTML5AudioPlugin extends Plugin {
+export default class HTML5AudioPlugin extends Plugin {
 	static get requires() {
 		return [ Widget ];
 	}
@@ -331,7 +331,7 @@ export class AudioLoadObserver extends Observer {
 }
 
 // A command for changing the style of the audio
-export default class AudioStyleCommand extends Command  {
+export class AudioStyleCommand extends Command {
 	constructor( editor, styles ) {
 		super( editor );
 		this.defaultStyle = false;

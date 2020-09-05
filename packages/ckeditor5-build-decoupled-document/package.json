@@ -75,5 +75,8 @@
     "build": "webpack --mode production",
     "preversion": "npm run build"
   },
-  "dependencies": {}
+  "dependencies": {
+    "css-loader": "^4.2.2",
+    "mini-css-extract-plugin": "^0.11.0"
+  }
 }

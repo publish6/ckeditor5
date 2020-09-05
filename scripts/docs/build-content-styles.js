@@ -56,7 +56,8 @@ getCkeditor5ModulePaths()
 		console.log( `Found ${ ckeditor5Modules.length } plugins.` );
 		logProcess( 'Generating source file...' );
 
-		return mkdirp( DESTINATION_DIRECTORY ).then( () => generateCKEditor5Source( ckeditor5Modules ) );
+		// TODO: for some reason, mkdirp returns nothing...return mkdirp( DESTINATION_DIRECTORY ).then( () => generateCKEditor5Source( ckeditor5Modules ) );
+		return generateCKEditor5Source( ckeditor5Modules );
 	} )
 	.then( () => {
 		logProcess( 'Building the editor...' );

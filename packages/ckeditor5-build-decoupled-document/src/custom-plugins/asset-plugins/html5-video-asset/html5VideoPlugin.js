@@ -68,7 +68,7 @@ VIDEO_STYLES[VIDEO_ALIGN_CENTER_STYLE] = {
 	className: 'video-style-align-center'
 };
 
-export class HTML5VideoPlugin extends Plugin {
+export default class HTML5VideoPlugin extends Plugin {
 	static get requires() {
 		return [ Widget ];
 	}
@@ -333,7 +333,7 @@ export class VideoLoadObserver extends Observer {
 }
 
 // A command for changing the style of the video
-export default class VideoStyleCommand extends Command  {
+export class VideoStyleCommand extends Command  {
 	constructor( editor, styles ) {
 		super( editor );
 		this.defaultStyle = false;
