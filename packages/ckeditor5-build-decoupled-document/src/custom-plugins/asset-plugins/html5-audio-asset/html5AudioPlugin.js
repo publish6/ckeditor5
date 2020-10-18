@@ -108,16 +108,16 @@ export default class HTML5AudioPlugin extends Plugin {
 		this.editor.commands.add('editAudio', new EditAudio(this.editor));
         
 		// Define the components for Add, Edit, and Preview audioc components, which call their respective callback functions when executed
-		AssetPluginHelper.createComponent(editor, AUDIO_PLUGIN_NAME, "Add HTML5 Audio", addAudioIcon, () => {
+		AssetPluginHelper.createComponent(editor, AUDIO_PLUGIN_NAME, "Add HTML5 Audio", addAudioIcon, true, () => {
 			// By JUST using model.document.selection, the vid gfets placed at 0,0 every time. not sure why, but I'm guessing that
 			// angular callbacks somehow modify the selection? By passing in the position, we can get around this
 			this.toolbarButtonCallback(this.editor.model.document.selection.getFirstPosition());
 		});
-		AssetPluginHelper.createComponent(editor, EDIT_AUDIO_PLUGIN_NAME, "Edit HTML5 Audio", editIcon, () => {
+		AssetPluginHelper.createComponent(editor, EDIT_AUDIO_PLUGIN_NAME, "Edit HTML5 Audio", editIcon, true, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.editButtonCallback(t, t.getAttributes());
 		});
-		AssetPluginHelper.createComponent(editor, PREVIEW_AUDIO_PLUGIN_NAME, "Preview Asset", previewIcon, () => {
+		AssetPluginHelper.createComponent(editor, PREVIEW_AUDIO_PLUGIN_NAME, "Preview Asset", previewIcon, false, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.previewButtonCallback(t.getAttributes());
 		});

@@ -50,6 +50,9 @@ export class ImageBasedAssetPlugin extends Plugin {
 		editor.ui.componentFactory.add( this.pluginName, locale => {
 			const view = new ButtonView( locale );
 
+			// Binds to the read only property of the editor so that it dynamically enables/disables itself
+			view.bind( 'isEnabled' ).to( editor, 'isReadOnly', isReadOnly => !isReadOnly );
+
 			// Configure the editor to allow "asset-id" and "asset-type" attributes, as well as special handling
 			// classes. The idea here is to define mappings for upcasting and downcasting (going from view to
 			// model, and from model to view).
@@ -145,7 +148,7 @@ export class EditImageBasedAssetPlugin extends Plugin
 	init() {
 		const editor = this.editor;
 		this.editButtonCallback = AssetPluginHelper.getEditButtonCallbackFromConfig( editor.config, 'editImageBasedAsset' );
-		AssetPluginHelper.createComponent( editor, 'editImageBasedAsset', 'Edit Asset', editIcon, () => {
+		AssetPluginHelper.createComponent( editor, 'editImageBasedAsset', 'Edit Asset', editIcon, true, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.editButtonCallback( t, t.getAttributes() );
 		} );
@@ -171,7 +174,7 @@ export class PreviewImageBasedAssetPlugin extends Plugin
 	init() {
 		const editor = this.editor;
 		this.previewButtonCallback = AssetPluginHelper.getPreviewButtonCallbackFromConfig( editor.config, 'previewImageBasedAsset' );
-		AssetPluginHelper.createComponent( editor, 'previewImageBasedAsset', 'Preview Asset', previewIcon, () => {
+		AssetPluginHelper.createComponent( editor, 'previewImageBasedAsset', 'Preview Asset', previewIcon, false, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.previewButtonCallback( t.getAttributes() );
 		} );

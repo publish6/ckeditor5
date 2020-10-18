@@ -47,7 +47,6 @@
 		box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 	}
 </style>
-<script src="../node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
 <script src="../build/ckeditor.js"></script>
 <script>
 	const editorData = `<h1>Here is a preloaded image!</h1>
@@ -109,12 +108,12 @@
 	} )
 	.then( editor => {
 		window.editor = editor;
-		CKEditorInspector.attach( editor );
 		document.querySelector( '.toolbar-container' ).appendChild( editor.ui.view.toolbar.element );
 		document.querySelector( '.editable-container' ).appendChild( editor.ui.view.editable.element );
 		editor.execute( 'addNewAudio',null, "https://www2.cs.uic.edu/~i101/SoundFiles/Fanfare60.wav", "alignLeft", 12345, 'rs' );
 		editor.execute( 'addNewVideo',null, "https://archive.org/serve/SampleVideo1280x7205mb/SampleVideo_1280x720_5mb.mp4", "alignLeft", 12345, 'rs' );
 		editor.execute( 'addNewImageBasedAsset',null, "https://upload.wikimedia.org/wikipedia/en/c/c6/King_Dedede.png", "alignLeft", 12345, 'rs' );
+		editor.isReadOnly = true;
 	} )
 	.catch( error => {
 		console.error( 'There was a problem initializing the editor.');

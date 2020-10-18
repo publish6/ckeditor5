@@ -110,16 +110,16 @@ export default class HTML5VideoPlugin extends Plugin {
 		this.editor.commands.add('editVideo', new EditVideo(this.editor));
         
 		// Define the components for Add, Edit, and Preview videoc components, which call their respective callback functions when executed
-		AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, 'Add HTML5 Video', addVideoIcon, () => {
+		AssetPluginHelper.createComponent(editor, VIDEO_PLUGIN_NAME, 'Add HTML5 Video', addVideoIcon, true, () => {
 			// By JUST using model.document.selection, the vid gfets placed at 0,0 every time. not sure why, but I'm guessing that
 			// angular callbacks somehow modify the selection? By passing in the position, we can get around this
 			this.toolbarButtonCallback(this.editor.model.document.selection.getFirstPosition());
 		});
-		AssetPluginHelper.createComponent(editor, EDIT_VIDEO_PLUGIN_NAME, 'Edit HTML5 Video', editIcon, () => {
+		AssetPluginHelper.createComponent(editor, EDIT_VIDEO_PLUGIN_NAME, 'Edit HTML5 Video', editIcon, true, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.editButtonCallback(t, t.getAttributes());
 		});
-		AssetPluginHelper.createComponent(editor, PREVIEW_VIDEO_PLUGIN_NAME, 'Preview Asset', previewIcon, () => {
+		AssetPluginHelper.createComponent(editor, PREVIEW_VIDEO_PLUGIN_NAME, 'Preview Asset', previewIcon, false, () => {
 			const t = editor.model.document.selection.getSelectedElement();
 			this.previewButtonCallback(t.getAttributes());
 		});
