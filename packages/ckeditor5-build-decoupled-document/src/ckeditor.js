@@ -44,14 +44,18 @@ import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import HTML5VideoPlugin, { VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5VideoPlugin';
 import HTML5AudioPlugin, { AudioCaption } from './custom-plugins/asset-plugins/html5-audio-asset/html5AudioPlugin.js';
 import { ClassifyPlugin } from './custom-plugins/generic-plugins/classify';
+import ImageInterceptor from './custom-plugins/image-interceptor/imageinterceptor';
+import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
 // Plugins to include in the build.
 DecoupledEditor.builtinPlugins = [
+	Base64UploadAdapter,
 	Essentials,
 	Alignment,
 	FontSize,
+	ImageInterceptor,
 	FontFamily,
 	FontColor,
 	FontBackgroundColor,

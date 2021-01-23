@@ -113,7 +113,7 @@
 		editor.execute( 'addNewAudio',null, "https://www2.cs.uic.edu/~i101/SoundFiles/Fanfare60.wav", "alignLeft", 12345, 'rs' );
 		editor.execute( 'addNewVideo',null, "https://archive.org/serve/SampleVideo1280x7205mb/SampleVideo_1280x720_5mb.mp4", "alignLeft", 12345, 'rs' );
 		editor.execute( 'addNewImageBasedAsset',null, "https://upload.wikimedia.org/wikipedia/en/c/c6/King_Dedede.png", "alignLeft", 12345, 'rs' );
-		//editor.isReadOnly = true;
+		editor.isReadOnly = false;
 	} )
 	.catch( error => {
 		console.error( 'There was a problem initializing the editor.');
