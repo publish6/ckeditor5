@@ -55,11 +55,9 @@ DecoupledEditor.builtinPlugins = [
 	Essentials,
 	Alignment,
 	FontSize,
-	ImageInterceptor,
 	FontFamily,
 	FontColor,
 	FontBackgroundColor,
-	UploadAdapter,
 	Autoformat,
 	Bold,
 	Italic,
@@ -67,13 +65,11 @@ DecoupledEditor.builtinPlugins = [
 	Underline,
 	BlockQuote,
 	CKFinder,
-	EasyImage,
 	Heading,
 	Image,
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
-	ImageUpload,
 	ImageResize,
 	Indent,
 	IndentBlock,
@@ -93,7 +89,8 @@ DecoupledEditor.builtinPlugins = [
 	VideoCaption,
 	HTML5AudioPlugin,
 	AudioCaption,
-	ClassifyPlugin
+	ClassifyPlugin,
+	ImageInterceptor,
 ];
 
 // Editor configuration.

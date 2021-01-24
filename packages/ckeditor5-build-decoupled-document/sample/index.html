@@ -56,8 +56,13 @@
 			<img src="../tests/manual/sample.jpg" alt="Autumn fields" />
 		</figure>
 		<p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>`;
-
-	const editor = DecoupledEditor.create( editorData, {
+	let editor = null;
+	DecoupledEditor.create( editorData, {
+		imageInterceptor: {
+			callback: function(imageFiles) {
+				console.log(imageFiles);
+			}
+		},
 		asset : {
 			image: {
 				editButtonCallback : function() {
