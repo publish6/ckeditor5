@@ -46,6 +46,8 @@ export default class ImageInterceptor extends Plugin {
 		editor.model.schema.extend( 'image', { allowAttributes: [ 'uuid' ] } );
 		editor.conversion.attributeToAttribute( { model: 'uuid', view: 'uuid'} );
 		editor.plugins.get( 'Clipboard' ).on( 'inputTransformation', ( evt, data ) => {
+			const selection = this.editor.model.document.selection.getFirstPosition().clone();
+
 			// Get the HTML data from the paste, and look for images
 			const doc = data.content;
 			const images = findAllImageElements(doc, writer);
@@ -66,11 +68,15 @@ export default class ImageInterceptor extends Plugin {
 			}
 
 			// Invoke the image callback set by the client app so that they can handle the images that were pasted
-			imageCallback({type: "element", data: validImages});
+			imageCallback({type: "element", data: validImages, caretPosition: selection});
 		}, {priority: "normal"});
 
 		editor.editing.view.document.on( 'drop', ( evt, data ) => {
 			// Get the fiels from the drop event and check if they're images.
+			const selection = this.editor.model.document.selection.getFirstPosition().clone();
+			const s = this.editor.model.document.selection.getLastPosition();
+			console.log(selection);
+			console.log(s);
 			const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
 			if (files != null && files.length > 0) {
 				const imageFiles = [];
@@ -94,7 +100,7 @@ export default class ImageInterceptor extends Plugin {
 				if (imageFiles.length > 0) {
 					evt.stop();
 					data.preventDefault();
-					imageCallback({type: "file", data: imageFiles });
+					imageCallback({type: "file", data: imageFiles, caretPosition: selection});
 				}
 			}
 		}, {priority: 'high'} );
