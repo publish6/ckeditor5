@@ -42,9 +42,16 @@ export default class ImageInterceptor extends Plugin {
 			console.error("editor.config.imageInterceptor.callback is not configured! Pasting/dropping images is not going to work!");
 		}
 		
+		// Allow the UUID attribute on p tag. We're using the p tag because we get errors, or the attribute gets lost,
+		// when we use other tags. Thanks CKEditor.
 		const writer = new UpcastWriter(editor.editing.view.document);
-		editor.model.schema.extend( 'image', { allowAttributes: [ 'uuid' ] } );
-		editor.conversion.attributeToAttribute( { model: 'uuid', view: 'uuid'} );
+		editor.model.schema.extend( 'paragraph', { allowAttributes: [ 'uuid', 'data-uuid' ] } );
+		editor.conversion.attributeToAttribute( { model: 'data-uuid', view: 'data-uuid'} );
+
+		// On clipboard paste, we want to intercept the data transformation process
+		// to find images that we accept. If we find any, we want to replace them with placeholder
+		// images (and tag them with UUIDs so that consumers can find them later) and return them
+		// in the callback so consumers can decide what to do with them
 		editor.plugins.get( 'Clipboard' ).on( 'inputTransformation', ( evt, data ) => {
 			const selection = this.editor.model.document.selection.getFirstPosition().clone();
 
@@ -60,23 +67,26 @@ export default class ImageInterceptor extends Plugin {
 				const src = images[i].getAttribute('src');
 				if (src.startsWith('data:image/png;') || src.startsWith('data:image/jpeg;') || src.startsWith('data:image/jpg;')) {
 					const uniqueID = uuid();
-					writer.setAttribute("uuid", uniqueID, images[i]);
+					const placeholder = writer.createElement("p", { "data-uuid" : uniqueID});
+					const text = writer.createText(" "); // Need to add something so that the element doesn't simply get removed by ckeditor
+					writer.appendChild(text, placeholder);
+					writer.replace(images[i], placeholder);
 					validImages.push({uuid: uniqueID, element: images[i]});
 				} else {
-					writer.remove(images[i]);
+					writer.remove(images[i]); // If we don't support the format, then remove it entirely
 				}
 			}
 
-			// Invoke the image callback set by the client app so that they can handle the images that were pasted
-			imageCallback({type: "element", data: validImages, caretPosition: selection});
+			// If we found images, invoke the callback
+			if (validImages.length > 0) {
+				imageCallback({type: "element", data: validImages, caretPosition: selection});
+			}
 		}, {priority: "normal"});
 
+		// We also want to intercept images when dropped (i.e. dragged).
 		editor.editing.view.document.on( 'drop', ( evt, data ) => {
 			// Get the fiels from the drop event and check if they're images.
 			const selection = this.editor.model.document.selection.getFirstPosition().clone();
-			const s = this.editor.model.document.selection.getLastPosition();
-			console.log(selection);
-			console.log(s);
 			const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
 			if (files != null && files.length > 0) {
 				const imageFiles = [];

@@ -45,6 +45,7 @@ export class ImageBasedAssetPlugin extends Plugin {
 		// Define a command that external code can call to add an image with metadata to the editor, or edit an existing one
 		this.editor.commands.add( 'addNewImageBasedAsset', new AddNewImage( this.editor ) );
 		this.editor.commands.add( 'editImageBasedAsset', new EditImage( this.editor ) );
+		this.editor.commands.add( 'replaceElementWithNewImage', new ReplaceElementWithNewImage( this.editor ) );
 
 		// Define the plugin
 		editor.ui.componentFactory.add( this.pluginName, locale => {
@@ -139,6 +140,42 @@ class AddNewImage extends Command {
 			// Insert the image in the current selection location.
 			selectedPosition = selectedPosition != null ? selectedPosition : this.editor.model.document.selection.getFirstPosition();
 			this.editor.model.insertContent( imageElement, selectedPosition );
+		} );
+	}
+}
+
+class ReplaceElementWithNewImage extends Command {
+	execute( attrsToFind, url, style, assetID, assetType, assetSHClass ) {
+		// Create an image model element, and assign it the metadata that was passed in. Note that ALL changes to the model
+		// need to be made through the model.change((writer) => {...}) pattern
+		this.editor.model.change( writer => {
+			const newData = {
+				src: url,
+				imageStyle: style,
+				specialHandling: assetSHClass
+			};
+			newData[ ASSET_ID_PROPERTY_NAME ] = assetID;
+			newData[ ASSET_TYPE_PROPERTY_NAME ] = assetType;
+			const imageElement = writer.createElement( 'image', newData );
+
+			const range = this.editor.model.createRangeIn(this.editor.model.document.getRoot());
+			for (const value of range.getWalker({shallow: false})) {
+				const element = value.item;
+				let matched = true;
+				for (const key of Object.keys(attrsToFind)) {
+					if (attrsToFind[key] != element.getAttribute(key)) {
+						matched = false;
+						break;
+					}
+				}
+				if (matched) {
+					this.editor.editing.view.focus();
+					const position = writer.createPositionAfter(element).clone();
+					this.editor.model.insertContent( imageElement, position );
+					writer.remove(element);
+					break;
+				}
+			}
 		} );
 	}
 }
