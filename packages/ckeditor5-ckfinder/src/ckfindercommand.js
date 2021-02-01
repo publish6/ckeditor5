@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -60,7 +60,12 @@ export default class CKFinderCommand extends Command {
 		const openerMethod = this.editor.config.get( 'ckfinder.openerMethod' ) || 'modal';
 
 		if ( openerMethod != 'popup' && openerMethod != 'modal' ) {
-			throw new CKEditorError( 'ckfinder-unknown-openerMethod: The openerMethod config option must by "popup" or "modal".', editor );
+			/**
+			 * The `ckfinder.openerMethod` must be one of: "popup" or "modal".
+			 *
+			 * @error ckfinder-unknown-openermethod
+			 */
+			throw new CKEditorError( 'ckfinder-unknown-openermethod', editor );
 		}
 
 		const options = this.editor.config.get( 'ckfinder.options' ) || {};

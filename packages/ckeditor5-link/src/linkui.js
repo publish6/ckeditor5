@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -9,7 +9,7 @@
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
-import { isLinkElement, LINK_KEYSTROKE } from './utils';
+import { addLinkProtocolIfApplicable, isLinkElement, LINK_KEYSTROKE } from './utils';
 
 import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
 
@@ -21,8 +21,6 @@ import LinkActionsView from './ui/linkactionsview';
 
 import linkIcon from '../theme/icons/link.svg';
 
-const protocolRegExp = /^((\w+:(\/{2,})?)|(\W))/i;
-const emailRegExp = /[\w-]+@[\w-]+\.+[\w-]+/i;
 const VISUAL_SELECTION_MARKER_NAME = 'link-ui';
 
 /**
@@ -165,7 +163,7 @@ export default class LinkUI extends Plugin {
 		const linkCommand = editor.commands.get( 'link' );
 		const defaultProtocol = editor.config.get( 'link.defaultProtocol' );
 
-		const formView = new LinkFormView( editor.locale, linkCommand, defaultProtocol );
+		const formView = new LinkFormView( editor.locale, linkCommand );
 
 		formView.urlInputView.fieldView.bind( 'value' ).to( linkCommand, 'value' );
 
@@ -176,16 +174,8 @@ export default class LinkUI extends Plugin {
 		// Execute link command after clicking the "Save" button.
 		this.listenTo( formView, 'submit', () => {
 			const { value } = formView.urlInputView.fieldView.element;
-
-			// The regex checks for the protocol syntax ('xxxx://' or 'xxxx:')
-			// or non-word characters at the beginning of the link ('/', '#' etc.).
-			const isProtocolNeeded = !!defaultProtocol && !protocolRegExp.test( value );
-			const isEmail = emailRegExp.test( value );
-
-			const protocol = isEmail ? 'mailto:' : defaultProtocol;
-			const parsedValue = value && isProtocolNeeded ? protocol + value : value;
-
-			editor.execute( 'link', parsedValue, formView.getDecoratorSwitchesState() );
+			const parsedUrl = addLinkProtocolIfApplicable( value, defaultProtocol );
+			editor.execute( 'link', parsedUrl, formView.getDecoratorSwitchesState() );
 			this._closeFormView();
 		} );
 
@@ -219,7 +209,9 @@ export default class LinkUI extends Plugin {
 			// Prevent focusing the search bar in FF, Chrome and Edge. See https://github.com/ckeditor/ckeditor5/issues/4811.
 			cancel();
 
-			this._showUI( true );
+			if ( linkCommand.isEnabled ) {
+				this._showUI( true );
+			}
 		} );
 
 		editor.ui.componentFactory.add( 'link', locale => {
@@ -322,6 +314,8 @@ export default class LinkUI extends Plugin {
 		const editor = this.editor;
 		const linkCommand = editor.commands.get( 'link' );
 
+		this.formView.disableCssTransitions();
+
 		this._balloon.add( {
 			view: this.formView,
 			position: this._getBalloonPositionData()
@@ -331,6 +325,8 @@ export default class LinkUI extends Plugin {
 		if ( this._balloon.visibleView === this.formView ) {
 			this.formView.urlInputView.fieldView.select();
 		}
+
+		this.formView.enableCssTransitions();
 
 		// Make sure that each time the panel shows up, the URL field remains in sync with the value of
 		// the command. If the user typed in the input, then canceled the balloon (`urlInputView.fieldView#value` stays
@@ -589,18 +585,27 @@ export default class LinkUI extends Plugin {
 		const view = this.editor.editing.view;
 		const model = this.editor.model;
 		const viewDocument = view.document;
-		const targetLink = this._getSelectedLinkElement();
-		const range = model.markers.has( VISUAL_SELECTION_MARKER_NAME ) ?
-			// There are cases when we highlight selection using a marker (#7705, #4721).
-			this.editor.editing.mapper.toViewRange( model.markers.get( VISUAL_SELECTION_MARKER_NAME ).getRange() ) :
-			// If no markers are available refer to a regular selection.
-			viewDocument.selection.getFirstRange();
+		let target = null;
 
-		const target = targetLink ?
-			// When selection is inside link element, then attach panel to this element.
-			view.domConverter.mapViewToDom( targetLink ) :
-			// Otherwise attach panel to the selection.
-			view.domConverter.viewRangeToDom( range );
+		if ( model.markers.has( VISUAL_SELECTION_MARKER_NAME ) ) {
+			// There are cases when we highlight selection using a marker (#7705, #4721).
+			const markerViewElements = Array.from( this.editor.editing.mapper.markerNameToElements( VISUAL_SELECTION_MARKER_NAME ) );
+			const newRange = view.createRange(
+				view.createPositionBefore( markerViewElements[ 0 ] ),
+				view.createPositionAfter( markerViewElements[ markerViewElements.length - 1 ] )
+			);
+
+			target = view.domConverter.viewRangeToDom( newRange );
+		} else {
+			const targetLink = this._getSelectedLinkElement();
+			const range = viewDocument.selection.getFirstRange();
+
+			target = targetLink ?
+				// When selection is inside link element, then attach panel to this element.
+				view.domConverter.mapViewToDom( targetLink ) :
+				// Otherwise attach panel to the selection.
+				view.domConverter.viewRangeToDom( range );
+		}
 
 		return { target };
 	}
@@ -653,16 +658,29 @@ export default class LinkUI extends Plugin {
 		const model = this.editor.model;
 
 		model.change( writer => {
+			const range = model.document.selection.getFirstRange();
+
 			if ( model.markers.has( VISUAL_SELECTION_MARKER_NAME ) ) {
-				writer.updateMarker( VISUAL_SELECTION_MARKER_NAME, {
-					range: model.document.selection.getFirstRange()
-				} );
+				writer.updateMarker( VISUAL_SELECTION_MARKER_NAME, { range } );
 			} else {
-				writer.addMarker( VISUAL_SELECTION_MARKER_NAME, {
-					usingOperation: false,
-					affectsData: false,
-					range: model.document.selection.getFirstRange()
-				} );
+				if ( range.start.isAtEnd ) {
+					const startPosition = range.start.getLastMatchingPosition(
+						( { item } ) => !model.schema.isContent( item ),
+						{ boundaries: range }
+					);
+
+					writer.addMarker( VISUAL_SELECTION_MARKER_NAME, {
+						usingOperation: false,
+						affectsData: false,
+						range: writer.createRange( startPosition, range.end )
+					} );
+				} else {
+					writer.addMarker( VISUAL_SELECTION_MARKER_NAME, {
+						usingOperation: false,
+						affectsData: false,
+						range
+					} );
+				}
 			}
 		} );
 	}

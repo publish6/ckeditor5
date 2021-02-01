@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -10,6 +10,7 @@
 import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 import UpcastHelpers from './upcasthelpers';
 import DowncastHelpers from './downcasthelpers';
+import toArray from '@ckeditor/ckeditor5-utils/src/toarray';
 
 /**
  * A utility class that helps add converters to upcast and downcast dispatchers.
@@ -74,10 +75,10 @@ export default class Conversion {
 		this._helpers = new Map();
 
 		// Define default 'downcast' & 'upcast' dispatchers groups. Those groups are always available as two-way converters needs them.
-		this._downcast = Array.isArray( downcastDispatchers ) ? downcastDispatchers : [ downcastDispatchers ];
+		this._downcast = toArray( downcastDispatchers );
 		this._createConversionHelpers( { name: 'downcast', dispatchers: this._downcast, isDowncast: true } );
 
-		this._upcast = Array.isArray( upcastDispatchers ) ? upcastDispatchers : [ upcastDispatchers ];
+		this._upcast = toArray( upcastDispatchers );
 		this._createConversionHelpers( { name: 'upcast', dispatchers: this._upcast, isDowncast: false } );
 	}
 
@@ -106,8 +107,7 @@ export default class Conversion {
 			 * @error conversion-add-alias-dispatcher-not-registered
 			 */
 			throw new CKEditorError(
-				'conversion-add-alias-dispatcher-not-registered: ' +
-				'Trying to register and alias for a dispatcher that nas not been registered.',
+				'conversion-add-alias-dispatcher-not-registered',
 				this
 			);
 		}
@@ -183,7 +183,7 @@ export default class Conversion {
 			 *
 			 * @error conversion-for-unknown-group
 			 */
-			throw new CKEditorError( 'conversion-for-unknown-group: Trying to add a converter to an unknown dispatchers group.', this );
+			throw new CKEditorError( 'conversion-for-unknown-group', this );
 		}
 
 		return this._helpers.get( groupName );
@@ -588,7 +588,7 @@ export default class Conversion {
 			 *
 			 * @error conversion-group-exists
 			 */
-			throw new CKEditorError( 'conversion-group-exists: Trying to register a group name that has already been registered.', this );
+			throw new CKEditorError( 'conversion-group-exists', this );
 		}
 
 		const helpers = isDowncast ? new DowncastHelpers( dispatchers ) : new UpcastHelpers( dispatchers );
@@ -637,9 +637,7 @@ function* _getUpcastDefinition( model, view, upcastAlso ) {
 	yield { model, view };
 
 	if ( upcastAlso ) {
-		upcastAlso = Array.isArray( upcastAlso ) ? upcastAlso : [ upcastAlso ];
-
-		for ( const upcastAlsoItem of upcastAlso ) {
+		for ( const upcastAlsoItem of toArray( upcastAlso ) ) {
 			yield { model, view: upcastAlsoItem };
 		}
 	}

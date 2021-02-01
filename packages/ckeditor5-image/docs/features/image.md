@@ -13,6 +13,8 @@ The [`@ckeditor/ckeditor5-image`](https://www.npmjs.com/package/@ckeditor/ckedit
 * {@link module:image/imagestyle~ImageStyle} adds support for [image styles](#image-styles).
 * {@link module:image/imagetextalternative~ImageTextAlternative} adds support for adding text alternative.
 * {@link module:image/imageupload~ImageUpload} adds support for {@link features/image-upload uploading dropped or pasted images}.
+* {@link module:image/imageinsert~ImageInsert} adds support for [inserting images via URL](#inserting-images-via-source-url) and other custom integrations.
+* {@link module:image/autoimage~AutoImage} adds support for [inserting images via pasting a URL into the editor](#inserting-images-via-pasting-url-into-editor).
 * {@link module:image/imageresize~ImageResize} adds support for [resizing images](#resizing-images).
 * {@link module:link/linkimage~LinkImage} adds support for [linking images](#linking-images).
 
@@ -76,7 +78,9 @@ The {@link module:image/imagecaption~ImageCaption} plugin adds support for image
 
 By default, if the image caption is empty, the `<figcaption>` element is not visible to the user. You can click the image to reveal the caption field and write one. See the demo below:
 
-{@snippet features/image-caption}
+<info-box hint>
+	You can change the placement of the image caption by setting [`caption-side`](https://developer.mozilla.org/en-US/docs/Web/CSS/caption-side) in your {@link builds/guides/integration/content-styles content styles} for the `.ck-content .image > figcaption` style. Changing it to `caption-side: top` will display the caption above the image.
+</info-box>
 
 ## Image upload
 
@@ -86,26 +90,37 @@ See the {@link features/image-upload Image upload} guide.
 
 Besides the ability to insert images by uploading them directly from your disk or via CKFinder, you can also configure CKEditor 5 to allow inserting images via source URL.
 
-In order to enable this option, configure {@link module:image/imageupload~ImageUploadPanelConfig#items `image.upload.panel.items`} like below:
+In order to enable this option, install the `ImageInsert` plugin and add the `imageInsert` button to the toolbar (it replaces the standard `imageUpload` button).
 
 ```js
+import ImageInsert from '@ckeditor/ckeditor5-image/src/imageinsert';
+
 ClassicEditor
 	.create( document.querySelector( '#editor' ), {
-		// ...
-		image: {
-			// ...
-			upload: {
-				panel: {
-					items: [ 'insertImageViaUrl' ]
-				}
-			}
-		}
+		plugins: [ ... , ImageInsert ],
+		toolbar: [ ... , 'imageInsert' ]
 	} )
 ```
 
-This will extend the standalone **Insert image** button in the toolbar by adding a dropdown panel with the new feature. To open the panel and add the image URL, click the arrow next to the image button. Check the demo below to insert a new image via URL or update an existing image by selecting it, opening the dropdown panel and pasting a new URL.
+This will add a new **Insert image** dropdown in the toolbar. To open the panel and add the image URL, click the arrow next to the image button. Check the demo below to insert a new image via URL or update an existing image by selecting it, opening the dropdown panel and pasting a new URL.
 
 {@snippet features/image-insert-via-url}
+
+## Inserting images via pasting URL into editor
+
+The {@link module:image/autoimage~AutoImage} plugin recognizes image links in the pasted content and embeds them shortly after they are injected into the document to speed up the editing. Accepted image extensions are: `jpg`, `jpeg`, `png`, `gif`, `ico`.
+
+<info-box>
+	The image URL must be the only content pasted to be properly embedded. Multiple links (`"http://image.url http://another.image.url"`) as well as bigger chunks of content (`"This link http://image.url will not be auto–embedded when pasted."`) are ignored.
+</info-box>
+
+If the automatic embedding was unexpected, for instance when the link was meant to remain in the content as text, simply undo the action (by clicking the "Undo" button in the toolbar or using the <kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd> keystrokes).
+
+You can paste the image URL directly into the editor content, and it will be automatically embedded.
+
+<input class="example-input" type="text" value="https://ckeditor.com/docs/ckeditor5/latest/assets/img/malta.jpg">
+
+{@snippet features/image-insert-via-pasting-url-into-editor}
 
 ## Responsive images
 

@@ -1,7 +1,9 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
+
+/* eslint-env browser */
 
 import FileUploader from '../../src/uploadgateway/fileuploader';
 import UploadGateway from '../../src/uploadgateway/uploadgateway';
@@ -9,7 +11,8 @@ import Token from '../../src/token/token';
 import { expectToThrowCKEditorError } from '@ckeditor/ckeditor5-utils/tests/_utils/utils';
 
 describe( 'UploadGateway', () => {
-	const token = new Token( 'url', { initValue: 'token', autoRefresh: false } );
+	const tokenInitValue = `header.${ btoa( JSON.stringify( { exp: Date.now() + 3600000 } ) ) }.signature`;
+	const token = new Token( 'url', { initValue: tokenInitValue, autoRefresh: false } );
 
 	describe( 'constructor()', () => {
 		it( 'should throw error when no token provided', () => {

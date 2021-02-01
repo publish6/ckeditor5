@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -127,7 +127,7 @@ describe( 'MarkerCollection', () => {
 		it( 'should throw if marker name with "," is added', () => {
 			expectToThrowCKEditorError( () => {
 				markers._set( 'foo,bar', range );
-			}, /^markercollection-incorrect-marker-name:/, markers );
+			}, 'markercollection-incorrect-marker-name', markers );
 		} );
 	} );
 
@@ -215,7 +215,7 @@ describe( 'MarkerCollection', () => {
 		it( 'should throw if marker does not exist', () => {
 			expectToThrowCKEditorError( () => {
 				markers._refresh( 'name' );
-			}, /^markercollection-refresh-marker-not-exists:/, markers );
+			}, 'markercollection-refresh-marker-not-exists', markers );
 		} );
 	} );
 

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -37,7 +37,7 @@ describe( 'UIElement', () => {
 		it( 'should throw if child elements are passed to constructor', () => {
 			expectToThrowCKEditorError( () => {
 				new UIElement( doc, 'img', null, [ new Element( doc, 'i' ) ] ); // eslint-disable-line no-new
-			}, 'view-uielement-cannot-add: Cannot add child nodes to UIElement instance.' );
+			}, 'view-uielement-cannot-add' );
 		} );
 	} );
 
@@ -87,7 +87,7 @@ describe( 'UIElement', () => {
 		it( 'should throw when try to append new child element', () => {
 			expectToThrowCKEditorError( () => {
 				uiElement._appendChild( new Element( doc, 'i' ) );
-			}, 'view-uielement-cannot-add: Cannot add child nodes to UIElement instance.' );
+			}, 'view-uielement-cannot-add' );
 		} );
 	} );
 
@@ -95,7 +95,7 @@ describe( 'UIElement', () => {
 		it( 'should throw when try to insert new child element', () => {
 			expectToThrowCKEditorError( () => {
 				uiElement._insertChild( 0, new Element( doc, 'i' ) );
-			}, 'view-uielement-cannot-add: Cannot add child nodes to UIElement instance.' );
+			}, 'view-uielement-cannot-add' );
 		} );
 	} );
 

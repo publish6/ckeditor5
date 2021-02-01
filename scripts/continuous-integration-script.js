@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md.
  */
 
@@ -92,8 +92,7 @@ for ( const fullPackageName of packages ) {
 
 console.log( 'Uploading combined code coverage report…' );
 
-// Comparing "organization/ckeditor5" and "ckeditor/ckeditor5".
-if ( process.env.TRAVIS_PULL_REQUEST_SLUG === process.env.TRAVIS_REPO_SLUG ) {
+if ( shouldUploadCoverageReport() ) {
 	childProcess.execSync( 'npx coveralls < .out/combined_lcov.info' );
 } else {
 	console.log( 'Since the PR comes from the community, we do not upload code coverage report.' );
@@ -105,9 +104,13 @@ console.log( 'Done' );
 if ( Object.values( failedChecks ).some( checksSet => checksSet.size > 0 ) ) {
 	console.log( '\n---\n' );
 
+	console.log( `🔥 ${ RED }Errors were detected by the CI.${ NO_COLOR }\n\n` );
+
 	showFailedCheck( 'dependency', 'The following packages have dependencies that are not included in its package.json' );
 	showFailedCheck( 'unitTests', 'The following packages did not pass unit tests' );
 	showFailedCheck( 'codeCoverage', 'The following packages did not provide required code coverage' );
+
+	console.log( '\n---\n' );
 
 	process.exit( 1 ); // Exit code 1 will break the CI build.
 }
@@ -132,7 +135,7 @@ function runSubprocess( binaryName, cliArguments, packageName, checkName, failMe
 	}
 
 	if ( subprocess.status !== 0 ) {
-		failedChecks.unitTests.add( packageName );
+		failedChecks[ checkName ].add( packageName );
 		console.log( `💥 ${ RED }${ packageName }${ NO_COLOR } ` + failMessage + ' 💥' );
 	}
 }
@@ -157,4 +160,10 @@ function appendCoverageReport() {
 			flag: 'as'
 		} );
 	} );
+}
+
+function shouldUploadCoverageReport() {
+	// If the repository slugs are different, the pull request comes from the community (forked repository).
+	// For such builds, sending the CC report will be disabled.
+	return ( process.env.TRAVIS_EVENT_TYPE !== 'pull_request' || process.env.TRAVIS_PULL_REQUEST_SLUG === process.env.TRAVIS_REPO_SLUG );
 }

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -160,7 +160,7 @@ describe( 'NodeList', () => {
 		it( 'should throw if not a Node is inserted', () => {
 			expectToThrowCKEditorError( () => {
 				nodes._insertNodes( 0, [ 'foo' ] );
-			}, /nodelist-insertNodes-not-node/, nodes );
+			}, 'nodelist-insertnodes-not-node', nodes );
 		} );
 	} );
 

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -323,7 +323,7 @@ describe( 'table cell properties', () => {
 					model.change( writer => writer.setAttribute( 'borderStyle', 'ridge', tableCell ) );
 				} );
 
-				it( 'should be overridable', () => {
+				it( 'should be overridable for borderStyle', () => {
 					editor.conversion.for( 'downcast' )
 						.add( dispatcher => dispatcher.on( 'attribute:borderStyle:tableCell', ( evt, data, conversionApi ) => {
 							conversionApi.consumable.consume( data.item, evt.name );
@@ -365,7 +365,7 @@ describe( 'table cell properties', () => {
 					model.change( writer => writer.setAttribute( 'borderWidth', '2px', tableCell ) );
 				} );
 
-				it( 'should be overridable', () => {
+				it( 'should be overridable for borderWidth', () => {
 					editor.conversion.for( 'downcast' )
 						.add( dispatcher => dispatcher.on( 'attribute:borderWidth:tableCell', ( evt, data, conversionApi ) => {
 							conversionApi.consumable.consume( data.item, evt.name );

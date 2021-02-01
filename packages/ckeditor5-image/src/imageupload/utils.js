@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -9,8 +9,7 @@
 
 /* global fetch, File */
 
-import LabeledFieldView from '@ckeditor/ckeditor5-ui/src/labeledfield/labeledfieldview';
-import { createLabeledInputText } from '@ckeditor/ckeditor5-ui/src/labeledfield/utils';
+import global from '@ckeditor/ckeditor5-utils/src/dom/global';
 
 /**
  * Creates a regular expression used to test for image files.
@@ -51,7 +50,14 @@ export function fetchLocalImage( image ) {
 
 				resolve( file );
 			} )
-			.catch( reject );
+			.catch( err => {
+				// Fetch fails only, if it can't make a request due to a network failure or if anything prevented the request
+				// from completing, i.e. the Content Security Policy rules. It is not possible to detect the exact cause of failure,
+				// so we are just trying the fallback solution, if general TypeError is thrown.
+				return err && err.name === 'TypeError' ?
+					convertLocalImageOnCanvas( imageSrc ).then( resolve ).catch( reject ) :
+					reject( err );
+			} );
 	} );
 }
 
@@ -86,68 +92,45 @@ function getImageMimeType( blob, src ) {
 	}
 }
 
-/**
- * Creates an integrations object that will be passed to the
- * {@link module:image/imageupload/ui/imageuploadpanelview~ImageUploadPanelView}.
- *
- * @param {module:core/editor/editor~Editor} editor The editor instance.
- *
- * @returns {Object.<String, module:ui/view~View>} The integrations object.
- */
-export function prepareIntegrations( editor ) {
-	const panelItems = editor.config.get( 'image.upload.panel.items' );
-	const imageUploadUIPlugin = editor.plugins.get( 'ImageUploadUI' );
+// Creates a promise that converts the image local source (Base64 or blob) to a blob using canvas and resolves
+// with a `File` object.
+//
+// @param {String} imageSrc Image `src` attribute value.
+// @returns {Promise.<File>} A promise which resolves when an image source is converted to a `File` instance.
+// It resolves with a `File` object. If there were any errors during file processing, the promise will be rejected.
+function convertLocalImageOnCanvas( imageSrc ) {
+	return getBlobFromCanvas( imageSrc ).then( blob => {
+		const mimeType = getImageMimeType( blob, imageSrc );
+		const ext = mimeType.replace( 'image/', '' );
+		const filename = `image.${ ext }`;
 
-	const PREDEFINED_INTEGRATIONS = {
-		'insertImageViaUrl': createLabeledInputView( editor.locale )
-	};
-
-	if ( !panelItems ) {
-		return PREDEFINED_INTEGRATIONS;
-	}
-
-	// Prepares ckfinder component for the `openCKFinder` integration token.
-	if ( panelItems.find( item => item === 'openCKFinder' ) && editor.ui.componentFactory.has( 'ckfinder' ) ) {
-		const ckFinderButton = editor.ui.componentFactory.create( 'ckfinder' );
-		ckFinderButton.set( {
-			withText: true,
-			class: 'ck-image-upload__ck-finder-button'
-		} );
-
-		// We want to close the dropdown panel view when user clicks the ckFinderButton.
-		ckFinderButton.delegate( 'execute' ).to( imageUploadUIPlugin, 'cancel' );
-
-		PREDEFINED_INTEGRATIONS.openCKFinder = ckFinderButton;
-	}
-
-	// Creates integrations object of valid views to pass it to the ImageUploadPanelView.
-	return panelItems.reduce( ( object, key ) => {
-		if ( PREDEFINED_INTEGRATIONS[ key ] ) {
-			object[ key ] = PREDEFINED_INTEGRATIONS[ key ];
-		} else if ( editor.ui.componentFactory.has( key ) ) {
-			object[ key ] = editor.ui.componentFactory.create( key );
-		}
-
-		return object;
-	}, {} );
+		return new File( [ blob ], filename, { type: mimeType } );
+	} );
 }
 
-/**
- * Creates a labeled field view.
- *
- * @param {module:utils/locale~Locale} locale The localization services instance.
- *
- * @returns {module:ui/labeledfield/labeledfieldview~LabeledFieldView}
- */
-export function createLabeledInputView( locale ) {
-	const t = locale.t;
-	const labeledInputView = new LabeledFieldView( locale, createLabeledInputText );
+// Creates a promise that resolves with a `Blob` object converted from the image source (Base64 or blob).
+//
+// @param {String} imageSrc Image `src` attribute value.
+// @returns {Promise.<Blob>}
+function getBlobFromCanvas( imageSrc ) {
+	return new Promise( ( resolve, reject ) => {
+		const image = global.document.createElement( 'img' );
 
-	labeledInputView.set( {
-		label: t( 'Insert image via URL' )
+		image.addEventListener( 'load', () => {
+			const canvas = global.document.createElement( 'canvas' );
+
+			canvas.width = image.width;
+			canvas.height = image.height;
+
+			const ctx = canvas.getContext( '2d' );
+
+			ctx.drawImage( image, 0, 0 );
+
+			canvas.toBlob( blob => blob ? resolve( blob ) : reject() );
+		} );
+
+		image.addEventListener( 'error', () => reject() );
+
+		image.src = imageSrc;
 	} );
-	labeledInputView.fieldView.placeholder = 'https://example.com/src/image.png';
-	labeledInputView.infoText = t( 'Paste the image source URL.' );
-
-	return labeledInputView;
 }

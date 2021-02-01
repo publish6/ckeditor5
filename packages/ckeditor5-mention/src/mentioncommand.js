@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -99,7 +99,7 @@ export default class MentionCommand extends Command {
 			 * @error mentioncommand-incorrect-marker
 			 */
 			throw new CKEditorError(
-				'mentioncommand-incorrect-marker: The marker must be a single character.',
+				'mentioncommand-incorrect-marker',
 				this
 			);
 		}
@@ -131,7 +131,7 @@ export default class MentionCommand extends Command {
 			 * @error mentioncommand-incorrect-id
 			 */
 			throw new CKEditorError(
-				'mentioncommand-incorrect-id: The item id must start with the marker character.',
+				'mentioncommand-incorrect-id',
 				this
 			);
 		}

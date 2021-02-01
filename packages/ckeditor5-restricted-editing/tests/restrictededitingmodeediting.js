@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -656,7 +656,7 @@ describe( 'RestrictedEditingModeEditing', () => {
 			assertEqualMarkup( getModelData( model ), '<paragraph>foo b[]ar baz</paragraph>' );
 		} );
 
-		it( 'should prevent changing text before exception marker', () => {
+		it( 'should prevent changing text before exception marker (native spell-check simulation)', () => {
 			addExceptionMarker( 4, 7, firstParagraph );
 
 			model.change( writer => {

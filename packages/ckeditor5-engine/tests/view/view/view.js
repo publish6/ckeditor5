@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -904,6 +904,7 @@ describe( 'view', () => {
 		it( 'should rethrow custom CKEditorError errors', () => {
 			expectToThrowCKEditorError( () => {
 				view.change( () => {
+					// eslint-disable-next-line ckeditor5-rules/ckeditor-error-message
 					throw new CKEditorError( 'foo', view );
 				} );
 			}, /foo/, view );

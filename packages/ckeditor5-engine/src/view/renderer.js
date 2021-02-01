@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -150,9 +150,9 @@ export default class Renderer {
 				/**
 				 * Unknown type passed to Renderer.markToSync.
 				 *
-				 * @error renderer-unknown-type
+				 * @error view-renderer-unknown-type
 				 */
-				throw new CKEditorError( 'view-renderer-unknown-type: Unknown type passed to Renderer.markToSync.', this );
+				throw new CKEditorError( 'view-renderer-unknown-type', this );
 			}
 		}
 	}
@@ -387,7 +387,7 @@ export default class Renderer {
 			 *
 			 * @error view-renderer-filler-was-lost
 			 */
-			throw new CKEditorError( 'view-renderer-filler-was-lost: The inline filler node was lost.', this );
+			throw new CKEditorError( 'view-renderer-filler-was-lost', this );
 		}
 
 		if ( isInlineFiller( domFillerNode ) ) {
@@ -1016,6 +1016,8 @@ function filterOutFakeSelectionContainer( domChildList, fakeSelectionContainer )
 // @returns {HTMLElement}
 function createFakeSelectionContainer( domDocument ) {
 	const container = domDocument.createElement( 'div' );
+
+	container.className = 'ck-fake-selection-container';
 
 	Object.assign( container.style, {
 		position: 'fixed',

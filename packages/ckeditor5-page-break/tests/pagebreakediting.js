@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -48,6 +48,17 @@ describe( 'PageBreakEditing', () => {
 
 	it( 'should register imageInsert command', () => {
 		expect( editor.commands.get( 'pageBreak' ) ).to.be.instanceOf( PageBreakCommand );
+	} );
+
+	// https://github.com/ckeditor/ckeditor5/issues/8788.
+	// Proper integration testing of this is too complex.
+	// Making sure the label is no longer a regular text element should be enough.
+	it( 'should have label as a UIElement', () => {
+		setModelData( model, '[<pageBreak></pageBreak>]' );
+		const textNode = viewDocument.getRoot().getChild( 0 ).getChild( 0 );
+
+		expect( textNode.is( 'uiElement' ) ).to.be.true;
+		expect( textNode.hasClass( 'page-break__label' ) ).to.be.true;
 	} );
 
 	describe( 'conversion in data pipeline', () => {
@@ -171,17 +182,6 @@ describe( 'PageBreakEditing', () => {
 					.to.equal( '' );
 			} );
 
-			it( 'should not convert if inner span has wrong styles', () => {
-				editor.setData(
-					'<div class="page-break" style="page-break-after:always;">' +
-					'<span style="display:inline-block;">&nbsp;</span>' +
-					'</div>'
-				);
-
-				expect( getModelData( model, { withoutSelection: true } ) )
-					.to.equal( '' );
-			} );
-
 			it( 'should not convert if inner span has any children', () => {
 				editor.setData(
 					'<div class="page-break" style="page-break-after:always;">' +
@@ -263,7 +263,12 @@ describe( 'PageBreakEditing', () => {
 			it( 'should convert', () => {
 				setModelData( model, '<pageBreak></pageBreak>' );
 
+				// The page break label should be an UI element, thus should not be rendered by default.
 				expect( getViewData( view, { withoutSelection: true } ) ).to.equal(
+					'<div class="ck-widget page-break" contenteditable="false"><span class="page-break__label"></span></div>'
+				);
+
+				expect( getViewData( view, { withoutSelection: true, renderUIElements: true } ) ).to.equal(
 					'<div class="ck-widget page-break" contenteditable="false"><span class="page-break__label">Page break</span></div>'
 				);
 			} );

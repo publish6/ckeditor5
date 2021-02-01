@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -587,35 +587,57 @@ describe( 'LinkImageEditing', () => {
 		} );
 
 		describe( 'upcast converter', () => {
-			let editor;
+			let editor, model;
 
-			it( 'should upcast attributes from initial data', async () => {
-				editor = await VirtualTestEditor.create( {
-					initialData: '<figure class="image"><a href="url" target="_blank" rel="noopener noreferrer" download="file">' +
-						'<img src="/assets/sample.png"></a></figure>',
-					plugins: [ Paragraph, LinkImageEditing ],
-					link: {
-						decorators: {
-							isExternal: {
-								mode: 'manual',
-								label: 'Open in a new window',
-								attributes: {
-									target: '_blank',
-									rel: 'noopener noreferrer'
-								}
-							},
-							isDownloadable: {
-								mode: 'manual',
-								label: 'Downloadable',
-								attributes: {
-									download: 'file'
+			beforeEach( () => {
+				return VirtualTestEditor
+					.create( {
+						plugins: [ Paragraph, LinkImageEditing ],
+						link: {
+							decorators: {
+								isExternal: {
+									mode: 'manual',
+									label: 'Open in a new tab',
+									attributes: {
+										target: '_blank',
+										rel: 'noopener noreferrer'
+									}
+								},
+								isDownloadable: {
+									mode: 'manual',
+									label: 'Downloadable',
+									attributes: {
+										download: 'download'
+									}
+								},
+								isGallery: {
+									mode: 'manual',
+									label: 'Gallery link',
+									attributes: {
+										class: 'gallery'
+									}
 								}
 							}
 						}
-					}
-				} );
+					} )
+					.then( newEditor => {
+						editor = newEditor;
+						model = editor.model;
+					} );
+			} );
 
-				model = editor.model;
+			afterEach( () => {
+				return editor.destroy();
+			} );
+
+			it( 'should upcast attributes', async () => {
+				editor.setData(
+					'<figure class="image">' +
+						'<a href="url" target="_blank" rel="noopener noreferrer" download="download">' +
+							'<img src="/assets/sample.png">' +
+						'</a>' +
+					'</figure>'
+				);
 
 				expect( getModelData( model, { withoutSelection: true } ) ).to.equal(
 					'<image linkHref="url" linkIsDownloadable="true" linkIsExternal="true" src="/assets/sample.png"></image>'
@@ -625,67 +647,20 @@ describe( 'LinkImageEditing', () => {
 			} );
 
 			it( 'should not upcast partial and incorrect attributes', async () => {
-				editor = await VirtualTestEditor.create( {
-					initialData: '<figure class="image"><a href="url" target="_blank" rel="noopener noreferrer" download="something">' +
-						'<img src="/assets/sample.png"></a></figure>',
-					plugins: [ Paragraph, LinkImageEditing ],
-					link: {
-						decorators: {
-							isExternal: {
-								mode: 'manual',
-								label: 'Open in a new window',
-								attributes: {
-									target: '_blank',
-									rel: 'noopener noreferrer'
-								}
-							},
-							isDownloadable: {
-								mode: 'manual',
-								label: 'Downloadable',
-								attributes: {
-									download: 'file'
-								}
-							}
-						}
-					}
-				} );
-
-				model = editor.model;
+				editor.setData(
+					'<figure class="image">' +
+						'<a href="url" target="_blank" rel="noopener noreferrer" download="something">' +
+							'<img src="/assets/sample.png">' +
+						'</a>' +
+					'</figure>'
+				);
 
 				expect( getModelData( model, { withoutSelection: true } ) ).to.equal(
 					'<image linkHref="url" linkIsExternal="true" src="/assets/sample.png"></image>'
 				);
-
-				await editor.destroy();
 			} );
 
-			it( 'allows overwriting conversion process using highest priority', async () => {
-				editor = await VirtualTestEditor.create( {
-					initialData: '',
-					plugins: [ Paragraph, LinkImageEditing ],
-					link: {
-						decorators: {
-							isExternal: {
-								mode: 'manual',
-								label: 'Open in a new window',
-								attributes: {
-									target: '_blank',
-									rel: 'noopener noreferrer'
-								}
-							},
-							isDownloadable: {
-								mode: 'manual',
-								label: 'Downloadable',
-								attributes: {
-									download: 'file'
-								}
-							}
-						}
-					}
-				} );
-
-				model = editor.model;
-
+			it( 'allows overwriting conversion process using highest priority', () => {
 				// Block manual decorator converter. Consume all attributes and do nothing with them.
 				editor.conversion.for( 'upcast' ).add( dispatcher => {
 					dispatcher.on( 'element:a', ( evt, data, conversionApi ) => {
@@ -706,8 +681,225 @@ describe( 'LinkImageEditing', () => {
 				);
 
 				expect( editor.getData() ).to.equal( '<figure class="image"><a href="url"><img src="/assets/sample.png"></a></figure>' );
+			} );
 
-				await editor.destroy();
+			it( 'should upcast the decorators when linked image (figure > a > img)', () => {
+				// (#7975)
+				editor.setData(
+					'<figure class="image">' +
+						'<a class="gallery" href="https://cksource.com" target="_blank" rel="noopener noreferrer" download="download">' +
+							'<img src="sample.jpg" alt="bar">' +
+						'</a>' +
+						'<figcaption>Caption</figcaption>' +
+					'</figure>' +
+					'<p>' +
+						'<a href="https://cksource.com" target="_blank" rel="noopener noreferrer" download="download">' +
+							'https://cksource.com' +
+						'</a>' +
+					'</p>'
+				);
+
+				expect( getModelData( model, { withoutSelection: true } ) ).to.equal(
+					'<image alt="bar" ' +
+						'linkHref="https://cksource.com" ' +
+						'linkIsDownloadable="true" ' +
+						'linkIsExternal="true" ' +
+						'linkIsGallery="true" ' +
+						'src="sample.jpg">' +
+					'</image>' +
+					'<paragraph>' +
+						'<$text linkHref="https://cksource.com" linkIsDownloadable="true" linkIsExternal="true">' +
+							'https://cksource.com' +
+						'</$text>' +
+					'</paragraph>'
+				);
+			} );
+
+			it( 'should upcast the decorators when linked image (a > img)', () => {
+				// (#7975)
+				editor.setData(
+					'<a class="gallery" href="https://cksource.com" target="_blank" rel="noopener noreferrer" download="download">' +
+						'<img src="sample.jpg" alt="bar">' +
+					'</a>' +
+					'<p>' +
+						'<a href="https://cksource.com" target="_blank" rel="noopener noreferrer" download="download">' +
+							'https://cksource.com' +
+						'</a>' +
+					'</p>'
+				);
+
+				expect( getModelData( model, { withoutSelection: true } ) ).to.equal(
+					'<image alt="bar" ' +
+						'linkHref="https://cksource.com" ' +
+						'linkIsDownloadable="true" ' +
+						'linkIsExternal="true" ' +
+						'linkIsGallery="true" ' +
+						'src="sample.jpg">' +
+					'</image>' +
+					'<paragraph>' +
+						'<$text linkHref="https://cksource.com" linkIsDownloadable="true" linkIsExternal="true">' +
+							'https://cksource.com' +
+						'</$text>' +
+					'</paragraph>'
+				);
+			} );
+		} );
+
+		describe( 'downcast converter', () => {
+			let editor, model;
+
+			beforeEach( () => {
+				return VirtualTestEditor
+					.create( {
+						plugins: [ Paragraph, LinkImageEditing ],
+						link: {
+							decorators: {
+								isExternal: {
+									mode: 'manual',
+									label: 'Open in a new tab',
+									attributes: {
+										target: '_blank',
+										rel: 'noopener noreferrer'
+									}
+								},
+								isDownloadable: {
+									mode: 'manual',
+									label: 'Downloadable',
+									attributes: {
+										download: 'download'
+									}
+								},
+								isGallery: {
+									mode: 'manual',
+									label: 'Gallery link',
+									attributes: {
+										class: 'gallery'
+									}
+								}
+							}
+						}
+					} )
+					.then( newEditor => {
+						editor = newEditor;
+						model = editor.model;
+					} );
+			} );
+
+			afterEach( () => {
+				return editor.destroy();
+			} );
+
+			it( 'should downcast the decorators after applying a change', () => {
+				setModelData( model,
+					'[<image alt="bar" src="sample.jpg"></image>]' +
+					'<paragraph>' +
+						'<$text>https://cksource.com</$text>' +
+					'</paragraph>'
+				);
+
+				editor.execute( 'link', 'https://cksource.com', {
+					linkIsDownloadable: true,
+					linkIsExternal: true,
+					linkIsGallery: true
+				} );
+
+				model.change( writer => {
+					writer.setSelection( model.document.getRoot().getChild( 1 ).getChild( 0 ), 'on' );
+				} );
+
+				editor.execute( 'link', 'https://cksource.com', {
+					linkIsDownloadable: true,
+					linkIsExternal: true,
+					linkIsGallery: true
+				} );
+
+				expect( editor.getData() ).to.equal(
+					'<figure class="image">' +
+						'<a class="gallery" href="https://cksource.com" download="download" target="_blank" rel="noopener noreferrer">' +
+							'<img src="sample.jpg" alt="bar">' +
+						'</a>' +
+					'</figure>' +
+					'<p>' +
+						'<a class="gallery" href="https://cksource.com" download="download" target="_blank" rel="noopener noreferrer">' +
+							'https://cksource.com' +
+						'</a>' +
+					'</p>'
+				);
+			} );
+
+			// See #8401.
+			it( 'should downcast without error if the image already has no link', () => {
+				setModelData( model,
+					'[<image alt="bar" src="sample.jpg"></image>]'
+				);
+
+				editor.execute( 'link', 'https://cksource.com', {
+					linkIsDownloadable: true,
+					linkIsExternal: true,
+					linkIsGallery: true
+				} );
+
+				// Attributes will be removed along with the link, but the downcast will be fired.
+				// The lack of link should not affect the downcasting.
+				expect( () => {
+					editor.execute( 'unlink', 'https://cksource.com', {
+						linkIsDownloadable: true,
+						linkIsExternal: true,
+						linkIsGallery: true
+					} );
+				} ).to.not.throw();
+
+				expect( editor.getData() ).to.equal(
+					'<figure class="image">' +
+							'<img src="sample.jpg" alt="bar">' +
+						'</figure>'
+				);
+			} );
+
+			// See #8401.
+			describe( 'order of model updates', () => {
+				it( 'should not affect converters - base link attributes first', () => {
+					setModelData( model,
+						'[<image src="https://cksource.com"></image>]'
+					);
+
+					model.change( writer => {
+						const ranges = model.schema.getValidRanges( model.document.selection.getRanges(), 'linkIsDownloadable' );
+
+						for ( const range of ranges ) {
+							// The `linkHref` should be processed first - this is the default order of `LinkCommand`.
+							writer.setAttribute( 'linkHref', 'url', range );
+							writer.setAttribute( 'linkIsDownloadable', true, range );
+						}
+					} );
+
+					expect( getModelData( model, { withoutSelection: true } ) ).to.equal(
+						'<image linkHref="url" linkIsDownloadable="true" src="https://cksource.com"></image>'
+					);
+				} );
+
+				it( 'should not affect converters - decorators first', () => {
+					setModelData( model,
+						'[<image src="https://cksource.com"></image>]'
+					);
+
+					model.change( writer => {
+						const ranges = model.schema.getValidRanges( model.document.selection.getRanges(), 'linkIsDownloadable' );
+
+						for ( const range of ranges ) {
+							// Here we force attributes to be set on a model in a different order
+							// to force unusual order of downcast converters down the line.
+							// Normally, the `linkHref` gets processed first, as it is just the first property assigned
+							// to the model by `LinkCommand`.
+							writer.setAttribute( 'linkIsDownloadable', true, range );
+							writer.setAttribute( 'linkHref', 'url', range );
+						}
+					} );
+
+					expect( getModelData( model, { withoutSelection: true } ) ).to.equal(
+						'<image linkHref="url" linkIsDownloadable="true" src="https://cksource.com"></image>'
+					);
+				} );
 			} );
 		} );
 	} );

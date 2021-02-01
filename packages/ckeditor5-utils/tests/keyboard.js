@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -65,7 +65,7 @@ describe( 'Keyboard', () => {
 		it( 'throws when passed unknown key name', () => {
 			expectToThrowCKEditorError( () => {
 				getCode( 'foo' );
-			}, /^keyboard-unknown-key:/, null );
+			}, 'keyboard-unknown-key', null );
 		} );
 
 		it( 'gets code of a keystroke info', () => {
@@ -106,7 +106,7 @@ describe( 'Keyboard', () => {
 		it( 'throws on unknown name', () => {
 			expectToThrowCKEditorError( () => {
 				parseKeystroke( 'foo' );
-			}, /^keyboard-unknown-key:/, null );
+			}, 'keyboard-unknown-key', null );
 		} );
 	} );
 

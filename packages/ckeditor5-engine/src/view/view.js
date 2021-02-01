@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -460,9 +460,7 @@ export default class View {
 			 * @error cannot-change-view-tree
 			 */
 			throw new CKEditorError(
-				'cannot-change-view-tree: ' +
-				'Attempting to make changes to the view when it is in an incorrect state: rendering or post-fixers are in progress. ' +
-				'This may cause some unexpected behavior and inconsistency between the DOM and the view.',
+				'cannot-change-view-tree',
 				this
 			);
 		}

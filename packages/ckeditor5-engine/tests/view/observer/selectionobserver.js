@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -93,6 +93,18 @@ describe( 'SelectionObserver', () => {
 		} );
 
 		changeDomSelection();
+	} );
+
+	it( 'should not fire selectionChange for ignored target', done => {
+		viewDocument.on( 'selectionChange', () => {
+			throw 'selectionChange fired in ignored elements';
+		} );
+
+		domMain.childNodes[ 1 ].setAttribute( 'data-cke-ignore-events', 'true' );
+
+		changeDomSelection();
+
+		setTimeout( done, 100 );
 	} );
 
 	it( 'should not fire selectionChange on render', done => {

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -92,7 +92,7 @@ export default class Schema {
 			 * @error schema-cannot-register-item-twice
 			 */
 			throw new CKEditorError(
-				'schema-cannot-register-item-twice: A single item cannot be registered twice in the schema.',
+				'schema-cannot-register-item-twice',
 				this,
 				{
 					itemName
@@ -142,7 +142,7 @@ export default class Schema {
 			 * @param itemName The name of the model element which is being extended.
 			 * @error schema-cannot-extend-missing-item
 			 */
-			throw new CKEditorError( 'schema-cannot-extend-missing-item: Cannot extend an item which was not registered yet.', this, {
+			throw new CKEditorError( 'schema-cannot-extend-missing-item', this, {
 				itemName
 			} );
 		}
@@ -447,7 +447,7 @@ export default class Schema {
 				 * @error schema-check-merge-no-element-before
 				 */
 				throw new CKEditorError(
-					'schema-check-merge-no-element-before: The node before the merge position must be an element.',
+					'schema-check-merge-no-element-before',
 					this
 				);
 			}
@@ -459,7 +459,7 @@ export default class Schema {
 				 * @error schema-check-merge-no-element-after
 				 */
 				throw new CKEditorError(
-					'schema-check-merge-no-element-after: The node after the merge position must be an element.',
+					'schema-check-merge-no-element-after',
 					this
 				);
 			}
@@ -1510,7 +1510,7 @@ export class SchemaContext {
  *		schema.checkAttribute( textNode, 'bold' );
  *
  * But sometimes you want to check whether a text at a given position might've had some attribute,
- * in which case you can create a context by missing an array of elements with a `'$text'` string:
+ * in which case you can create a context by mixing in an array of elements with a `'$text'` string:
  *
  *		// Check in [ rootElement, paragraphElement, textNode ].
  *		schema.checkChild( [ ...positionInParagraph.getAncestors(), '$text' ], 'bold' );

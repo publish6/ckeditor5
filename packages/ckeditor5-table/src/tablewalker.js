@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -532,7 +532,7 @@ class TableSlot {
  */
 
 // @if CK_DEBUG // function throwMissingGetterError( getterName ) {
-// @if CK_DEBUG //		throw new CKEditorError( 'tableslot-getter-removed: This TableSlot getter does not exist anymore.', this, {
+// @if CK_DEBUG //		throw new CKEditorError( 'tableslot-getter-removed', this, {
 // @if CK_DEBUG //			getterName
 // @if CK_DEBUG //		} );
 // @if CK_DEBUG // }

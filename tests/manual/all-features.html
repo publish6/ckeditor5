@@ -157,6 +157,68 @@ function bar() {
 			</tbody>
 		</table>
 	</figure>
+
+	<hr>
+
+	<h2>Link images + Link decorators</h2>
+
+	<table>
+		<tr>
+			<td>Linked text</td>
+			<td>Linked image (<code>figure > a > img</code>)</td>
+			<td>Linked image (<code>a > img</code>)</td>
+		</tr>
+		<tr>
+			<td>
+				<p>
+					<a href="https://cksource.com" target="_blank" rel="noopener noreferrer" download="download">https://cksource.com</a>
+				</p>
+			</td>
+			<td>
+				<figure class="image">
+					<a class="gallery" href="https://cksource.com">
+						<img src="sample.jpg" alt="bar">
+					</a>
+					<figcaption>Caption</figcaption>
+				</figure>
+			</td>
+			<td>
+				<a class="gallery" href="https://cksource.com" target="_blank" rel="noopener noreferrer" download="download">
+					<img src="sample.jpg" alt="bar">
+				</a>
+			</td>
+		</tr>
+	</table>
+
+	<div class="page-break" style="page-break-after:always;"><span style="display:none;">&nbsp;</span></div>
+
+	<h2>HTML embed</h2>
+
+	<h3><code>&lt;details&gt;</code> and <code>&lt;summary&gt;</code> tags as HTML snippet</h3>
+	<div class="raw-html-embed">
+		<details open>
+			<summary>Details</summary>
+			Something small enough to escape casual notice.
+		</details>
+	</div>
+
+	<h3><code>&lt;video&gt;</code> tag as HTML snippet</h3>
+	<div class="raw-html-embed">
+		<video width="320" height="240" controls>
+			<source src="http://techslides.com/demos/sample-videos/small.mp4" type="video/mp4">
+			<source src="http://techslides.com/demos/sample-videos/small.ogv" type="video/ogg">
+			Your browser does not support the video tag.
+		</video>
+	</div>
+
+	<h3><code>&lt;iframe&gt;</code> tag as HTML snippet</h3>
+	<div class="raw-html-embed">
+		<iframe src="http://techslides.com/demos/samples/sample.txt"></iframe>
+	</div>
+
+	<h2>Paste from Office</h2>
+	<h3>Paste here: </h3>
+	<p></p>
 </div>
 
 <style>

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -75,6 +75,7 @@ describe( 'DowncastDispatcher', () => {
 
 		it( 'should call convertAttribute for attribute change', () => {
 			sinon.stub( dispatcher, 'convertAttribute' );
+			sinon.stub( dispatcher, '_mapChangesWithAutomaticReconversion' ).callsFake( differ => differ.getChanges() );
 
 			const position = model.createPositionFromPath( root, [ 0 ] );
 			const range = ModelRange._createFromPositionAndShift( position, 1 );
@@ -94,6 +95,7 @@ describe( 'DowncastDispatcher', () => {
 			sinon.stub( dispatcher, 'convertInsert' );
 			sinon.stub( dispatcher, 'convertRemove' );
 			sinon.stub( dispatcher, 'convertAttribute' );
+			sinon.stub( dispatcher, '_mapChangesWithAutomaticReconversion' ).callsFake( differ => differ.getChanges() );
 
 			const position = model.createPositionFromPath( root, [ 0 ] );
 			const range = ModelRange._createFromPositionAndShift( position, 1 );

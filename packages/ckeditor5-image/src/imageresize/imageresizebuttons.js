@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -114,9 +114,7 @@ export default class ImageResizeButtons extends Plugin {
 				 * @param {module:image/imageresize/imageresizebuttons~ImageResizeOption} option Invalid image resize option.
 				*/
 				throw new CKEditorError(
-					'imageresizebuttons-missing-icon: ' +
-					'The resize option "' + name + '" misses the "icon" property ' +
-					'or the property value doesn\'t match any of the available icons.',
+					'imageresizebuttons-missing-icon',
 					editor,
 					option
 				);

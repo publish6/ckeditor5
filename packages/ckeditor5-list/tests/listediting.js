@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -175,7 +175,7 @@ describe( 'ListEditing', () => {
 	} );
 
 	describe( 'delete key handling callback', () => {
-		it( 'should execute outdentList command on backspace key in first item of list', () => {
+		it( 'should execute outdentList command on backspace key in first item of list (first node in root)', () => {
 			const domEvtDataStub = { preventDefault() {}, direction: 'backward' };
 
 			sinon.spy( editor, 'execute' );
@@ -187,7 +187,7 @@ describe( 'ListEditing', () => {
 			sinon.assert.calledWithExactly( editor.execute, 'outdentList' );
 		} );
 
-		it( 'should execute outdentList command on backspace key in first item of list', () => {
+		it( 'should execute outdentList command on backspace key in first item of list (after a paragraph)', () => {
 			const domEvtDataStub = { preventDefault() {}, direction: 'backward' };
 
 			sinon.spy( editor, 'execute' );
@@ -262,18 +262,6 @@ describe( 'ListEditing', () => {
 			sinon.assert.notCalled( editor.execute );
 		} );
 
-		it( 'should not execute outdentList command when selection is not on first position', () => {
-			const domEvtDataStub = { preventDefault() {}, direction: 'backward' };
-
-			sinon.spy( editor, 'execute' );
-
-			setModelData( model, '<listItem listType="bulleted" listIndent="0">fo[]o</listItem>' );
-
-			editor.editing.view.document.fire( 'delete', domEvtDataStub );
-
-			sinon.assert.notCalled( editor.execute );
-		} );
-
 		it( 'should outdent list when previous element is nested in block quote', () => {
 			const domEvtDataStub = { preventDefault() {}, direction: 'backward' };
 
@@ -297,6 +285,21 @@ describe( 'ListEditing', () => {
 			setModelData(
 				model,
 				'<paragraph>x</paragraph><blockQuote><listItem listType="bulleted" listIndent="0">[]foo</listItem></blockQuote>'
+			);
+
+			editor.editing.view.document.fire( 'delete', domEvtDataStub );
+
+			sinon.assert.calledWithExactly( editor.execute, 'outdentList' );
+		} );
+
+		it( 'should outdent empty list when list is nested in block quote', () => {
+			const domEvtDataStub = { preventDefault() {}, direction: 'backward' };
+
+			sinon.spy( editor, 'execute' );
+
+			setModelData(
+				model,
+				'<paragraph>x</paragraph><blockQuote><listItem listType="bulleted" listIndent="0">[]</listItem></blockQuote>'
 			);
 
 			editor.editing.view.document.fire( 'delete', domEvtDataStub );
@@ -3985,7 +3988,7 @@ describe( 'ListEditing', () => {
 		} );
 
 		// Just checking that it doesn't crash. #69
-		it( 'should work if an element is passed to DataController#insertContent()', () => {
+		it( 'should work if an element is passed to DataController#insertContent() - case #69', () => {
 			setModelData( model,
 				'<listItem listType="bulleted" listIndent="0">A</listItem>' +
 				'<listItem listType="bulleted" listIndent="1">B[]</listItem>' +

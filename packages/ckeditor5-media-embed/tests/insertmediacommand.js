@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -47,6 +47,28 @@ describe( 'MediaEmbedCommand', () => {
 
 		it( 'should be true if a media is selected', () => {
 			setData( model, '[<media url="http://ckeditor.com"></media>]' );
+			expect( command.isEnabled ).to.be.true;
+		} );
+
+		it( 'should be true if a media is selected in a table cell', () => {
+			model.schema.register( 'table', { allowIn: '$root', isLimit: true, isObject: true, isBlock: true } );
+			model.schema.register( 'tableRow', { allowIn: 'table', isLimit: true } );
+			model.schema.register( 'tableCell', { allowIn: 'tableRow', isLimit: true, isSelectable: true } );
+			model.schema.extend( 'media', { allowIn: 'tableCell' } );
+
+			setData( model, '<table><tableRow><tableCell>[<media></media>]</tableCell></tableRow></table>' );
+
+			expect( command.isEnabled ).to.be.true;
+		} );
+
+		it( 'should be true if in a table cell', () => {
+			model.schema.register( 'table', { allowIn: '$root', isLimit: true, isObject: true, isBlock: true } );
+			model.schema.register( 'tableRow', { allowIn: 'table', isLimit: true } );
+			model.schema.register( 'tableCell', { allowIn: 'tableRow', isLimit: true, isSelectable: true } );
+			model.schema.extend( '$block', { allowIn: 'tableCell' } );
+
+			setData( model, '<table><tableRow><tableCell><p>foo[]</p></tableCell></tableRow></table>' );
+
 			expect( command.isEnabled ).to.be.true;
 		} );
 

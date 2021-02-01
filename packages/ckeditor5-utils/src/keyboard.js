@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -57,13 +57,10 @@ export function getCode( key ) {
 			/**
 			 * Unknown key name. Only key names contained by the {@link module:utils/keyboard~keyCodes} can be used.
 			 *
-			 * @errror keyboard-unknown-key
+			 * @error keyboard-unknown-key
 			 * @param {String} key
 			 */
-			throw new CKEditorError(
-				'keyboard-unknown-key: Unknown key name.',
-				null, { key }
-			);
+			throw new CKEditorError( 'keyboard-unknown-key', null, { key } );
 		}
 	} else {
 		keyCode = key.keyCode +

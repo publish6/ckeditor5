@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -48,7 +48,7 @@ export default class TreeWalker {
 			 * @error model-tree-walker-no-start-position
 			 */
 			throw new CKEditorError(
-				'model-tree-walker-no-start-position: Neither boundaries nor starting position have been defined.',
+				'model-tree-walker-no-start-position',
 				null
 			);
 		}
@@ -56,11 +56,12 @@ export default class TreeWalker {
 		const direction = options.direction || 'forward';
 
 		if ( direction != 'forward' && direction != 'backward' ) {
-			throw new CKEditorError(
-				'model-tree-walker-unknown-direction: Only `backward` and `forward` direction allowed.',
-				options,
-				{ direction }
-			);
+			/**
+			 * Only `backward` and `forward` direction allowed.
+			 *
+			 * @error model-tree-walker-unknown-direction
+			 */
+			throw new CKEditorError( 'model-tree-walker-unknown-direction', options, { direction } );
 		}
 
 		/**

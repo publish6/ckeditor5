@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -96,9 +96,7 @@ describe( 'BalloonEditor', () => {
 						expect.fail( 'Balloon editor should not initialize on an element already used by other instance.' );
 					},
 					err => {
-						assertCKEditorError( err,
-							/^editor-source-element-already-used/
-						);
+						assertCKEditorError( err, 'editor-source-element-already-used' );
 					}
 				)
 				.then( done )
@@ -199,11 +197,7 @@ describe( 'BalloonEditor', () => {
 						expect.fail( 'Balloon editor should throw an error when both initial data are passed' );
 					},
 					err => {
-						assertCKEditorError( err,
-							// eslint-disable-next-line max-len
-							/^editor-create-initial-data: The config\.initialData option cannot be used together with initial data passed in Editor\.create\(\)\./,
-							null
-						);
+						assertCKEditorError( err, 'editor-create-initial-data', null );
 					}
 				)
 				.then( () => {
@@ -247,10 +241,7 @@ describe( 'BalloonEditor', () => {
 						expect.fail( 'Balloon editor should throw an error when is initialized in textarea.' );
 					},
 					err => {
-						assertCKEditorError( err,
-							/^editor-wrong-element: This type of editor cannot be initialized inside <textarea> element\./,
-							null
-						);
+						assertCKEditorError( err, 'editor-wrong-element', null );
 					}
 				)
 				.then( done )

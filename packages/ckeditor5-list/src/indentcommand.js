@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -95,7 +95,7 @@ export default class IndentCommand extends Command {
 			/**
 			 * Event fired by the {@link #execute} method.
 			 *
-			 * It allows to execute an action after executing the {@link ~IndentCommand#execute} method, e.g. adjusting
+			 * It allows to execute an action after executing the {@link ~IndentCommand#execute} method, for example adjusting
 			 * attributes of changed list items.
 			 *
 			 * @protected

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -7,13 +7,12 @@
  * @module media-embed/mediaregistry
  */
 
-/* globals console */
-
 import mediaPlaceholderIcon from '../theme/icons/media-placeholder.svg';
 import TooltipView from '@ckeditor/ckeditor5-ui/src/tooltip/tooltipview';
 import IconView from '@ckeditor/ckeditor5-ui/src/icon/iconview';
 import Template from '@ckeditor/ckeditor5-ui/src/template';
-import { attachLinkToDocumentation } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import { logWarning } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import toArray from '@ckeditor/ckeditor5-utils/src/toarray';
 
 const mediaPlaceholderIconViewBox = '0 0 64 42';
 
@@ -46,11 +45,9 @@ export default class MediaRegistry {
 					 * has no name and will not be used by the editor. In order to get this media
 					 * provider working, double check your editor configuration.
 					 *
-					 * @warning media-embed-no-provider-name
+					 * @error media-embed-no-provider-name
 					 */
-					console.warn( attachLinkToDocumentation(
-						'media-embed-no-provider-name: The configured media provider has no name and cannot be used.'
-					), { provider } );
+					logWarning( 'media-embed-no-provider-name', { provider } );
 
 					return false;
 				}
@@ -117,11 +114,7 @@ export default class MediaRegistry {
 
 		for ( const definition of this.providerDefinitions ) {
 			const previewRenderer = definition.html;
-			let pattern = definition.url;
-
-			if ( !Array.isArray( pattern ) ) {
-				pattern = [ pattern ];
-			}
+			const pattern = toArray( definition.url );
 
 			for ( const subPattern of pattern ) {
 				const match = this._getUrlMatches( url, subPattern );

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -66,14 +66,14 @@ describe( 'EmptyElement', () => {
 
 		expectToThrowCKEditorError( () => {
 			new EmptyElement( document, 'img', null, [ el ] ); // eslint-disable-line no-new
-		}, 'view-emptyelement-cannot-add: Cannot add child nodes to EmptyElement instance.', el );
+		}, 'view-emptyelement-cannot-add', el );
 	} );
 
 	describe( '_appendChild', () => {
 		it( 'should throw when try to append new child element', () => {
 			expectToThrowCKEditorError( () => {
 				emptyElement._appendChild( element );
-			}, 'view-emptyelement-cannot-add: Cannot add child nodes to EmptyElement instance.', element );
+			}, 'view-emptyelement-cannot-add', element );
 		} );
 	} );
 
@@ -81,7 +81,7 @@ describe( 'EmptyElement', () => {
 		it( 'should throw when try to insert new child element', () => {
 			expectToThrowCKEditorError( () => {
 				emptyElement._insertChild( 0, element );
-			}, 'view-emptyelement-cannot-add: Cannot add child nodes to EmptyElement instance.', element );
+			}, 'view-emptyelement-cannot-add', element );
 		} );
 	} );
 

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -21,6 +21,7 @@ import { ensureSafeUrl } from '../utils';
 import unlinkIcon from '../../theme/icons/unlink.svg';
 import pencilIcon from '@ckeditor/ckeditor5-core/theme/icons/pencil.svg';
 import '../../theme/linkactions.css';
+import '@ckeditor/ckeditor5-ui/theme/components/responsive-form/responsiveform.css';
 
 /**
  * The link actions view class. This view displays the link preview, allows
@@ -117,7 +118,8 @@ export default class LinkActionsView extends View {
 			attributes: {
 				class: [
 					'ck',
-					'ck-link-actions'
+					'ck-link-actions',
+					'ck-responsive-form'
 				],
 
 				// https://github.com/ckeditor/ckeditor5-link/issues/90

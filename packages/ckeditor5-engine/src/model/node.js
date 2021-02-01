@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -87,7 +87,7 @@ export default class Node {
 		}
 
 		if ( ( pos = this.parent.getChildIndex( this ) ) === null ) {
-			throw new CKEditorError( 'model-node-not-found-in-parent: The node\'s parent does not contain this node.', this );
+			throw new CKEditorError( 'model-node-not-found-in-parent', this );
 		}
 
 		return pos;
@@ -111,7 +111,7 @@ export default class Node {
 		}
 
 		if ( ( pos = this.parent.getChildStartOffset( this ) ) === null ) {
-			throw new CKEditorError( 'model-node-not-found-in-parent: The node\'s parent does not contain this node.', this );
+			throw new CKEditorError( 'model-node-not-found-in-parent', this );
 		}
 
 		return pos;
@@ -499,3 +499,9 @@ export default class Node {
 		this._attrs.clear();
 	}
 }
+
+/**
+ * The node's parent does not contain this node.
+ *
+ * @error model-node-not-found-in-parent
+ */

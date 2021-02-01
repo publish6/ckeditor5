@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -339,6 +339,7 @@ describe( 'Model', () => {
 		it( 'should throw the original CKEditorError error if it was thrown inside the `change()` block', () => {
 			expectToThrowCKEditorError( () => {
 				model.change( () => {
+					// eslint-disable-next-line ckeditor5-rules/ckeditor-error-message
 					throw new CKEditorError( 'foo', null, { foo: 1 } );
 				} );
 			}, /foo/, null, { foo: 1 } );
@@ -355,6 +356,7 @@ describe( 'Model', () => {
 		} );
 
 		it( 'should throw the original CKEditorError error if it was thrown inside the `enqueueChange()` block', () => {
+			// eslint-disable-next-line ckeditor5-rules/ckeditor-error-message
 			const err = new CKEditorError( 'foo', null, { foo: 1 } );
 
 			expectToThrowCKEditorError( () => {
@@ -427,7 +429,7 @@ describe( 'Model', () => {
 
 			model.change( writer => {
 				model.insertContent( new ModelText( 'abc' ) );
-				expect( writer.batch.operations ).to.length( 1 );
+				expect( writer.batch.operations.filter( operation => operation.isDocumentOperation ) ).to.length( 1 );
 			} );
 		} );
 	} );

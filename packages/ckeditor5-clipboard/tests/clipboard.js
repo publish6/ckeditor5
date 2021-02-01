@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -112,7 +112,7 @@ describe( 'Clipboard feature', () => {
 				clipboardPlugin.on( 'inputTransformation', ( evt, data ) => {
 					expect( data.content ).is.instanceOf( ViewDocumentFragment );
 					expect( data.dataTransfer ).to.equal( dataTransferMock );
-					expect( stringifyView( data.content ) ).to.equal( '<p>x</p><p></p><p>y  z</p>' );
+					expect( stringifyView( data.content ) ).to.equal( '<p>x</p><p>y  z</p>' );
 
 					done();
 				} );
@@ -231,6 +231,7 @@ describe( 'Clipboard feature', () => {
 
 			viewDocument.fire( 'paste', {
 				dataTransfer: dataTransferMock,
+				stopPropagation() {},
 				preventDefault() {}
 			} );
 
@@ -351,6 +352,19 @@ describe( 'Clipboard feature', () => {
 				model = editor.model;
 
 				model.schema.extend( '$text', { allowAttributes: 'bold' } );
+				model.schema.extend( '$text', { allowAttributes: 'test' } );
+
+				editor.model.schema.setAttributeProperties( 'bold', { isFormatting: true } );
+
+				model.schema.register( 'softBreak', {
+					allowWhere: '$text',
+					isInline: true
+				} );
+				editor.conversion.for( 'upcast' )
+					.elementToElement( {
+						model: 'softBreak',
+						view: 'br'
+					} );
 			} );
 
 			it( 'should inherit selection attributes (collapsed selection)', () => {
@@ -450,6 +464,124 @@ describe( 'Clipboard feature', () => {
 				} );
 
 				expect( getModelData( model ) ).to.equal( '<paragraph><$text bold="true">Bolded foo[]text.</$text></paragraph>' );
+			} );
+
+			it( 'should inherit selection attributes with data.asPlainText switch set', () => {
+				setModelData( model, '<paragraph><$text bold="true">Bolded []text.</$text></paragraph>' );
+
+				const dataTransferMock = createDataTransfer( {
+					'text/html': 'foo',
+					'text/plain': 'foo'
+				} );
+
+				viewDocument.fire( 'clipboardInput', {
+					dataTransfer: dataTransferMock,
+					asPlainText: true,
+					stopPropagation() {},
+					preventDefault() {}
+				} );
+
+				expect( getModelData( model ) ).to.equal( '<paragraph><$text bold="true">Bolded foo[]text.</$text></paragraph>' );
+			} );
+
+			it( 'should discard selection attributes with data.asPlainText switch set to false', () => {
+				setModelData( model, '<paragraph><$text bold="true">Bolded []text.</$text></paragraph>' );
+
+				const dataTransferMock = createDataTransfer( {
+					'text/html': 'foo<br>bar',
+					'text/plain': 'foo\nbar'
+				} );
+
+				viewDocument.fire( 'clipboardInput', {
+					dataTransfer: dataTransferMock,
+					asPlainText: false,
+					stopPropagation() {},
+					preventDefault() {}
+				} );
+
+				expect( getModelData( model ) ).to.equal( '<paragraph><$text bold="true">Bolded </$text>' +
+					'foo<softBreak></softBreak>bar[]' +
+					'<$text bold="true">text.</$text></paragraph>' );
+			} );
+
+			it( 'should work if the insertContent event is cancelled', () => {
+				// (#7887).
+				setModelData( model, '<paragraph><$text bold="true">Bolded []text.</$text></paragraph>' );
+
+				const dataTransferMock = createDataTransfer( {
+					'text/html': 'foo',
+					'text/plain': 'foo'
+				} );
+
+				model.on( 'insertContent', event => {
+					event.stop();
+				}, { priority: 'high' } );
+
+				viewDocument.fire( 'clipboardInput', {
+					dataTransfer: dataTransferMock,
+					asPlainText: false,
+					stopPropagation() {},
+					preventDefault() {}
+				} );
+
+				expect( getModelData( model ) ).to.equal( '<paragraph><$text bold="true">Bolded []text.</$text></paragraph>' );
+			} );
+
+			it( 'should preserve non formatting attribute if it wasn\'t fully selected', () => {
+				setModelData( model, '<paragraph><$text test="true">Linked [text].</$text></paragraph>' );
+
+				viewDocument.fire( 'clipboardInput', {
+					dataTransfer: createDataTransfer( {
+						'text/html': 'foo',
+						'text/plain': 'foo'
+					} ),
+					stopPropagation() {},
+					preventDefault() {}
+				} );
+
+				expect( getModelData( model ) ).to.equal( '<paragraph><$text test="true">Linked foo[].</$text></paragraph>' );
+			} );
+
+			it( 'should not preserve non formatting attribute if it was fully selected', () => {
+				setModelData( model, '<paragraph><$text test="true">[Linked text.]</$text></paragraph>' );
+
+				viewDocument.fire( 'clipboardInput', {
+					dataTransfer: createDataTransfer( {
+						'text/html': 'foo',
+						'text/plain': 'foo'
+					} ),
+					stopPropagation() {},
+					preventDefault() {}
+				} );
+
+				expect( getModelData( model ) ).to.equal( '<paragraph>foo[]</paragraph>' );
+			} );
+
+			it( 'should not treat a pasted object as a plain text', () => {
+				model.schema.register( 'obj', {
+					allowWhere: '$block',
+					isObject: true,
+					isBlock: true
+				} );
+
+				editor.conversion.elementToElement( { model: 'obj', view: 'obj' } );
+
+				setModelData( model, '<paragraph><$text bold="true">Bolded [text].</$text></paragraph>' );
+
+				viewDocument.fire( 'clipboardInput', {
+					dataTransfer: createDataTransfer( {
+						'text/html': '<obj></obj>',
+						'text/plain': 'foo'
+					} ),
+					stopPropagation() {},
+					preventDefault() {}
+				} );
+
+				expect( getModelData( model ) ).to.equal(
+					'<paragraph><$text bold="true">Bolded </$text></paragraph>' +
+					'[<obj></obj>]' +
+					'<paragraph><$text bold="true">.</$text></paragraph>'
+				);
 			} );
 		} );
 
