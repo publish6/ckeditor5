@@ -86,7 +86,8 @@ export default class ImageInterceptor extends Plugin {
 		// We also want to intercept images when dropped (i.e. dragged).
 		editor.editing.view.document.on( 'drop', ( evt, data ) => {
 			// Get the fiels from the drop event and check if they're images.
-			const selection = this.editor.model.document.selection.getFirstPosition().clone();
+			const selection = editor.editing.mapper.toModelPosition( data.dropRange.start );
+			console.log(selection);
 			const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
 			if (files != null && files.length > 0) {
 				const imageFiles = [];
