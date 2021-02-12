@@ -38,27 +38,18 @@ import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefrom
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation';
-import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
-import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custom-plugins/asset-plugins/image-based-asset-plugin';
-import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata/image-with-metadata';
-import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
-import HTML5VideoPlugin, { VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5VideoPlugin';
-import HTML5AudioPlugin, { AudioCaption } from './custom-plugins/asset-plugins/html5-audio-asset/html5AudioPlugin.js';
-import { ClassifyPlugin } from './custom-plugins/generic-plugins/classify';
-import ImageInterceptor from './custom-plugins/image-interceptor/imageinterceptor';
-import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
 // Plugins to include in the build.
 DecoupledEditor.builtinPlugins = [
-	Base64UploadAdapter,
 	Essentials,
 	Alignment,
 	FontSize,
 	FontFamily,
 	FontColor,
 	FontBackgroundColor,
+	UploadAdapter,
 	Autoformat,
 	Bold,
 	Italic,
@@ -66,12 +57,13 @@ DecoupledEditor.builtinPlugins = [
 	Underline,
 	BlockQuote,
 	CKFinder,
+	EasyImage,
 	Heading,
 	Image,
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
-	ImageResize,
+	ImageUpload,
 	Indent,
 	IndentBlock,
 	Link,
@@ -82,24 +74,13 @@ DecoupledEditor.builtinPlugins = [
 	PasteFromOffice,
 	Table,
 	TableToolbar,
-	TextTransformation,
-	RemoveMarkings,
-	ImageWithMetadataPlugin,
-	EditImageBasedAssetPlugin,
-	PreviewImageBasedAssetPlugin,
-	HTML5VideoPlugin,
-	VideoCaption,
-	HTML5AudioPlugin,
-	AudioCaption,
-	ClassifyPlugin,
-	ImageInterceptor,
+	TextTransformation
 ];
 
 // Editor configuration.
 DecoupledEditor.defaultConfig = {
 	toolbar: {
 		items: [
-			'classify',
 			'heading',
 			'|',
 			'fontfamily',
@@ -111,11 +92,6 @@ DecoupledEditor.defaultConfig = {
 			'italic',
 			'underline',
 			'strikethrough',
-			'|',
-			'removeMarkings',
-			'imageWithMetadata',
-			'html5Video',
-			'html5Audio',
 			'|',
 			'alignment',
 			'|',
@@ -132,7 +108,7 @@ DecoupledEditor.defaultConfig = {
 			'mediaEmbed',
 			'|',
 			'undo',
-			'redo',
+			'redo'
 		]
 	},
 	image: {
@@ -142,13 +118,11 @@ DecoupledEditor.defaultConfig = {
 			'alignRight'
 		],
 		toolbar: [
-			'previewImageBasedAsset',
-			'|',
 			'imageStyle:alignLeft',
 			'imageStyle:full',
 			'imageStyle:alignRight',
 			'|',
-			'editImageBasedAsset'
+			'imageTextAlternative'
 		]
 	},
 	table: {
@@ -158,30 +132,6 @@ DecoupledEditor.defaultConfig = {
 			'mergeTableCells'
 		]
 	},
-	html5Video: {
-		toolbar: [
-			'previewHTML5Video',
-			'|',
-			'videoStyle:alignLeft',
-			'videoStyle:alignCenter',
-			'videoStyle:full',
-			'videoStyle:alignRight',
-			'|',
-			'editHTML5Video'
-		]
-	},
-	html5Audio: {
-		toolbar: [
-			'previewHTML5Audio',
-			'|',
-			'audioStyle:alignLeft',
-			'audioStyle:alignCenter',
-			'audioStyle:full',
-			'audioStyle:alignRight',
-			'|',
-			'editHTML5Audio'
-		]
-	},
 	// This value must be kept in sync with the language defined in webpack.config.js.
-	language: 'en'.anchor,
+	language: 'en'
 };
