@@ -28,104 +28,101 @@ export default class ImageInterceptor extends Plugin {
 	 * @inheritDoc
 	 */
 	static get requires() {
-		return [ Clipboard ];
+		return [Clipboard];
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	init() {
+	async init() {
 		const editor = this.editor;
 		const iiConfig = editor.config.get("imageInterceptor");
-		const imageCallback = AssetPluginHelper.getNested( iiConfig, 'callback' );
+		const imageCallback = AssetPluginHelper.getNested(iiConfig, 'callback');
 		if (imageCallback == null) {
 			console.error("editor.config.imageInterceptor.callback is not configured! Pasting/dropping images is not going to work!");
 		}
-		
+
 		// Allow the UUID attribute on p tag. We're using the p tag because we get errors, or the attribute gets lost,
 		// when we use other tags. Thanks CKEditor.
 		const writer = new UpcastWriter(editor.editing.view.document);
-		editor.model.schema.extend( 'paragraph', { allowAttributes: [ 'uuid', 'data-uuid' ] } );
-		editor.conversion.attributeToAttribute( { model: 'data-uuid', view: 'data-uuid'} );
+		editor.model.schema.extend('paragraph', { allowAttributes: ['uuid', 'data-uuid'] });
+		editor.conversion.attributeToAttribute({ model: 'data-uuid', view: 'data-uuid' });
 
 		// On clipboard paste, we want to intercept the data transformation process
 		// to find images that we accept. If we find any, we want to replace them with placeholder
 		// images (and tag them with UUIDs so that consumers can find them later) and return them
 		// in the callback so consumers can decide what to do with them
-		editor.plugins.get( 'Clipboard' ).on( 'inputTransformation', ( evt, data ) => {
+		editor.plugins.get('Clipboard').on('inputTransformation', async (evt, data) => {
 			const selection = this.editor.model.document.selection.getFirstPosition().clone();
 
 			// Get the HTML data from the paste, and look for images
 			const doc = data.content;
 			const images = findAllImageElements(doc, writer);
-			const validImages = [];
 
+			// If we have no images, but the paste actually contains a file, treat it as a file.
 			if (images == null || images.length == 0) {
 				const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
 				handleDataTransferFile(evt, data, files, imageCallback, selection);
-			}
-
-			// At this point, we're assuming that because this plugin has priority:normal, images have already been
-			// converetd into base64 by other plugins. Therefore, search for images in formats we accept. If we find
-			// any, replace the image inline with a placeholder.
-			for (let i = 0; i < images.length; i++) {
-				const src = images[i].getAttribute('src');
-				if (src.startsWith('data:image/png;') || src.startsWith('data:image/jpeg;') || src.startsWith('data:image/jpg;')) {
+			} else {
+				// Otherwise, iterate over all of the <img> tags to see if we got any images.
+				const promises = [];
+				for (let i = 0; i < images.length; i++) {
+					const image = images[i];
+					const src = image.getAttribute('src');
 					const uniqueID = uuid();
-					const placeholder = writer.createElement("p", { "data-uuid" : uniqueID});
-					const text = writer.createText(" "); // Need to add something so that the element doesn't simply get removed by ckeditor
-					writer.appendChild(text, placeholder);
-					writer.replace(images[i], placeholder);
-					validImages.push({uuid: uniqueID, element: images[i]});
-				} else {
-					writer.remove(images[i]); // If we don't support the format, then remove it entirely
+
+					// If the image has a src that we can convert to base64, then do that, and then replace the actual
+					// image with a placeholder. It's up to the client to determine what's done with the images.
+					// 
+					// NOTE: we need to do all of the logic of removing/replacing <img> tags BEFORE we wait on any promises.
+					// Otherwise, it's possible for the parsed <img> tags from the paste to reach the editor, which we don't want.
+					// If they do, then it's possible that the press app could save images in a format that we don't support.
+					if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:image/png;') 
+						|| src.startsWith('data:image/jpeg;') || src.startsWith('data:image/jpg;')) {
+						const placeholder = writer.createElement("p", { "data-uuid": uniqueID });
+						const text = writer.createText(" "); // Need to add something so that the element doesn't simply get removed by ckeditor
+						writer.appendChild(text, placeholder);
+						writer.replace(image, placeholder); // replace immediately so that the <img> never ends up inside the content
+						promises.push(handleInlineImage(image, uniqueID, writer));
+					} else {
+						writer.remove(images); // If we don't support the format, then remove it entirely
+					}
+				}
+
+				// If we found images, invoke the callback
+				const validImages = await (await Promise.all(promises)).filter(value => value != null);
+				if (validImages.length > 0) {
+					imageCallback({ type: "element", data: validImages, caretPosition: selection });
 				}
 			}
 
-			// If we found images, invoke the callback
-			if (validImages.length > 0) {
-				imageCallback({type: "element", data: validImages, caretPosition: selection});
-			}
-		}, {priority: "normal"});
+
+		}, { priority: "normal" });
 
 		// We also want to intercept images when dropped (i.e. dragged).
-		editor.editing.view.document.on( 'drop', ( evt, data ) => {
+		editor.editing.view.document.on('drop', (evt, data) => {
 			// Get the fiels from the drop event and check if they're images.
-			const selection = editor.editing.mapper.toModelPosition( data.dropRange.start );
+			const selection = editor.editing.mapper.toModelPosition(data.dropRange.start);
 			console.log(selection);
 			const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
 			handleDataTransferFile(evt, data, files, imageCallback, selection);
-		}, {priority: 'high'} );
+		}, { priority: 'high' });
 	}
 }
 
-function uuid() {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-		return v.toString(16);
+function handleInlineImage(image, uniqueID, writer) {
+	const src = image.getAttribute('src');
+	return new Promise((resolve, reject) => {
+		getBase64FromImageUrl(src).then(base64Source => {
+			writer.setAttribute('src', base64Source, image);
+			resolve({ uuid: uniqueID, element: image });
+		});
 	});
-}
-
-function findAllImageElements( documentFragment, writer ) {
-	const range = writer.createRangeIn( documentFragment );
-
-	const imageElementsMatcher = new ViewMatcher( {
-		name: 'img'
-	} );
-
-	const imgs = [];
-	for ( const value of range ) {
-		if ( imageElementsMatcher.match( value.item ) ) {
-			imgs.push( value.item );
-		}
-	}
-
-	return imgs;
 }
 
 function handleDataTransferFile(evt, data, files, imageCallback, selection) {
 	if (files != null && files.length > 0) {
-		const imageFiles = [];
+		let imageFiles = [];
 		for (let i = 0; i < files.length; i++) {
 			let imageFile = files[i];
 			if (imageFile.type == "image/png" || imageFile.type == "image/jpg" || imageFile == "image/jpeg") {
@@ -136,6 +133,9 @@ function handleDataTransferFile(evt, data, files, imageCallback, selection) {
 				alert("Images must be either in PNG or JPEG format!");
 				imageFiles = [];
 				evt.stop();
+				try {
+					data.preventDefault();
+				} catch(err) {}
 				break;
 			}
 		}
@@ -144,7 +144,60 @@ function handleDataTransferFile(evt, data, files, imageCallback, selection) {
 		// CKEditor from inserting the image.
 		if (imageFiles.length > 0) {
 			evt.stop();
-			imageCallback({type: "file", data: imageFiles, caretPosition: selection});
+			try {
+				data.preventDefault();
+			} catch(err) {}
+
+			imageCallback({ type: "file", data: imageFiles, caretPosition: selection });
 		}
 	}
+}
+
+function uuid() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
+function findAllImageElements(documentFragment, writer) {
+	const range = writer.createRangeIn(documentFragment);
+
+	const imageElementsMatcher = new ViewMatcher({
+		name: 'img'
+	});
+
+	const imgs = [];
+	for (const value of range) {
+		if (imageElementsMatcher.match(value.item)) {
+			imgs.push(value.item);
+		}
+	}
+
+	return imgs;
+}
+
+function getBase64FromImageUrl(src) {
+	// We need to use promises because we need to wait until the image has loaded.
+	return new Promise((resolve, reject) => {
+		// If the image is already base64 encoded, just use that.
+		if (src.startsWith('data:image/png;') || src.startsWith('data:image/jpeg;') || src.startsWith('data:image/jpg;')) {
+			resolve(src);
+		} else {
+			// otherwise, we need to load the image from the source, put it into a canvas, and export it as a png.
+			// This is a clever hack to get base64-encoded data from an img "src" attribute
+			var img = new Image();
+			img.setAttribute('crossOrigin', 'anonymous'); // as long as the server allows it, this bypasses security issues
+			img.src = src;
+			var canvas = document.createElement("canvas");
+			var ctx = canvas.getContext("2d");
+			img.onload = function () {
+				canvas.width = this.width;
+				canvas.height = this.height;
+				ctx.drawImage(this, 0, 0);
+				var dataURL = canvas.toDataURL("image/png");
+				resolve(dataURL);
+			};
+		}
+	});
 }
