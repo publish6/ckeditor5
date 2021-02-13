@@ -60,6 +60,11 @@ export default class ImageInterceptor extends Plugin {
 			const images = findAllImageElements(doc, writer);
 			const validImages = [];
 
+			if (images == null || images.length == 0) {
+				const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
+				handleDataTransferFile(evt, data, files, imageCallback, selection);
+			}
+
 			// At this point, we're assuming that because this plugin has priority:normal, images have already been
 			// converetd into base64 by other plugins. Therefore, search for images in formats we accept. If we find
 			// any, replace the image inline with a placeholder.
@@ -89,31 +94,7 @@ export default class ImageInterceptor extends Plugin {
 			const selection = editor.editing.mapper.toModelPosition( data.dropRange.start );
 			console.log(selection);
 			const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
-			if (files != null && files.length > 0) {
-				const imageFiles = [];
-				for (let i = 0; i < files.length; i++) {
-					let imageFile = files[i];
-					if (imageFile.type == "image/png" || imageFile.type == "image/jpg" || imageFile == "image/jpeg") {
-						imageFiles.push(imageFile);
-					} else if (imageFile.type.startsWith("image/")) {
-						// If it's an image, but a format we don't support, fail the entire thing.
-						// TODO: Is there a better way to handle image formats we don't support other than dumping out?
-						alert("Images must be either in PNG or JPEG format!");
-						imageFiles = [];
-						evt.stop();
-						data.preventDefault();
-						break;
-					}
-				}
-
-				// If we got at least one image, return the array of images and stop event propagation to prevent
-				// CKEditor from inserting the image.
-				if (imageFiles.length > 0) {
-					evt.stop();
-					data.preventDefault();
-					imageCallback({type: "file", data: imageFiles, caretPosition: selection});
-				}
-			}
+			handleDataTransferFile(evt, data, files, imageCallback, selection);
 		}, {priority: 'high'} );
 	}
 }
@@ -140,4 +121,30 @@ function findAllImageElements( documentFragment, writer ) {
 	}
 
 	return imgs;
+}
+
+function handleDataTransferFile(evt, data, files, imageCallback, selection) {
+	if (files != null && files.length > 0) {
+		const imageFiles = [];
+		for (let i = 0; i < files.length; i++) {
+			let imageFile = files[i];
+			if (imageFile.type == "image/png" || imageFile.type == "image/jpg" || imageFile == "image/jpeg") {
+				imageFiles.push(imageFile);
+			} else if (imageFile.type.startsWith("image/")) {
+				// If it's an image, but a format we don't support, fail the entire thing.
+				// TODO: Is there a better way to handle image formats we don't support other than dumping out?
+				alert("Images must be either in PNG or JPEG format!");
+				imageFiles = [];
+				evt.stop();
+				break;
+			}
+		}
+
+		// If we got at least one image, return the array of images and stop event propagation to prevent
+		// CKEditor from inserting the image.
+		if (imageFiles.length > 0) {
+			evt.stop();
+			imageCallback({type: "file", data: imageFiles, caretPosition: selection});
+		}
+	}
 }
