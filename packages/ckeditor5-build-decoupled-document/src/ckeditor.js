@@ -46,6 +46,8 @@ import HTML5VideoPlugin, { VideoCaption } from './custom-plugins/asset-plugins/h
 import HTML5AudioPlugin, { AudioCaption } from './custom-plugins/asset-plugins/html5-audio-asset/html5AudioPlugin.js';
 import { ClassifyPlugin } from './custom-plugins/generic-plugins/classify';
 import ImageInterceptor from './custom-plugins/image-interceptor/imageinterceptor';
+import LinkInterceptor from './custom-plugins/link-interceptor/linkinterceptor';
+
 import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
@@ -65,7 +67,6 @@ DecoupledEditor.builtinPlugins = [
 	Strikethrough,
 	Underline,
 	BlockQuote,
-	CKFinder,
 	Heading,
 	Image,
 	ImageCaption,
@@ -77,7 +78,6 @@ DecoupledEditor.builtinPlugins = [
 	Link,
 	List,
 	ListStyle,
-	MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
 	Table,
@@ -93,6 +93,7 @@ DecoupledEditor.builtinPlugins = [
 	AudioCaption,
 	ClassifyPlugin,
 	ImageInterceptor,
+	LinkInterceptor
 ];
 
 // Editor configuration.

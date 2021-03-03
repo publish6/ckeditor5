@@ -4,8 +4,6 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Clipboard from '@ckeditor/ckeditor5-clipboard/src/clipboard';
 import AssetPluginHelper from '../asset-plugins/asset-plugin-helper';
 import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
-import DomConverter from '@ckeditor/ckeditor5-engine/src/view/domconverter';
-import ViewDocument from '@ckeditor/ckeditor5-engine/src/view/document';
 import ViewMatcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
 
 /**
@@ -58,6 +56,7 @@ export default class ImageInterceptor extends Plugin {
 			// Get the HTML data from the paste, and look for images
 			const doc = data.content;
 			const images = findAllImageElements(doc, writer);
+			const invalidImages = [];
 
 			// If we have no images, but the paste actually contains a file, treat it as a file.
 			if (images == null || images.length == 0) {
@@ -85,28 +84,18 @@ export default class ImageInterceptor extends Plugin {
 						writer.replace(image, placeholder); // replace immediately so that the <img> never ends up inside the content
 						promises.push(handleInlineImage(image, uniqueID, writer));
 					} else {
-						writer.remove(images); // If we don't support the format, then remove it entirely
+						writer.remove(image); // If we don't support the format, then remove it entirely
+						invalidImages.push(images);
 					}
 				}
 
 				// If we found images, invoke the callback
 				const validImages = await (await Promise.all(promises)).filter(value => value != null);
-				if (validImages.length > 0) {
-					imageCallback({ type: "element", data: validImages, caretPosition: selection });
-				}
+				imageCallback({ type: "element", data: validImages, caretPosition: selection, invalidImages: invalidImages });
 			}
-
-
 		}, { priority: "normal" });
 
 		// We also want to intercept images when dropped (i.e. dragged).
-		editor.editing.view.document.on('drop', (evt, data) => {
-			// Get the fiels from the drop event and check if they're images.
-			const selection = editor.editing.mapper.toModelPosition(data.dropRange.start);
-			console.log(selection);
-			const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
-			handleDataTransferFile(evt, data, files, imageCallback, selection);
-		}, { priority: 'high' });
 	}
 }
 
@@ -123,6 +112,7 @@ function handleInlineImage(image, uniqueID, writer) {
 function handleDataTransferFile(evt, data, files, imageCallback, selection) {
 	if (files != null && files.length > 0) {
 		let imageFiles = [];
+		const invalidImages = [];
 		for (let i = 0; i < files.length; i++) {
 			let imageFile = files[i];
 			if (imageFile.type == "image/png" || imageFile.type == "image/jpg" || imageFile == "image/jpeg") {
@@ -130,26 +120,12 @@ function handleDataTransferFile(evt, data, files, imageCallback, selection) {
 			} else if (imageFile.type.startsWith("image/")) {
 				// If it's an image, but a format we don't support, fail the entire thing.
 				// TODO: Is there a better way to handle image formats we don't support other than dumping out?
-				alert("Images must be either in PNG or JPEG format!");
 				imageFiles = [];
-				evt.stop();
-				try {
-					data.preventDefault();
-				} catch(err) {}
+				invalidImages.push(imageFile);
 				break;
 			}
 		}
-
-		// If we got at least one image, return the array of images and stop event propagation to prevent
-		// CKEditor from inserting the image.
-		if (imageFiles.length > 0) {
-			evt.stop();
-			try {
-				data.preventDefault();
-			} catch(err) {}
-
-			imageCallback({ type: "file", data: imageFiles, caretPosition: selection });
-		}
+		imageCallback({ type: "file", data: imageFiles, caretPosition: selection, invalidImages: invalidImages });
 	}
 }
 
