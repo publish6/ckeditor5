@@ -58,7 +58,9 @@ export default class ImageInterceptor extends Plugin {
 			const images = findAllImageElements(doc, writer);
 			const invalidImages = [];
 
-			// If we have no images, but the paste actually contains a file, treat it as a file.
+			// If we have no images, but the paste actually contains a file, treat it as a file. This ALSO
+			// covers drop events (i.e. drag/drop a file on top of the editor) because both paste and drop
+			// invoke the "inputTransformation" event.
 			if (images == null || images.length == 0) {
 				const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
 				handleDataTransferFile(evt, data, files, imageCallback, selection);
@@ -93,9 +95,7 @@ export default class ImageInterceptor extends Plugin {
 				const validImages = await (await Promise.all(promises)).filter(value => value != null);
 				imageCallback({ type: "element", data: validImages, caretPosition: selection, invalidImages: invalidImages });
 			}
-		}, { priority: "normal" });
-
-		// We also want to intercept images when dropped (i.e. dragged).
+		}, { priority: "normal" }); // set to normal so that it happens AFTER the word paste transformation plugin
 	}
 }
 
