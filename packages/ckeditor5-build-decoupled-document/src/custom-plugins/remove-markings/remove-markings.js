@@ -7,11 +7,11 @@ export default class RemoveMarkings extends Plugin {
 		const editor = this.editor;
 
 		editor.ui.componentFactory.add( 'removeMarkings', locale => {
-			const view = new ButtonView();
+			const view = new ButtonView(locale);
 			view.set( {
 				label: 'Remove Markings',
 				icon: imageIcon,
-				toolTip: true
+				tooltip: true
 			} );
 
 			// Binds to the read only property of the editor so that it dynamically enables/disables itself

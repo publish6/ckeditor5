@@ -44,6 +44,7 @@ import ImageInterceptor from './custom-plugins/image-interceptor/imageintercepto
 import LinkInterceptor from './custom-plugins/link-interceptor/linkinterceptor';
 import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
 import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter';
+import DocumentLink from './custom-plugins/document-link/document-link';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -89,7 +90,8 @@ DecoupledEditor.builtinPlugins = [
 	AudioCaption,
 	ClassifyPlugin,
 	ImageInterceptor,
-	LinkInterceptor
+	LinkInterceptor,
+	DocumentLink
 ];
 
 // Editor configuration.
@@ -114,6 +116,7 @@ DecoupledEditor.defaultConfig = {
 			'imageWithMetadata',
 			'html5Video',
 			'html5Audio',
+			'documentLink',
 			'|',
 			'alignment',
 			'|',
@@ -123,11 +126,8 @@ DecoupledEditor.defaultConfig = {
 			'indent',
 			'outdent',
 			'|',
-			'link',
 			'blockquote',
-			'imageUpload',
 			'insertTable',
-			'mediaEmbed',
 			'|',
 			'undo',
 			'redo',
