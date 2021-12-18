@@ -8,6 +8,7 @@ import DecoupledEditorBase from '@ckeditor/ckeditor5-editor-decoupled/src/decoup
 
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
+import Notification from '@ckeditor/ckeditor5-ui/src/notification/notification';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
@@ -53,6 +54,7 @@ DecoupledEditor.builtinPlugins = [
 	Base64UploadAdapter,
 	Essentials,
 	Alignment,
+	Notification,
 	FontSize,
 	FontFamily,
 	FontColor,
@@ -72,7 +74,6 @@ DecoupledEditor.builtinPlugins = [
 	ImageResize,
 	Indent,
 	IndentBlock,
-	Link,
 	List,
 	ListStyle,
 	Paragraph,
@@ -116,7 +117,7 @@ DecoupledEditor.defaultConfig = {
 			'imageWithMetadata',
 			'html5Video',
 			'html5Audio',
-			'documentLink',
+			'DocumentLink',
 			'|',
 			'alignment',
 			'|',
