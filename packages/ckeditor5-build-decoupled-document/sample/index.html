@@ -119,7 +119,7 @@
 		editor.execute( 'addNewVideo',null, "https://archive.org/serve/SampleVideo1280x7205mb/SampleVideo_1280x720_5mb.mp4", "alignLeft", 12345, 'rs' );
 		editor.execute( 'addNewImageBasedAsset',null, "https://upload.wikimedia.org/wikipedia/en/c/c6/King_Dedede.png", "alignLeft", 12345, 'rs' );
 		editor.execute( 'replaceElementWithNewImage',{"data-uuid": "123"}, "https://upload.wikimedia.org/wikipedia/en/c/c6/King_Dedede.png", "alignLeft", 12345, 'ld' );
-
+		editor.execute('link', 'http://example.com');
 		editor.isReadOnly = false;
 	} )
 	.catch( error => {

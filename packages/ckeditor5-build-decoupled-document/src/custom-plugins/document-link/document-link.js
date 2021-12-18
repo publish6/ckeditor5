@@ -19,7 +19,7 @@ export default class DocumentLink extends Plugin {
 			} );
 
 			view.on( 'execute', () => {
-				alert("Document Link!");
+				editor.execute('link', 'http://example.com');
 			} );
 
 			return view;

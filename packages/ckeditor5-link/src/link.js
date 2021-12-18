@@ -25,7 +25,7 @@ export default class Link extends Plugin {
 	 * @inheritDoc
 	 */
 	static get requires() {
-		return [ LinkEditing, LinkUI, AutoLink ];
+		return [ LinkEditing, LinkUI ];
 	}
 
 	/**
