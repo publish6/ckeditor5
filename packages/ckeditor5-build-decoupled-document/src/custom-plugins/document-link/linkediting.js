@@ -71,42 +71,15 @@ export default class LinkEditing extends Plugin {
 		// Allow link attribute on all inline nodes.
 		editor.model.schema.extend( '$text', { allowAttributes: [
 			'linkHref',
-			AssetPluginHelper.getAssetIdPropertyName(), 
-			AssetPluginHelper.getAssetTypePropertyName()
+			'linkAssetId', 
+			'linkAssetType',
+			'linkDisplay'
 		]
 	 } );
 
-		editor.conversion.for( 'dataDowncast' )
-			.attributeToElement( { model: 'linkHref', view: createLinkElement } );
-		
-		editor.conversion
-		.attributeToAttribute( { model: AssetPluginHelper.getAssetIdPropertyName(), view: AssetPluginHelper.getAssetIdPropertyName() } );
+	 editor.conversion.for( 'dataDowncast' )
+	 .attributeToElement( { model: 'linkHref', view: createLinkElement } );
 
-		editor.conversion
-		.attributeToAttribute( { model: AssetPluginHelper.getAssetTypePropertyName(), view: AssetPluginHelper.getAssetTypePropertyName() } );
-
-		editor.conversion.for( 'downcast' ).attributeToElement( {
-			model: {
-				key: AssetPluginHelper.getAssetIdPropertyName(),
-				name: '$text'
-			},
-			view: ( value, { writer } ) => {
-				return writer.createAttributeElement( 'a', { [AssetPluginHelper.getAssetIdPropertyName()]: value } );
-			},
-			converterPriority: 'high'
-		} );
-
-		editor.conversion.for( 'downcast' ).attributeToElement( {
-			model: {
-				key: AssetPluginHelper.getAssetTypePropertyName(),
-				name: '$text'
-			},
-			view: ( value, { writer } ) => {
-				return writer.createAttributeElement( 'a', { [AssetPluginHelper.getAssetIdPropertyName()]: value } );
-			},
-			converterPriority: 'high'
-		} );
-		
 		editor.conversion.for( 'editingDowncast' )
 			.attributeToElement( { model: 'linkHref', view: ( href, conversionApi ) => {
 				return createLinkElement( ensureSafeUrl( href ), conversionApi );
@@ -125,6 +98,73 @@ export default class LinkEditing extends Plugin {
 					value: viewElement => viewElement.getAttribute( 'href' )
 				}
 			} );
+
+
+		/**
+		 * CUSTOM ATTRIBUTES
+		 */
+		editor.conversion.for( 'downcast' ).attributeToElement( {
+			model: 'linkAssetId',
+			view: ( attributeValue, { writer } ) => {
+					const linkElement = writer.createAttributeElement( 'a', { assetid: attributeValue }, { priority: 5 } );
+					writer.setCustomProperty( 'link', true, linkElement );
+
+					return linkElement;
+			},
+			converterPriority: 'low'
+		} );
+
+		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
+		editor.conversion.for( 'upcast' ).attributeToAttribute( {
+				view: {
+						name: 'a',
+						key: 'assetid'
+				},
+				model: 'linkAssetId',
+				converterPriority: 'low'
+		} );
+		
+		editor.conversion.for( 'downcast' ).attributeToElement( {
+			model: 'linkAssetType',
+			view: ( attributeValue, { writer } ) => {
+					const linkElement = writer.createAttributeElement( 'a', { assettype: attributeValue }, { priority: 5 } );
+					writer.setCustomProperty( 'link', true, linkElement );
+
+					return linkElement;
+			},
+			converterPriority: 'low'
+		} );
+
+		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
+		editor.conversion.for( 'upcast' ).attributeToAttribute( {
+				view: {
+						name: 'a',
+						key: 'assettype'
+				},
+				model: 'linkAssetType',
+				converterPriority: 'low'
+		} );
+
+		editor.conversion.for( 'downcast' ).attributeToElement( {
+			model: 'linkDisplay',
+			view: ( attributeValue, { writer } ) => {
+					const linkElement = writer.createAttributeElement( 'a', { linkdisplay: attributeValue }, { priority: 5 } );
+					writer.setCustomProperty( 'link', true, linkElement );
+
+					return linkElement;
+			},
+			converterPriority: 'low'
+		} );
+
+		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
+		editor.conversion.for( 'upcast' ).attributeToAttribute( {
+				view: {
+						name: 'a',
+						key: 'linkdisplay'
+				},
+				model: 'linkDisplay',
+				converterPriority: 'low'
+		} );
 
 		// Create linking commands.
 		editor.commands.add( 'link', new LinkCommand( editor ) );

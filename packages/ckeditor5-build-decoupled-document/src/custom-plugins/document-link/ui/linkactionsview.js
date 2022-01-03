@@ -82,6 +82,7 @@ export default class LinkActionsView extends View {
 		 * @member {String}
 		 */
 		this.set( 'href' );
+		this.set( 'linkInfo' );
 
 		/**
 		 * A collection of views that can be focused in the view.
@@ -128,7 +129,6 @@ export default class LinkActionsView extends View {
 
 			children: [
 				this.previewButtonView,
-				this.editButtonView,
 				this.unlinkButtonView
 			]
 		} );
@@ -201,7 +201,7 @@ export default class LinkActionsView extends View {
 
 		button.set( {
 			withText: true,
-			tooltip: t( 'Open link in new tab' )
+			tooltip: t( 'Open Document Link' )
 		} );
 
 		button.extendTemplate( {
@@ -210,19 +210,17 @@ export default class LinkActionsView extends View {
 					'ck',
 					'ck-link-actions__preview'
 				],
-				href: bind.to( 'href', href => href && ensureSafeUrl( href ) ),
-				target: '_blank',
-				rel: 'noopener noreferrer'
-			}
+				value: bind.to( 'linkInfo', val => val.linkAssetId ),
+			},
 		} );
 
-		button.bind( 'label' ).to( this, 'href', href => {
-			return href || t( 'This link has no URL' );
+		button.bind( 'label' ).to( this, 'linkInfo', val => {
+			return (val && val.linkDisplay) || t( 'This link has no URL' );
 		} );
 
-		button.bind( 'isEnabled' ).to( this, 'href', href => !!href );
+		button.bind( 'isEnabled' ).to( this, 'linkInfo', val => !!val );
 
-		button.template.tag = 'a';
+		button.template.tag = 'button';
 		button.template.eventListeners = {};
 
 		return button;

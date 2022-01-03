@@ -29,6 +29,14 @@ export default class LinkCommand extends Command {
 	 * @member {Object|undefined} #value
 	 */
 
+		/**
+	 * The value of the `'linkHref'` attribute if the start of the selection is located in a node with this attribute.
+	 *
+	 * @observable
+	 * @readonly
+	 * @member {Object|undefined} #linkDisplay
+	 */
+
 	constructor( editor ) {
 		super( editor );
 
@@ -74,10 +82,24 @@ export default class LinkCommand extends Command {
 		// A check for the `LinkImage` plugin. If the selection contains an element, get values from the element.
 		// Currently the selection reads attributes from text nodes only. See #7429 and #7465.
 		if ( isImageAllowed( selectedElement, model.schema ) ) {
-			this.value = selectedElement.getAttribute( 'linkHref' );
+			const href = selectedElement.getAttribute( 'linkHref' );
+			const linkDisplay = selectedElement.getAttribute( 'linkDisplay' );
+			const linkAssetId = selectedElement.getAttribute( 'linkAssetId' );
 			this.isEnabled = model.schema.checkAttribute( selectedElement, 'linkHref' );
+			this.value = {
+				href: href,
+				linkDisplay: linkDisplay,
+				linkAssetId: linkAssetId
+			};
 		} else {
-			this.value = doc.selection.getAttribute( 'linkHref' );
+			const href = doc.selection.getAttribute( 'linkHref' );
+			const linkAssetId = doc.selection.getAttribute( 'linkAssetId' );
+			const linkDisplay = doc.selection.getAttribute( 'linkDisplay' );
+			this.value = {
+				href: href,
+				linkDisplay: linkDisplay,
+				linkAssetId: linkAssetId
+			};
 			this.isEnabled = model.schema.checkAttributeInSelection( doc.selection, 'linkHref' );
 		}
 
@@ -175,8 +197,6 @@ export default class LinkCommand extends Command {
 
 					writer.setAttribute( 'linkHref', href, linkRange );
 
-					console.error("ISCOLLAPSEd");
-					console.error(attrs);
 					const keys = Object.keys(attrs);
 					for (let i = 0; i < keys.length; i++) {
 						writer.setAttribute(keys[i], attrs[keys[i]]);
@@ -198,9 +218,6 @@ export default class LinkCommand extends Command {
 				// So, if `href` is empty, do not create text node.
 				else if ( href !== '' ) {
 					const attributes = toMap( selection.getAttributes() );
-
-					console.error("IS NOT COLLAPSEd");
-					console.error(attrs);
 					const keys = Object.keys(attrs);
 					for (let i = 0; i < keys.length; i++) {
 						writer.setAttribute(keys[i], attrs[keys[i]]);
@@ -253,8 +270,6 @@ export default class LinkCommand extends Command {
 				for ( const range of rangesToUpdate ) {
 					writer.setAttribute( 'linkHref', href, range );
 
-					console.error(" IS IN ARRAY IS NOT COLLAPSEd");
-					console.error(attrs);
 					const keys = Object.keys(attrs);
 					for (let i = 0; i < keys.length; i++) {
 						writer.setAttribute(keys[i], attrs[keys[i]], range);

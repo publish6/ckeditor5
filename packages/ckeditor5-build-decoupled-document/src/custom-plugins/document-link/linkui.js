@@ -100,7 +100,6 @@ export default class LinkUI extends Plugin {
 		} );
 
 		this.toolbarButtonCallback = AssetPluginHelper.getToolbarButtonCallbackFromConfig( editor.config, 'DocumentLink' );
-
 	}
 
 	/**
@@ -122,10 +121,12 @@ export default class LinkUI extends Plugin {
 	_createActionsView() {
 		const editor = this.editor;
 		const actionsView = new LinkActionsView( editor.locale );
+	//	const callback = config.get("asset")["DocumentLink"]["goToDocCallback"];
+	//	actionsView.goToDocCallback = callback;
 		const linkCommand = editor.commands.get( 'link' );
 		const unlinkCommand = editor.commands.get( 'unlink' );
 
-		actionsView.bind( 'href' ).to( linkCommand, 'value' );
+		actionsView.bind( 'linkInfo' ).to( linkCommand, 'value' );
 		actionsView.editButtonView.bind( 'isEnabled' ).to( linkCommand );
 		actionsView.unlinkButtonView.bind( 'isEnabled' ).to( unlinkCommand );
 
