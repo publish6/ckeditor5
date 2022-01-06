@@ -21,6 +21,10 @@ import { keyCodes } from '@ckeditor/ckeditor5-utils/src/keyboard';
 import { createLinkElement, ensureSafeUrl, getLocalizedDecorators, normalizeDecorators } from './utils';
 import AssetPluginHelper from '../asset-plugins/asset-plugin-helper';
 import '../theme/link.css';
+import {
+	toWidget,
+	viewToModelPositionOutsideModelElement
+} from '@ckeditor/ckeditor5-widget/src/utils';
 
 const HIGHLIGHT_CLASS = 'ck-link_selected';
 const DECORATOR_AUTOMATIC = 'automatic';
@@ -68,15 +72,75 @@ export default class LinkEditing extends Plugin {
 	init() {
 		const editor = this.editor;
 
-		// Allow link attribute on all inline nodes.
-		editor.model.schema.extend( '$text', { allowAttributes: [
-			'linkHref',
-			'linkAssetId', 
-			'linkAssetType',
-			'linkDisplay'
-		]
-	 } );
+		// Register a new video model element. 
+		const allowedAttributes = ['linkHref', 'linkAssetId', 'linkAssetType', 'linkDisplay', 'linkText' ];
+		const schema = editor.model.schema;
+		schema.register('documentLink', {
+			// Allow wherever text is allowed:
+			allowWhere: '$text',
 
+			// The placeholder will act as an inline node:
+			isInline: true,
+
+			// The inline widget is self-contained so it cannot be split by the caret and it can be selected:
+			isObject: true,
+
+			// The inline widget can have the same attributes as text (for example linkHref, bold).
+			allowAttributesOf: '$text',
+			allowAttributes: allowedAttributes
+		});
+
+		this.editor.editing.mapper.on(
+			'viewToModelPosition',
+			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'documentLink' ) )
+	);
+
+		editor.conversion.for( 'upcast' ).elementToElement( {
+			view: {
+				name: 'a',
+				attributes: {
+					assetid: true,
+					assettype: true,
+					linkdisplay: true,
+					href: true
+				}
+			},
+			model: ( viewImage, {writer: modelWriter} ) => {
+				const text = viewImage.getChild(0).data;
+				console.log("UPCASTING TEXT: "+text);
+				return modelWriter.createElement( 'documentLink', { 
+					linkHref: viewImage.getAttribute( 'href' ),
+					linkAssetId: viewImage.getAttribute( 'assetid' ) ,
+					linkAssetType: viewImage.getAttribute( 'assettype' ) ,
+					linkDisplay: viewImage.getAttribute( 'linkdisplay' ),
+					linkText: text
+				} )
+			}
+		} );
+
+		editor.conversion.for( 'downcast' ).elementToElement({
+			model: 'documentLink',
+			view: (modelItem, {writer: viewWriter}) => {
+				const href = modelItem.getAttribute('linkHref');
+				const linkAssetId = modelItem.getAttribute('linkAssetId');
+				const assettype = modelItem.getAttribute('linkAssetType');
+				const linkdisplay = modelItem.getAttribute('linkDisplay');
+				const innerText = viewWriter.createText( modelItem.getAttribute('linkText'));
+
+				const view = viewWriter.createContainerElement('a', {
+					class: 'documentLink',
+					href: href,
+					assetid: linkAssetId,
+					assettype: assettype,
+					linkdisplay: linkdisplay
+				}, {isAllowedInsideAttributeElement: true});
+				viewWriter.insert(viewWriter.createPositionAt(view, 0), innerText);
+				return view;
+			}
+		})
+
+
+	 /*
 	 editor.conversion.for( 'dataDowncast' )
 	 .attributeToElement( { model: 'linkHref', view: createLinkElement } );
 
@@ -100,9 +164,7 @@ export default class LinkEditing extends Plugin {
 			} );
 
 
-		/**
-		 * CUSTOM ATTRIBUTES
-		 */
+			// Custom Attributes
 		editor.conversion.for( 'downcast' ).attributeToElement( {
 			model: 'linkAssetId',
 			view: ( attributeValue, { writer } ) => {
@@ -165,15 +227,12 @@ export default class LinkEditing extends Plugin {
 				model: 'linkDisplay',
 				converterPriority: 'low'
 		} );
+		*/
 
 		// Create linking commands.
 		editor.commands.add( 'link', new LinkCommand( editor ) );
 		editor.commands.add( 'unlink', new UnlinkCommand( editor ) );
-
-		const linkDecorators = getLocalizedDecorators( editor.t, normalizeDecorators( editor.config.get( 'link.decorators' ) ) );
-
-		this._enableAutomaticDecorators( linkDecorators.filter( item => item.mode === DECORATOR_AUTOMATIC ) );
-		this._enableManualDecorators( linkDecorators.filter( item => item.mode === DECORATOR_MANUAL ) );
+		editor.commands.get( 'link' ).isEnabled = true;
 
 		// Enable two-step caret movement for `linkHref` attribute.
 		const twoStepCaretMovementPlugin = editor.plugins.get( TwoStepCaretMovement );
@@ -193,96 +252,6 @@ export default class LinkEditing extends Plugin {
 
 		// Handle removing the content after the link element.
 		this._handleDeleteContentAfterLink();
-	}
-
-	/**
-	 * Processes an array of configured {@link module:link/link~LinkDecoratorAutomaticDefinition automatic decorators}
-	 * and registers a {@link module:engine/conversion/downcastdispatcher~DowncastDispatcher downcast dispatcher}
-	 * for each one of them. Downcast dispatchers are obtained using the
-	 * {@link module:link/utils~AutomaticDecorators#getDispatcher} method.
-	 *
-	 * **Note**: This method also activates the automatic external link decorator if enabled with
-	 * {@link module:link/link~LinkConfig#addTargetToExternalLinks `config.link.addTargetToExternalLinks`}.
-	 *
-	 * @private
-	 * @param {Array.<module:link/link~LinkDecoratorAutomaticDefinition>} automaticDecoratorDefinitions
-	 */
-	_enableAutomaticDecorators( automaticDecoratorDefinitions ) {
-		const editor = this.editor;
-		// Store automatic decorators in the command instance as we do the same with manual decorators.
-		// Thanks to that, `LinkImageEditing` plugin can re-use the same definitions.
-		const command = editor.commands.get( 'link' );
-		const automaticDecorators = command.automaticDecorators;
-
-		// Adds a default decorator for external links.
-		if ( editor.config.get( 'link.addTargetToExternalLinks' ) ) {
-			automaticDecorators.add( {
-				id: 'linkIsExternal',
-				mode: DECORATOR_AUTOMATIC,
-				callback: url => EXTERNAL_LINKS_REGEXP.test( url ),
-				attributes: {
-					target: '_blank',
-					rel: 'noopener noreferrer'
-				}
-			} );
-		}
-
-		automaticDecorators.add( automaticDecoratorDefinitions );
-
-		if ( automaticDecorators.length ) {
-			editor.conversion.for( 'downcast' ).add( automaticDecorators.getDispatcher() );
-		}
-	}
-
-	/**
-	 * Processes an array of configured {@link module:link/link~LinkDecoratorManualDefinition manual decorators},
-	 * transforms them into {@link module:link/utils~ManualDecorator} instances and stores them in the
-	 * {@link module:link/linkcommand~LinkCommand#manualDecorators} collection (a model for manual decorators state).
-	 *
-	 * Also registers an {@link module:engine/conversion/downcasthelpers~DowncastHelpers#attributeToElement attribute-to-element}
-	 * converter for each manual decorator and extends the {@link module:engine/model/schema~Schema model's schema}
-	 * with adequate model attributes.
-	 *
-	 * @private
-	 * @param {Array.<module:link/link~LinkDecoratorManualDefinition>} manualDecoratorDefinitions
-	 */
-	_enableManualDecorators( manualDecoratorDefinitions ) {
-		if ( !manualDecoratorDefinitions.length ) {
-			return;
-		}
-
-		const editor = this.editor;
-		const command = editor.commands.get( 'link' );
-		const manualDecorators = command.manualDecorators;
-
-		manualDecoratorDefinitions.forEach( decorator => {
-			editor.model.schema.extend( '$text', { allowAttributes: decorator.id } );
-
-			// Keeps reference to manual decorator to decode its name to attributes during downcast.
-			manualDecorators.add( new ManualDecorator( decorator ) );
-
-			editor.conversion.for( 'downcast' ).attributeToElement( {
-				model: decorator.id,
-				view: ( manualDecoratorName, { writer } ) => {
-					if ( manualDecoratorName ) {
-						const attributes = manualDecorators.get( decorator.id ).attributes;
-						const element = writer.createAttributeElement( 'a', attributes, { priority: 5 } );
-						writer.setCustomProperty( 'link', true, element );
-
-						return element;
-					}
-				} } );
-
-			editor.conversion.for( 'upcast' ).elementToAttribute( {
-				view: {
-					name: 'a',
-					attributes: manualDecorators.get( decorator.id ).attributes
-				},
-				model: {
-					key: decorator.id
-				}
-			} );
-		} );
 	}
 
 	/**
