@@ -71,7 +71,7 @@ export default class LinkEditing extends Plugin {
 	 */
 	init() {
 		const editor = this.editor;
-
+		editor.model.schema.extend( '$text', { allowAttributes: 'linkHref' } );
 		// Register a new video model element. 
 		const allowedAttributes = ['linkHref', 'linkAssetId', 'linkAssetType', 'linkDisplay', 'linkText' ];
 		const schema = editor.model.schema;
@@ -87,17 +87,13 @@ export default class LinkEditing extends Plugin {
 
 			// The inline widget can have the same attributes as text (for example linkHref, bold).
 			allowAttributesOf: '$text',
+			allowContentOf: '$block',
 			allowAttributes: allowedAttributes
 		});
 
-		this.editor.editing.mapper.on(
-			'viewToModelPosition',
-			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'documentLink' ) )
-	);
-
 		editor.conversion.for( 'upcast' ).elementToElement( {
 			view: {
-				name: 'a',
+				name: 'span',
 				attributes: {
 					assetid: true,
 					assettype: true,
@@ -106,15 +102,13 @@ export default class LinkEditing extends Plugin {
 				}
 			},
 			model: ( viewImage, {writer: modelWriter} ) => {
-				const text = viewImage.getChild(0).data;
-				console.log("UPCASTING TEXT: "+text);
-				return modelWriter.createElement( 'documentLink', { 
+				const element = modelWriter.createElement( 'documentLink', { 
 					linkHref: viewImage.getAttribute( 'href' ),
 					linkAssetId: viewImage.getAttribute( 'assetid' ) ,
 					linkAssetType: viewImage.getAttribute( 'assettype' ) ,
 					linkDisplay: viewImage.getAttribute( 'linkdisplay' ),
-					linkText: text
-				} )
+				} );
+				return element;
 			}
 		} );
 
@@ -125,109 +119,19 @@ export default class LinkEditing extends Plugin {
 				const linkAssetId = modelItem.getAttribute('linkAssetId');
 				const assettype = modelItem.getAttribute('linkAssetType');
 				const linkdisplay = modelItem.getAttribute('linkDisplay');
-				const innerText = viewWriter.createText( modelItem.getAttribute('linkText'));
+			//	const innerText = viewWriter.createText( modelItem.getAttribute('linkText'));
 
-				const view = viewWriter.createContainerElement('a', {
+				const view = viewWriter.createContainerElement('span', {
 					class: 'documentLink',
 					href: href,
 					assetid: linkAssetId,
 					assettype: assettype,
 					linkdisplay: linkdisplay
 				}, {isAllowedInsideAttributeElement: true});
-				viewWriter.insert(viewWriter.createPositionAt(view, 0), innerText);
+				//viewWriter.insert(viewWriter.createPositionAt(view, 0), innerText);
 				return view;
 			}
 		})
-
-
-	 /*
-	 editor.conversion.for( 'dataDowncast' )
-	 .attributeToElement( { model: 'linkHref', view: createLinkElement } );
-
-		editor.conversion.for( 'editingDowncast' )
-			.attributeToElement( { model: 'linkHref', view: ( href, conversionApi ) => {
-				return createLinkElement( ensureSafeUrl( href ), conversionApi );
-			} } );
-
-		editor.conversion.for( 'upcast' )
-			.elementToAttribute( {
-				view: {
-					name: 'a',
-					attributes: {
-						href: true
-					}
-				},
-				model: {
-					key: 'linkHref',
-					value: viewElement => viewElement.getAttribute( 'href' )
-				}
-			} );
-
-
-			// Custom Attributes
-		editor.conversion.for( 'downcast' ).attributeToElement( {
-			model: 'linkAssetId',
-			view: ( attributeValue, { writer } ) => {
-					const linkElement = writer.createAttributeElement( 'a', { assetid: attributeValue }, { priority: 5 } );
-					writer.setCustomProperty( 'link', true, linkElement );
-
-					return linkElement;
-			},
-			converterPriority: 'low'
-		} );
-
-		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
-		editor.conversion.for( 'upcast' ).attributeToAttribute( {
-				view: {
-						name: 'a',
-						key: 'assetid'
-				},
-				model: 'linkAssetId',
-				converterPriority: 'low'
-		} );
-		
-		editor.conversion.for( 'downcast' ).attributeToElement( {
-			model: 'linkAssetType',
-			view: ( attributeValue, { writer } ) => {
-					const linkElement = writer.createAttributeElement( 'a', { assettype: attributeValue }, { priority: 5 } );
-					writer.setCustomProperty( 'link', true, linkElement );
-
-					return linkElement;
-			},
-			converterPriority: 'low'
-		} );
-
-		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
-		editor.conversion.for( 'upcast' ).attributeToAttribute( {
-				view: {
-						name: 'a',
-						key: 'assettype'
-				},
-				model: 'linkAssetType',
-				converterPriority: 'low'
-		} );
-
-		editor.conversion.for( 'downcast' ).attributeToElement( {
-			model: 'linkDisplay',
-			view: ( attributeValue, { writer } ) => {
-					const linkElement = writer.createAttributeElement( 'a', { linkdisplay: attributeValue }, { priority: 5 } );
-					writer.setCustomProperty( 'link', true, linkElement );
-
-					return linkElement;
-			},
-			converterPriority: 'low'
-		} );
-
-		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
-		editor.conversion.for( 'upcast' ).attributeToAttribute( {
-				view: {
-						name: 'a',
-						key: 'linkdisplay'
-				},
-				model: 'linkDisplay',
-				converterPriority: 'low'
-		} );
-		*/
 
 		// Create linking commands.
 		editor.commands.add( 'link', new LinkCommand( editor ) );
@@ -239,7 +143,7 @@ export default class LinkEditing extends Plugin {
 		twoStepCaretMovementPlugin.registerAttribute( 'linkHref' );
 
 		// Setup highlight over selected link.
-		inlineHighlight( editor, 'linkHref', 'a', HIGHLIGHT_CLASS );
+		inlineHighlight( editor, 'linkHref', 'span', HIGHLIGHT_CLASS );
 
 		// Change the attributes of the selection in certain situations after the link was inserted into the document.
 		this._enableInsertContentSelectionAttributesFixer();

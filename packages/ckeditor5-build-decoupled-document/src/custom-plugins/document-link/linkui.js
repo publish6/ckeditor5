@@ -230,10 +230,10 @@ export default class LinkUI extends Plugin {
 
 			// Bind button to the command.
 			button.bind( 'isEnabled' ).to( linkCommand, 'isEnabled' );
-			button.bind( 'isOn' ).to( linkCommand, 'value', value => !!value );
+			//button.bind( 'isOn' ).to( linkCommand, 'value', value => !!value );
 
 			// Show the panel on button click.
-		//	this.listenTo( button, 'execute', () => this._showUI( true ) );
+			//this.listenTo( button, 'execute', () => this._showUI( true ) );
 			// Ensure we have selected text
 			this.listenTo( button, 'execute', () => {
 				// If blank tell the user that they need to select text.

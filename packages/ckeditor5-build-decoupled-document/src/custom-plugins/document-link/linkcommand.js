@@ -76,37 +76,37 @@ export default class LinkCommand extends Command {
 	refresh() {
 		const model = this.editor.model;
 		const doc = model.document;
-
-		const selectedElement = first( doc.selection.getSelectedBlocks() );
-
-		// A check for the `LinkImage` plugin. If the selection contains an element, get values from the element.
-		// Currently the selection reads attributes from text nodes only. See #7429 and #7465.
-		if ( isImageAllowed( selectedElement, model.schema ) ) {
-			const href = selectedElement.getAttribute( 'linkHref' );
-			const linkDisplay = selectedElement.getAttribute( 'linkDisplay' );
-			const linkAssetId = selectedElement.getAttribute( 'linkAssetId' );
-			this.isEnabled = model.schema.checkAttribute( selectedElement, 'linkHref' );
-			console.log(selectedElement);
-			this.value = {
-				href: href,
-				linkDisplay: linkDisplay,
-				linkAssetId: linkAssetId
-			};
+		const firstPos = doc.selection.getFirstPosition();
+		let selectedElement = firstPos ? firstPos.findAncestor('documentLink') : null;
+		if (selectedElement) {
+			// A check for the `LinkImage` plugin. If the selection contains an element, get values from the element.
+			// Currently the selection reads attributes from text nodes only. See #7429 and #7465.
+			if ( isImageAllowed( selectedElement, model.schema ) ) {
+				const href = selectedElement.getAttribute( 'linkHref' );
+				const linkDisplay = selectedElement.getAttribute( 'linkDisplay' );
+				const linkAssetId = selectedElement.getAttribute( 'linkAssetId' );
+				this.isEnabled = model.schema.checkAttribute( selectedElement, 'linkHref' );
+				this.value = {
+					href: href,
+					linkDisplay: linkDisplay,
+					linkAssetId: linkAssetId
+				};
+				console.warn(model.schema.checkAttributeInSelection( doc.selection, 'linkHref' ));
+			} else {
+				const href = doc.selection.getAttribute( 'linkHref' );
+				const linkAssetId = doc.selection.getAttribute( 'linkAssetId' );
+				const linkDisplay = doc.selection.getAttribute( 'linkDisplay' );
+				this.value = {
+					href: href,
+					linkDisplay: linkDisplay,
+					linkAssetId: linkAssetId
+				};
+				console.warn(model.schema.checkAttributeInSelection( doc.selection, 'linkHref' ));
+				this.isEnabled = model.schema.checkAttributeInSelection( doc.selection, 'linkHref' );
+			} 
 		} else {
-			const href = doc.selection.getAttribute( 'linkHref' );
-			const linkAssetId = doc.selection.getAttribute( 'linkAssetId' );
-			const linkDisplay = doc.selection.getAttribute( 'linkDisplay' );
-			this.value = {
-				href: href,
-				linkDisplay: linkDisplay,
-				linkAssetId: linkAssetId
-			};
-			this.isEnabled = model.schema.checkAttributeInSelection( doc.selection, 'linkHref' );
-			console.log(selectedElement);
-		}
-
-		for ( const manualDecorator of this.manualDecorators ) {
-			manualDecorator.value = this._getDecoratorStateFromModel( manualDecorator.id );
+			console.warn("true!!");
+			this.isEnabled = true;
 		}
 	}
 
@@ -248,11 +248,14 @@ export default class LinkCommand extends Command {
 				// If selection has non-collapsed ranges, we change attribute on nodes inside those ranges
 				// omitting nodes where the `linkHref` attribute is disallowed.
 				const ranges = model.schema.getValidRanges( selection.getRanges(), 'linkHref' );
+				console.log(ranges);
+				
 
 				// But for the first, check whether the `linkHref` attribute is allowed on selected blocks (e.g. the "image" element).
 				const allowedRanges = [];
 
 				for ( const element of selection.getSelectedBlocks() ) {
+					console.log(element);
 					if ( model.schema.checkAttribute( element, 'linkHref' ) ) {
 						allowedRanges.push( writer.createRangeOn( element ) );
 					}
@@ -270,21 +273,12 @@ export default class LinkCommand extends Command {
 				}
 
 				for ( const range of rangesToUpdate ) {
-					writer.setAttribute( 'linkHref', href, range );
-
-					const keys = Object.keys(attrs);
-					for (let i = 0; i < keys.length; i++) {
-						writer.setAttribute(keys[i], attrs[keys[i]], range);
-					}
-
-
-					truthyManualDecorators.forEach( item => {
-						writer.setAttribute( item, true, range );
-					} );
-
-					falsyManualDecorators.forEach( item => {
-						writer.removeAttribute( item, range );
-					} );
+					console.log(range.getContainedElement());
+					const items = range.getItems();
+					const e = writer.createElement('documentLink', attrs);
+					writer.insertElement()
+					writer.append(items.next().value, e)
+					writer.setAttribute( 'linkHref', href, e );
 				}
 			}
 		} );
