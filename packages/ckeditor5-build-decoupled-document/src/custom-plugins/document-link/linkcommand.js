@@ -95,6 +95,7 @@ export default class LinkCommand extends Command {
 			const href = doc.selection.getAttribute( 'linkHref' );
 			const linkAssetId = doc.selection.getAttribute( 'linkAssetId' );
 			const linkDisplay = doc.selection.getAttribute( 'linkDisplay' );
+			
 			this.value = {
 				href: href,
 				linkDisplay: linkDisplay,
@@ -102,7 +103,6 @@ export default class LinkCommand extends Command {
 			};
 			this.isEnabled = model.schema.checkAttributeInSelection( doc.selection, 'linkHref' );
 		}
-
 		for ( const manualDecorator of this.manualDecorators ) {
 			manualDecorator.value = this._getDecoratorStateFromModel( manualDecorator.id );
 		}
