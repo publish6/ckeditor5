@@ -70,7 +70,7 @@ export default class AutomaticDecorators {
 				const viewSelection = viewWriter.document.selection;
 
 				for ( const item of this._definitions ) {
-					const viewElement = viewWriter.createAttributeElement( 'a', item.attributes, {
+					const viewElement = viewWriter.createAttributeElement( 'doclink', item.attributes, {
 						priority: 5
 					} );
 					viewWriter.setCustomProperty( 'link', true, viewElement );
@@ -99,7 +99,7 @@ export default class AutomaticDecorators {
 		return dispatcher => {
 			dispatcher.on( 'attribute:linkHref:image', ( evt, data, conversionApi ) => {
 				const viewFigure = conversionApi.mapper.toViewElement( data.item );
-				const linkInImage = Array.from( viewFigure.getChildren() ).find( child => child.name === 'a' );
+				const linkInImage = Array.from( viewFigure.getChildren() ).find( child => child.name === 'doclink' );
 
 				for ( const item of this._definitions ) {
 					const attributes = toMap( item.attributes );

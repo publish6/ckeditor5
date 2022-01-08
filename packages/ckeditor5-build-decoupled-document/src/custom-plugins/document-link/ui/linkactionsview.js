@@ -9,6 +9,7 @@
 
 import View from '@ckeditor/ckeditor5-ui/src/view';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
+import AssetPluginHelper from '../../asset-plugins/asset-plugin-helper';
 
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
@@ -33,8 +34,9 @@ export default class LinkActionsView extends View {
 	/**
 	 * @inheritDoc
 	 */
-	constructor( locale ) {
+	constructor( locale, editor ) {
 		super( locale );
+		this.editor = editor;
 
 		const t = locale.t;
 
@@ -218,10 +220,21 @@ export default class LinkActionsView extends View {
 			return (val && val.linkDisplay) || t( 'This link has no URL' );
 		} );
 
-		button.bind( 'isEnabled' ).to( this, 'linkInfo', val => !!val );
+		//button.bind( 'isEnabled' ).to( this, 'linkInfo', val => !!val );
+		button.isEnabled = true;
+		const openCallback = AssetPluginHelper.getCustomCallbackFromConfig( this.editor.config, 'DocumentLink', 'openCallback' );
+		console.log(openCallback);
+
+		this.listenTo( button, 'execute', () => {
+			openCallback(this['linkInfo']);
+		});
 
 		button.template.tag = 'button';
-		button.template.eventListeners = {};
+
+		// listenTo doesn't work without this. WTF is going on here?
+		button.template.on = {
+			click: bind.to('clicked')
+		};
 
 		return button;
 	}

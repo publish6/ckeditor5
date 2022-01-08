@@ -120,9 +120,7 @@ export default class LinkUI extends Plugin {
 	 */
 	_createActionsView() {
 		const editor = this.editor;
-		const actionsView = new LinkActionsView( editor.locale );
-	//	const callback = config.get("asset")["DocumentLink"]["goToDocCallback"];
-	//	actionsView.goToDocCallback = callback;
+		const actionsView = new LinkActionsView( editor.locale, editor );
 		const linkCommand = editor.commands.get( 'link' );
 		const unlinkCommand = editor.commands.get( 'unlink' );
 
@@ -231,13 +229,9 @@ export default class LinkUI extends Plugin {
 			// Bind button to the command.
 			button.bind( 'isEnabled' ).to( linkCommand, 'isEnabled' );
 			button.bind( 'isOn' ).to( linkCommand, 'value', value => {
-				const v = value != null && value.linkDisplay != null;
-				console.log("HERE");
-				console.log(v); 
 				return value != null && value.linkDisplay != null });
 
 			// Show the panel on button click.
-		//	this.listenTo( button, 'execute', () => this._showUI( true ) );
 			// Ensure we have selected text
 			this.listenTo( button, 'execute', () => {
 				// If blank tell the user that they need to select text.

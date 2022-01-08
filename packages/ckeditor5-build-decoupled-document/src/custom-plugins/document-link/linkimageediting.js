@@ -158,7 +158,7 @@ function downcastImageLink( options ) {
 			const writer = conversionApi.writer;
 
 			// But we need to check whether the link element exists.
-			const linkInImage = Array.from( viewFigure.getChildren() ).find( child => child.name === 'a' );
+			const linkInImage = Array.from( viewFigure.getChildren() ).find( child => child.name === 'doclink' );
 
 			let linkIconIndicator;
 
@@ -185,7 +185,7 @@ function downcastImageLink( options ) {
 			} else {
 				// But if it does not exist. Let's wrap already converted image by newly created link element.
 				// 1. Create an empty link element.
-				const linkElement = writer.createContainerElement( 'a', { href: data.attributeNewValue } );
+				const linkElement = writer.createContainerElement( 'doclink', { href: data.attributeNewValue } );
 
 				// 2. Insert link inside the associated image.
 				writer.insert( writer.createPositionAt( viewFigure, 0 ), linkElement );
@@ -212,7 +212,7 @@ function downcastImageLinkManualDecorator( manualDecorators, decorator ) {
 			const attributes = manualDecorators.get( decorator.id ).attributes;
 
 			const viewFigure = conversionApi.mapper.toViewElement( data.item );
-			const linkInImage = Array.from( viewFigure.getChildren() ).find( child => child.name === 'a' );
+			const linkInImage = Array.from( viewFigure.getChildren() ).find( child => child.name === 'doclink' );
 
 			// The <a> element was removed by the time this converter is executed.
 			// It may happen when the base `linkHref` and decorator attributes are removed

@@ -119,6 +119,17 @@ export default class AssetPluginHelper {
 		return toolbarButtonCallback;
 	}
 
+	static getCustomCallbackFromConfig(config, pluginName, callbackName) {
+		// Ensure that callbacks are defined for adding, editing, and previewing
+		const editorConfig = config.get("asset");
+		let toolbarButtonCallback = this.getNested(editorConfig, pluginName, callbackName);
+		if (toolbarButtonCallback == null) {
+			console.error("editor.config.asset."+pluginName+"."+callbackName+" is not configured properly! This plugin likely won't work as expecteed!");
+			toolbarButtonCallback = () => { alert("No toolbarButtonCallback function was defined!"); }
+		}
+		return toolbarButtonCallback;
+	}
+
 	static getEditButtonCallbackFromConfig(config, pluginName) {
 		// Ensure that callbacks are defined for adding, editing, and previewing
 		const editorConfig = config.get("asset");

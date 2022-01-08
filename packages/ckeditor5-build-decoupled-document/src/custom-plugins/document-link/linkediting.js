@@ -40,7 +40,7 @@ export default class LinkEditing extends Plugin {
 	 * @inheritDoc
 	 */
 	static get pluginName() {
-		return 'LinkEditing';
+		return 'DocumentLinkEditing';
 	}
 
 	/**
@@ -57,7 +57,7 @@ export default class LinkEditing extends Plugin {
 	constructor( editor ) {
 		super( editor );
 
-		editor.config.define( 'link', {
+		editor.config.define( 'documentLink', {
 			addTargetToExternalLinks: false
 		} );
 	}
@@ -88,7 +88,7 @@ export default class LinkEditing extends Plugin {
 		editor.conversion.for( 'upcast' )
 			.elementToAttribute( {
 				view: {
-					name: 'a',
+					name: 'doclink',
 					attributes: {
 						href: true
 					}
@@ -106,7 +106,7 @@ export default class LinkEditing extends Plugin {
 		editor.conversion.for( 'downcast' ).attributeToElement( {
 			model: 'linkAssetId',
 			view: ( attributeValue, { writer } ) => {
-					const linkElement = writer.createAttributeElement( 'a', { assetid: attributeValue }, { priority: 5 } );
+					const linkElement = writer.createAttributeElement( 'doclink', { assetid: attributeValue }, { priority: 5 } );
 					writer.setCustomProperty( 'link', true, linkElement );
 
 					return linkElement;
@@ -117,7 +117,7 @@ export default class LinkEditing extends Plugin {
 		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
 		editor.conversion.for( 'upcast' ).attributeToAttribute( {
 				view: {
-						name: 'a',
+						name: 'doclink',
 						key: 'assetid'
 				},
 				model: 'linkAssetId',
@@ -127,7 +127,7 @@ export default class LinkEditing extends Plugin {
 		editor.conversion.for( 'downcast' ).attributeToElement( {
 			model: 'linkAssetType',
 			view: ( attributeValue, { writer } ) => {
-					const linkElement = writer.createAttributeElement( 'a', { assettype: attributeValue }, { priority: 5 } );
+					const linkElement = writer.createAttributeElement( 'doclink', { assettype: attributeValue }, { priority: 5 } );
 					writer.setCustomProperty( 'link', true, linkElement );
 
 					return linkElement;
@@ -138,7 +138,7 @@ export default class LinkEditing extends Plugin {
 		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
 		editor.conversion.for( 'upcast' ).attributeToAttribute( {
 				view: {
-						name: 'a',
+						name: 'doclink',
 						key: 'assettype'
 				},
 				model: 'linkAssetType',
@@ -148,7 +148,7 @@ export default class LinkEditing extends Plugin {
 		editor.conversion.for( 'downcast' ).attributeToElement( {
 			model: 'linkDisplay',
 			view: ( attributeValue, { writer } ) => {
-					const linkElement = writer.createAttributeElement( 'a', { linkdisplay: attributeValue }, { priority: 5 } );
+					const linkElement = writer.createAttributeElement( 'doclink', { linkdisplay: attributeValue }, { priority: 5 } );
 					writer.setCustomProperty( 'link', true, linkElement );
 
 					return linkElement;
@@ -159,7 +159,7 @@ export default class LinkEditing extends Plugin {
 		// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
 		editor.conversion.for( 'upcast' ).attributeToAttribute( {
 				view: {
-						name: 'a',
+						name: 'doclink',
 						key: 'linkdisplay'
 				},
 				model: 'linkDisplay',
@@ -180,7 +180,7 @@ export default class LinkEditing extends Plugin {
 		twoStepCaretMovementPlugin.registerAttribute( 'linkHref' );
 
 		// Setup highlight over selected link.
-		inlineHighlight( editor, 'linkHref', 'a', HIGHLIGHT_CLASS );
+		inlineHighlight( editor, 'linkHref', 'doclink', HIGHLIGHT_CLASS );
 
 		// Change the attributes of the selection in certain situations after the link was inserted into the document.
 		this._enableInsertContentSelectionAttributesFixer();
@@ -266,7 +266,7 @@ export default class LinkEditing extends Plugin {
 				view: ( manualDecoratorName, { writer } ) => {
 					if ( manualDecoratorName ) {
 						const attributes = manualDecorators.get( decorator.id ).attributes;
-						const element = writer.createAttributeElement( 'a', attributes, { priority: 5 } );
+						const element = writer.createAttributeElement( 'doclink', attributes, { priority: 5 } );
 						writer.setCustomProperty( 'link', true, element );
 
 						return element;
@@ -275,7 +275,7 @@ export default class LinkEditing extends Plugin {
 
 			editor.conversion.for( 'upcast' ).elementToAttribute( {
 				view: {
-					name: 'a',
+					name: 'doclink',
 					attributes: manualDecorators.get( decorator.id ).attributes
 				},
 				model: {

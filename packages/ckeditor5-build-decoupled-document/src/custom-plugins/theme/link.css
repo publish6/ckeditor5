@@ -8,3 +8,7 @@
  * it acts as a message to the builder telling that it should look for the corresponding styles
  * **in the theme** when compiling the editor.
  */
+
+ doclink {     cursor:pointer;
+  color:rgb(0, 116, 204);
+  text-decoration:underline;}
