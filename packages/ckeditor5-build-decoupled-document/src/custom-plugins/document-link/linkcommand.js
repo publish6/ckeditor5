@@ -199,7 +199,7 @@ export default class LinkCommand extends Command {
 
 					const keys = Object.keys(attrs);
 					for (let i = 0; i < keys.length; i++) {
-						writer.setAttribute(keys[i], attrs[keys[i]]);
+						writer.setAttribute(keys[i], attrs[keys[i]], linkRange);
 					}
 
 					truthyManualDecorators.forEach( item => {
@@ -220,7 +220,7 @@ export default class LinkCommand extends Command {
 					const attributes = toMap( selection.getAttributes() );
 					const keys = Object.keys(attrs);
 					for (let i = 0; i < keys.length; i++) {
-						writer.setAttribute(keys[i], attrs[keys[i]]);
+						attributes.set(keys[i], attrs[keys[i]]);
 					}
 
 
