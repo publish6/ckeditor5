@@ -223,10 +223,10 @@ export default class LinkActionsView extends View {
 		//button.bind( 'isEnabled' ).to( this, 'linkInfo', val => !!val );
 		button.isEnabled = true;
 		const openCallback = AssetPluginHelper.getCustomCallbackFromConfig( this.editor.config, 'DocumentLink', 'openCallback' );
-		console.log(openCallback);
 
 		this.listenTo( button, 'execute', () => {
 			openCallback(this['linkInfo']);
+			this.fire('openPreview');
 		});
 
 		button.template.tag = 'button';

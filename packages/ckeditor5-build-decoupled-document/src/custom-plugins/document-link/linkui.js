@@ -139,6 +139,10 @@ export default class LinkUI extends Plugin {
 			this._hideUI();
 		} );
 
+		this.listenTo( actionsView, 'openPreview', () => {
+			this._hideUI();
+		} );
+
 		// Close the panel on esc key press when the **actions have focus**.
 		actionsView.keystrokes.set( 'Esc', ( data, cancel ) => {
 			this._hideUI();
