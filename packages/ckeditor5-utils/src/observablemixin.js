@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -15,14 +15,17 @@ const observablePropertiesSymbol = Symbol( 'observableProperties' );
 const boundObservablesSymbol = Symbol( 'boundObservables' );
 const boundPropertiesSymbol = Symbol( 'boundProperties' );
 
+const _decoratedMethods = Symbol( 'decoratedMethods' );
+const _decoratedOriginal = Symbol( 'decoratedOriginal' );
+
 /**
  * A mixin that injects the "observable properties" and data binding functionality described in the
  * {@link ~Observable} interface.
  *
  * Read more about the concept of observables in the:
- * * {@glink framework/guides/architecture/core-editor-architecture#event-system-and-observables "Event system and observables"}
- * section of the {@glink framework/guides/architecture/core-editor-architecture "Core editor architecture"} guide,
- * * {@glink framework/guides/deep-dive/observables "Observables" deep dive} guide.
+ * * {@glink framework/guides/architecture/core-editor-architecture#event-system-and-observables Event system and observables}
+ * section of the {@glink framework/guides/architecture/core-editor-architecture Core editor architecture} guide,
+ * * {@glink framework/guides/deep-dive/observables Observables deep dive} guide.
  *
  * @mixin ObservableMixin
  * @mixes module:utils/emittermixin~EmitterMixin
@@ -258,10 +261,36 @@ const ObservableMixin = {
 		this[ methodName ] = function( ...args ) {
 			return this.fire( methodName, args );
 		};
+
+		this[ methodName ][ _decoratedOriginal ] = originalMethod;
+
+		if ( !this[ _decoratedMethods ] ) {
+			this[ _decoratedMethods ] = [];
+		}
+
+		this[ _decoratedMethods ].push( methodName );
 	}
 };
 
 extend( ObservableMixin, EmitterMixin );
+
+// Override the EmitterMixin stopListening method to be able to clean (and restore) decorated methods.
+// This is needed in case of:
+//  1. Have x.foo() decorated.
+//  2. Call x.stopListening()
+//  3. Call x.foo(). Problem: nothing happens (the original foo() method is not executed)
+ObservableMixin.stopListening = function( emitter, event, callback ) {
+	// Removing all listeners so let's clean the decorated methods to the original state.
+	if ( !emitter && this[ _decoratedMethods ] ) {
+		for ( const methodName of this[ _decoratedMethods ] ) {
+			this[ methodName ] = this[ methodName ][ _decoratedOriginal ];
+		}
+
+		delete this[ _decoratedMethods ];
+	}
+
+	EmitterMixin.stopListening.call( this, emitter, event, callback );
+};
 
 export default ObservableMixin;
 
@@ -672,9 +701,9 @@ function attachBindToListeners( observable, toBindings ) {
  * Can be easily implemented by a class by mixing the {@link module:utils/observablemixin~ObservableMixin} mixin.
  *
  * Read more about the usage of this interface in the:
- * * {@glink framework/guides/architecture/core-editor-architecture#event-system-and-observables "Event system and observables"}
- * section of the {@glink framework/guides/architecture/core-editor-architecture "Core editor architecture"} guide,
- * * {@glink framework/guides/deep-dive/observables "Observables" deep dive} guide.
+ * * {@glink framework/guides/architecture/core-editor-architecture#event-system-and-observables Event system and observables}
+ * section of the {@glink framework/guides/architecture/core-editor-architecture Core editor architecture} guide,
+ * * {@glink framework/guides/deep-dive/observables Observables deep dive} guide.
  *
  * @interface Observable
  * @extends module:utils/emittermixin~Emitter

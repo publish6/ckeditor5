@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -17,6 +17,7 @@ import { getData as getViewData } from '@ckeditor/ckeditor5-engine/src/dev-utils
 import ListStyleEditing from '../src/liststyleediting';
 import TodoListEditing from '../src/todolistediting';
 import ListStyleCommand from '../src/liststylecommand';
+import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
 
 describe( 'ListStyleEditing', () => {
 	let editor, model, view;
@@ -345,7 +346,7 @@ describe( 'ListStyleEditing', () => {
 				beforeEach( () => {
 					return VirtualTestEditor
 						.create( {
-							plugins: [ ListStyleEditing ]
+							plugins: [ Paragraph, ListStyleEditing ]
 						} )
 						.then( newEditor => {
 							editor = newEditor;
@@ -1621,6 +1622,59 @@ describe( 'ListStyleEditing', () => {
 					setData() {}
 				};
 			}
+		} );
+
+		describe( 'the FontColor feature', () => {
+			let editor, view, container;
+
+			beforeEach( () => {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				return ClassicTestEditor
+					.create( container, {
+						plugins: [ Paragraph, ListStyleEditing, FontColor, Typing ]
+					} )
+					.then( newEditor => {
+						editor = newEditor;
+						view = editor.editing.view;
+					} );
+			} );
+
+			afterEach( () => {
+				container.remove();
+
+				return editor.destroy();
+			} );
+
+			describe( 'spellchecking integration', () => {
+				it( 'should not throw if a children mutation was fired over colorized text', () => {
+					editor.setData(
+						'<ul>' +
+							'<li><span style="color:hsl(30, 75%, 60%);">helllo</span></li>' +
+						'</ul>'
+					);
+
+					const viewRoot = view.document.getRoot();
+					const viewLi = viewRoot.getChild( 0 ).getChild( 0 );
+
+					// This should not throw. See #9325.
+					view.document.fire( 'mutations',
+						[
+							{
+								type: 'children',
+								oldChildren: [
+									viewLi.getChild( 0 )
+								],
+								newChildren: view.change( writer => [
+									writer.createContainerElement( 'font' )
+								] ),
+								node: viewLi
+							}
+						]
+					);
+				} );
+			} );
 		} );
 	} );
 } );

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -7,8 +7,7 @@
  * @module paste-from-office/filters/list
  */
 
-import Matcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
-import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
+import { Matcher, UpcastWriter } from 'ckeditor5/src/engine';
 
 /**
  * Transforms Word specific list-like elements to the semantic HTML lists.
@@ -161,7 +160,7 @@ function findAllItemLikeElements( documentFragment, writer ) {
 // If it cannot be adjusted, the `null` value is returned.
 function detectListStyle( listLikeItem, stylesString ) {
 	const listStyleRegexp = new RegExp( `@list l${ listLikeItem.id }:level${ listLikeItem.indent }\\s*({[^}]*)`, 'gi' );
-	const listStyleTypeRegex = /mso-level-number-format:([^;]*);/gi;
+	const listStyleTypeRegex = /mso-level-number-format:([^;]{0,100});/gi;
 
 	const listStyleMatch = listStyleRegexp.exec( stylesString );
 
@@ -226,18 +225,28 @@ function findBulletedListStyle( element ) {
 // @param {module:engine/view/element~Element} element
 // @returns {module:engine/view/text~Text|null}
 function findListMarkerNode( element ) {
-	// If the first child is a text node, it is a value for the element.
+	// If the first child is a text node, it is the data for the element.
+	// The list-style marker is not present here.
 	if ( element.getChild( 0 ).is( '$text' ) ) {
 		return null;
 	}
 
-	const textNodeOrElement = element.getChild( 0 ).getChild( 0 );
+	for ( const childNode of element.getChildren() ) {
+		// The list-style marker will be inside the `<span>` element. Let's ignore all non-span elements.
+		// It may happen that the `<a>` element is added as the first child. Most probably, it's an anchor element.
+		if ( !childNode.is( 'element', 'span' ) ) {
+			continue;
+		}
 
-	if ( textNodeOrElement.is( '$text' ) ) {
-		return textNodeOrElement;
+		const textNodeOrElement = childNode.getChild( 0 );
+
+		// If already found the marker element, use it.
+		if ( textNodeOrElement.is( '$text' ) ) {
+			return textNodeOrElement;
+		}
+
+		return textNodeOrElement.getChild( 0 );
 	}
-
-	return textNodeOrElement.getChild( 0 );
 }
 
 // Parses the `list-style-type` value extracted directly from the Word CSS stylesheet and returns proper CSS definition.
@@ -322,9 +331,9 @@ function getListItemData( element ) {
 	const listStyle = element.getStyle( 'mso-list' );
 
 	if ( listStyle ) {
-		const idMatch = listStyle.match( /(^|\s+)l(\d+)/i );
-		const orderMatch = listStyle.match( /\s*lfo(\d+)/i );
-		const indentMatch = listStyle.match( /\s*level(\d+)/i );
+		const idMatch = listStyle.match( /(^|\s{1,100})l(\d+)/i );
+		const orderMatch = listStyle.match( /\s{0,100}lfo(\d+)/i );
+		const indentMatch = listStyle.match( /\s{0,100}level(\d+)/i );
 
 		if ( idMatch && orderMatch && indentMatch ) {
 			data.id = idMatch[ 2 ];

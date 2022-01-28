@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md.
  */
 
@@ -15,6 +15,13 @@ marked.use( {
 		// Disable the autolink rule in the lexer.
 		autolink: () => null,
 		url: () => null
+	},
+	renderer: {
+		checkbox( ...args ) {
+			// Remove bogus space after <input type="checkbox"> because it would be preserved
+			// by DomConverter as it's next to an inline object.
+			return Object.getPrototypeOf( this ).checkbox.call( this, ...args ).trimRight();
+		}
 	}
 } );
 

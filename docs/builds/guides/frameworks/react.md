@@ -4,9 +4,15 @@ category: builds-integration-frameworks
 order: 30
 ---
 
+{@snippet builds/frameworks/framework-integration}
+
 # Rich text editor component for React
 
-[![npm version](https://badge.fury.io/js/%40ckeditor%2Fckeditor5-react.svg)](https://www.npmjs.com/package/@ckeditor/ckeditor5-react)
+<p>
+	<a href="https://www.npmjs.com/package/@ckeditor/ckeditor5-react" target="_blank" rel="noopener">
+		<img src="https://badge.fury.io/js/%40ckeditor%2Fckeditor5-react.svg" alt="npm version" loading="lazy">
+	</a>
+</p>
 
 CKEditor 5 consists of {@link builds/guides/overview ready-to-use editor builds} and {@link framework/guides/overview CKEditor 5 Framework} upon which the builds are based.
 
@@ -85,7 +91,7 @@ The editor event callbacks (`onChange`, `onBlur`, `onFocus`) receive two argumen
 
 ## Context feature
 
-The [`@ckeditor/ckeditor5-react`](https://www.npmjs.com/package/@ckeditor/ckeditor5-react) package provides a ready-to-use component for the [context feature](https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/context-and-collaboration-features.html) that is useful when used together with some [CKEditor 5 collaboration features](https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/collaboration.html).
+The [`@ckeditor/ckeditor5-react`](https://www.npmjs.com/package/@ckeditor/ckeditor5-react) package provides a ready-to-use component for the {@link features/context-and-collaboration-features context feature} that is useful when used together with some {@link features/collaboration CKEditor 5 collaboration features}.
 
 ```jsx
 // This sample assumes that the application is using a CKEditor 5 editor built from source.
@@ -157,31 +163,29 @@ The `CKEditorContext` component supports the following properties:
 
 ## Customizing the builds
 
-{@link builds/guides/overview CKEditor 5 builds} come ready to use, with a set of built-in plugins and a predefined configuration. While you can change the configuration easily by using the `config` property of the `<CKEditor>` component which allows you to change the {@link features/toolbar toolbar} or {@link builds/guides/integration/configuration#removing-features remove some plugins}, in order to add plugins you need to rebuild the editor.
+The {@link builds/guides/overview CKEditor 5 builds} come ready to use, with a set of built-in plugins and a predefined configuration. While you can change the configuration easily by using the `config` property of the `<CKEditor>` component which allows you to change the {@link features/toolbar toolbar} or {@link builds/guides/integration/configuration#removing-features remove some plugins}, in order to add more plugins you need to rebuild the editor.
 
 There are three main ways to do that.
 
-* {@link builds/guides/development/custom-builds Customize one of the existing builds}.
+### Using the CKEditor 5 online builder
 
-	This option does not require any changes in your project's configuration. You will create a new build somewhere next to your project and include it like you included one of the existing builds. Therefore, it is the easiest way to add missing features.
+Create your own CKEditor 5 build with customized plugins, toolbar and language in five simple steps using our dedicated [online builder](https://ckeditor.com/ckeditor-5/online-builder/). It is a fast, intuitive tool that allows for customizing your editing experience with a set of plugins of your own choice. Read more about this option in the [Integrating a build from the online builder](#integrating-a-build-from-the-online-builder) section.
 
-	Read more about this method in the {@link builds/guides/integration/installing-plugins Installing plugins} guide.
+<info-box>
+	If you want to use the [CKEditor 5 online builder](https://ckeditor.com/ckeditor-5/online-builder/), make sure that the [watchdog feature](https://ckeditor.com/docs/ckeditor5/latest/features/watchdog.html) is not selected. The React integration comes with the watchdog feature already integrated into the core.
+</info-box>
 
-* [Use the CKEditor 5 online builder](https://ckeditor.com/ckeditor-5/online-builder/).
+### Customizing one of the predefined builds
 
-    Create your own CKEditor 5 build with customized plugins, toolbar and language in 5 simple steps.
+This option requires making changes to a {@link builds/guides/development/custom-builds predefined build} of your choice. Much like in [the case of online builder](#integrating-a-build-from-the-online-builder), you then need to place the custom editor's folder next to `src/` directory and add it as a dependency using `yarn add file` command.
 
-	<info-box>
-		If you want to use the [CKEditor 5 online builder](https://ckeditor.com/ckeditor-5/online-builder/), make sure that the [watchdog feature](https://ckeditor.com/docs/ckeditor5/latest/features/watchdog.html) is not selected. The React integration comes with the watchdog feature already integrated into the core.
-	</info-box>
+Read more about customising a predefined build in the {@link builds/guides/integration/installing-plugins Installing plugins} guide.
 
-	Read more about this option in the [Integrating a build from the online builder](#integrating-a-build-from-the-online-builder) section.
+### Integrating the editor from source
 
-* {@link builds/guides/integration/advanced-setup Integrate the editor from source}.
+In this approach, you will include a CKEditor 5 {@link builds/guides/integration/advanced-setup#scenario-2-building-from-source built from source}, so you will choose the editor creator you want and the list of plugins, etc. It is more powerful and creates a tighter integration between your application and the WYSIWYG editor, however, it requires adjusting your `webpack.config.js` to CKEditor 5 needs.
 
-	In this approach you will include a CKEditor 5 built from source &mdash; so you will choose the editor creator you want and the list of plugins, etc. It is more powerful and creates a tighter integration between your application and the WYSIWYG editor, however, it requires adjusting your `webpack.config.js` to CKEditor 5 needs.
-
-	Read more about this option in the [Integrating CKEditor 5 from source](#integrating-ckeditor-5-built-from-source) section.
+Read more about this option in the [Integrating CKEditor 5 from source](#integrating-ckeditor-5-built-from-source) section.
 
 ### Using the document editor build
 
@@ -231,7 +235,7 @@ export default App;
 
 ### Using the editor with collaboration plugins
 
-The easiest way to integrate [collaboration plugins](https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/collaboration.html) in a React application is to build the editor from source including the collaboration plugins together with the React application.
+The easiest way to integrate {@link features/collaboration collaboration plugins} in a React application is to build the editor from source including the collaboration plugins together with the React application.
 
 For such a scenario we provide a few ready-to-use integrations featuring collaborative editing in React applications:
 
@@ -318,6 +322,44 @@ class App extends Component {
 export default App;
 ```
 
+### The `JavaScript heap out of memory` error
+
+When building the application for the production using the `yarn build` command, it may produce an error related to the memory available on the build machine:
+
+```
+<--- Last few GCs --->
+
+[32550:0x110008000]    42721 ms: Scavenge (reduce) 4061.0 (4069.6) -> 4060.5 (4070.8) MB, 4.3 / 0.0 ms  (average mu = 0.358, current mu = 0.374) allocation failure
+[32550:0x110008000]    42726 ms: Scavenge (reduce) 4061.2 (4069.8) -> 4060.6 (4071.3) MB, 4.0 / 0.0 ms  (average mu = 0.358, current mu = 0.374) allocation failure
+[32550:0x110008000]    42730 ms: Scavenge (reduce) 4061.4 (4073.3) -> 4060.9 (4073.3) MB, 3.7 / 0.0 ms  (average mu = 0.358, current mu = 0.374) allocation failure
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+ 1: 0x1012e4da5 node::Abort() (.cold.1) [/usr/local/bin/node]
+```
+
+This issue has not been fixed yet, however, there is a workaround for this. Increasing the available memory for Node.js using the `--max_old_space_size` modifier should resolve the problem.
+
+```bash
+node --max_old_space_size=4096 node_modules/.bin/react-scripts build
+```
+
+The memory limit can be set globally as well:
+
+```bash
+# Save it in the `.bash_profile` file to avoid typing it after rebooting the machine.
+export NODE_OPTIONS="--max-old-space-size=4096"
+
+yarn build
+```
+
+It can also be set on-demand, per command call:
+
+```bash
+NODE_OPTIONS="--max-old-space-size=4096" yarn build
+```
+
 ## Integrating CKEditor 5 built from source
 
 Integrating the rich text editor from source allows you to use the full power of the {@link framework/guides/overview CKEditor 5 Framework}.
@@ -359,6 +401,8 @@ yarn add \
 	@ckeditor/ckeditor5-paragraph \
 	@ckeditor/ckeditor5-basic-styles
 ```
+
+Please note that all packages (excluding `@ckeditor/ckeditor5-dev-*` and `@ckeditor/ckeditor5-react`) {@link builds/guides/integration/installing-plugins#requirements must have the same version as the base editor package}.
 
 #### Modifying the webpack configuration
 

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -19,8 +19,8 @@ import Rect from '@ckeditor/ckeditor5-utils/src/dom/rect';
 import global from '@ckeditor/ckeditor5-utils/src/dom/global';
 import { createDropdown, addToolbarToDropdown } from '../dropdown/utils';
 import { logWarning } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import verticalDotsIcon from '@ckeditor/ckeditor5-core/theme/icons/three-vertical-dots.svg';
 import normalizeToolbarConfig from './normalizetoolbarconfig';
+import threeVerticalDots from '@ckeditor/ckeditor5-core/theme/icons/three-vertical-dots.svg';
 
 import '../../theme/components/toolbar/toolbar.css';
 
@@ -171,16 +171,19 @@ export default class ToolbarView extends View {
 		 * @protected
 		 * @member {module:ui/focuscycler~FocusCycler}
 		 */
+
+		const isRtl = locale.uiLanguageDirection === 'rtl';
+
 		this._focusCycler = new FocusCycler( {
 			focusables: this.focusables,
 			focusTracker: this.focusTracker,
 			keystrokeHandler: this.keystrokes,
 			actions: {
 				// Navigate toolbar items backwards using the arrow[left,up] keys.
-				focusPrevious: [ 'arrowleft', 'arrowup' ],
+				focusPrevious: [ isRtl ? 'arrowright' : 'arrowleft', 'arrowup' ],
 
 				// Navigate toolbar items forwards using the arrow[right,down] keys.
-				focusNext: [ 'arrowright', 'arrowdown' ]
+				focusNext: [ isRtl ? 'arrowleft' : 'arrowright', 'arrowdown' ]
 			}
 		} );
 
@@ -256,6 +259,8 @@ export default class ToolbarView extends View {
 	 */
 	destroy() {
 		this._behavior.destroy();
+		this.focusTracker.destroy();
+		this.keystrokes.destroy();
 
 		return super.destroy();
 	}
@@ -932,7 +937,7 @@ class DynamicGrouping {
 			label: t( 'Show more items' ),
 			tooltip: true,
 			tooltipPosition: locale.uiLanguageDirection === 'rtl' ? 'se' : 'sw',
-			icon: verticalDotsIcon
+			icon: threeVerticalDots
 		} );
 
 		// 1:1 pass–through binding.

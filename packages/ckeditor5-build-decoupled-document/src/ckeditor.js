@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -9,6 +9,7 @@ import DecoupledEditorBase from '@ckeditor/ckeditor5-editor-decoupled/src/decoup
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
 import Notification from '@ckeditor/ckeditor5-ui/src/notification/notification';
+import Font from '@ckeditor/ckeditor5-font/src/font';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
@@ -22,6 +23,7 @@ import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import Image from '@ckeditor/ckeditor5-image/src/image';
 import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
+import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import Indent from '@ckeditor/ckeditor5-indent/src/indent';
@@ -37,7 +39,6 @@ import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformatio
 import RemoveMarkings from './custom-plugins/remove-markings/remove-markings';
 import { EditImageBasedAssetPlugin, PreviewImageBasedAssetPlugin } from './custom-plugins/asset-plugins/image-based-asset-plugin';
 import { ImageWithMetadataPlugin } from './custom-plugins/asset-plugins/image-with-metadata/image-with-metadata';
-import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import HTML5VideoPlugin, { VideoCaption } from './custom-plugins/asset-plugins/html5-video-asset/html5VideoPlugin';
 import HTML5AudioPlugin, { AudioCaption } from './custom-plugins/asset-plugins/html5-audio-asset/html5AudioPlugin.js';
 import { ClassifyPlugin } from './custom-plugins/generic-plugins/classify';
@@ -51,10 +52,11 @@ export default class DecoupledEditor extends DecoupledEditorBase {}
 
 // Plugins to include in the build.
 DecoupledEditor.builtinPlugins = [
-	Base64UploadAdapter,
 	Essentials,
+	Base64UploadAdapter,
 	Alignment,
 	Notification,
+	Font,
 	FontSize,
 	FontFamily,
 	FontColor,
@@ -68,9 +70,9 @@ DecoupledEditor.builtinPlugins = [
 	BlockQuote,
 	Heading,
 	Image,
+	ImageToolbar,
 	ImageCaption,
 	ImageStyle,
-	ImageToolbar,
 	ImageResize,
 	Indent,
 	IndentBlock,
@@ -124,8 +126,8 @@ DecoupledEditor.defaultConfig = {
 			'numberedList',
 			'bulletedList',
 			'|',
-			'indent',
 			'outdent',
+			'indent',
 			'|',
 			'blockquote',
 			'insertTable',
@@ -135,11 +137,7 @@ DecoupledEditor.defaultConfig = {
 		]
 	},
 	image: {
-		styles: [
-			'full',
-			'alignLeft',
-			'alignRight'
-		],
+		resizeUnit: 'px',
 		toolbar: [
 			'previewImageBasedAsset',
 			'|',

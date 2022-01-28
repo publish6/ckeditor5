@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -82,6 +82,15 @@ describe( 'InputTextView', () => {
 				view.render();
 
 				expect( view.element.value ).to.equal( 'baz' );
+			} );
+
+			it( 'should update along with the #isEmpty property', () => {
+				view.value = 'foo';
+
+				expect( view.isEmpty ).to.be.false;
+
+				view.value = '';
+				expect( view.isEmpty ).to.be.true;
 			} );
 		} );
 
@@ -171,18 +180,18 @@ describe( 'InputTextView', () => {
 
 				view.element.dispatchEvent( new Event( 'input' ) );
 				sinon.assert.calledOnce( spy );
+				sinon.assert.calledWith( spy, sinon.match.object );
 			} );
-		} );
 
-		describe( 'change event', () => {
+			// https://github.com/ckeditor/ckeditor5/issues/10431
 			it( 'should trigger update of the #isEmpty property', () => {
 				view.element.value = 'foo';
-				view.element.dispatchEvent( new Event( 'change' ) );
+				view.element.dispatchEvent( new Event( 'input' ) );
 
 				expect( view.isEmpty ).to.be.false;
 
 				view.element.value = '';
-				view.element.dispatchEvent( new Event( 'change' ) );
+				view.element.dispatchEvent( new Event( 'input' ) );
 
 				expect( view.isEmpty ).to.be.true;
 			} );
@@ -196,6 +205,16 @@ describe( 'InputTextView', () => {
 			view.element.dispatchEvent( new Event( 'focus' ) );
 
 			expect( view.isFocused ).to.be.true;
+		} );
+	} );
+
+	describe( 'destroy()', () => {
+		it( 'should destroy the FocusTracker instance', () => {
+			const destroySpy = sinon.spy( view.focusTracker, 'destroy' );
+
+			view.destroy();
+
+			sinon.assert.calledOnce( destroySpy );
 		} );
 	} );
 

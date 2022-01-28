@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -7,9 +7,9 @@
  * @module link/autolink
  */
 
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import TextWatcher from '@ckeditor/ckeditor5-typing/src/textwatcher';
-import getLastTextLine from '@ckeditor/ckeditor5-typing/src/utils/getlasttextline';
+import { Plugin } from 'ckeditor5/src/core';
+import { Delete, TextWatcher, getLastTextLine } from 'ckeditor5/src/typing';
+
 import { addLinkProtocolIfApplicable } from './utils';
 
 const MIN_LINK_LENGTH_WITH_SPACE_AT_END = 4; // Ie: "t.co " (length 5).
@@ -27,10 +27,23 @@ const URL_REG_EXP = new RegExp(
 			// BasicAuth using user:pass (optional)
 			'(?:\\S+(?::\\S*)?@)?' +
 			'(?:' +
-				// Host & domain names.
-				'(?![-_])(?:[-\\w\\u00a1-\\uffff]{0,63}[^-_]\\.)+' +
-				// TLD identifier name.
-				'(?:[a-z\\u00a1-\\uffff]{2,})' +
+				// IP address dotted notation octets
+				// excludes loopback network 0.0.0.0
+				// excludes reserved space >= 224.0.0.0
+				// excludes network & broadcast addresses
+				// (first & last IP address of each class)
+				'(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])' +
+				'(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}' +
+				'(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))' +
+				'|' +
+				'(' +
+					// Do not allow `www.foo` - see https://github.com/ckeditor/ckeditor5/issues/8050.
+					'((?!www\\.)|(www\\.))' +
+					// Host & domain names.
+					'(?![-_])(?:[-_a-z0-9\\u00a1-\\uffff]{1,63}\\.)+' +
+					// TLD identifier name.
+					'(?:[a-z\\u00a1-\\uffff]{2,63})' +
+				')' +
 			')' +
 			// port number (optional)
 			'(?::\\d{2,5})?' +
@@ -42,10 +55,10 @@ const URL_REG_EXP = new RegExp(
 		'(' +
 			'(www.|(\\S+@))' +
 			// Host & domain names.
-			'((?![-_])(?:[-\\w\\u00a1-\\uffff]{0,63}[^-_]\\.))+' +
-	// TLD identifier name.
-	'(?:[a-z\\u00a1-\\uffff]{2,})' +
-	')' +
+			'((?![-_])(?:[-_a-z0-9\\u00a1-\\uffff]{1,63}\\.))+' +
+			// TLD identifier name.
+			'(?:[a-z\\u00a1-\\uffff]{2,63})' +
+		')' +
 	')$', 'i' );
 
 const URL_GROUP_IN_MATCH = 2;
@@ -56,6 +69,13 @@ const URL_GROUP_IN_MATCH = 2;
  * @extends module:core/plugin~Plugin
  */
 export default class AutoLink extends Plugin {
+	/**
+	 * @inheritDoc
+	 */
+	static get requires() {
+		return [ Delete ];
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -213,6 +233,7 @@ export default class AutoLink extends Plugin {
 	 */
 	_applyAutoLink( link, range ) {
 		const model = this.editor.model;
+		const deletePlugin = this.editor.plugins.get( 'Delete' );
 
 		if ( !this.isEnabled || !isLinkAllowedOnRange( range, model ) ) {
 			return;
@@ -223,6 +244,10 @@ export default class AutoLink extends Plugin {
 			const defaultProtocol = this.editor.config.get( 'link.defaultProtocol' );
 			const parsedUrl = addLinkProtocolIfApplicable( link, defaultProtocol );
 			writer.setAttribute( 'linkHref', parsedUrl, range );
+
+			model.enqueueChange( () => {
+				deletePlugin.requestUndoOnBackspace();
+			} );
 		} );
 	}
 }

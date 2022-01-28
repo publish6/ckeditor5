@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -52,6 +52,13 @@ describe( 'Model', () => {
 			expect( schema.isLimit( '$clipboardHolder' ) ).to.be.true;
 			expect( schema.checkChild( [ '$clipboardHolder' ], '$text' ) ).to.be.true;
 			expect( schema.checkChild( [ '$clipboardHolder' ], '$block' ) ).to.be.true;
+		} );
+
+		it( 'registers $documentFragment to the schema', () => {
+			expect( schema.isRegistered( '$documentFragment' ) ).to.be.true;
+			expect( schema.isLimit( '$documentFragment' ) ).to.be.true;
+			expect( schema.checkChild( [ '$documentFragment' ], '$text' ) ).to.be.true;
+			expect( schema.checkChild( [ '$documentFragment' ], '$block' ) ).to.be.true;
 		} );
 
 		it( 'registers $marker to the schema', () => {
@@ -535,14 +542,14 @@ describe( 'Model', () => {
 			schema.register( 'paragraph', { inheritAllFrom: '$block' } );
 			schema.register( 'div', { inheritAllFrom: '$block' } );
 			schema.extend( '$block', { allowIn: 'div' } );
-			schema.register( 'image', {
+			schema.register( 'imageBlock', {
 				isObject: true
 			} );
 			schema.register( 'content', {
 				inheritAllFrom: '$block',
 				isContent: true
 			} );
-			schema.extend( 'image', { allowIn: 'div' } );
+			schema.extend( 'imageBlock', { allowIn: 'div' } );
 			schema.register( 'listItem', {
 				inheritAllFrom: '$block'
 			} );
@@ -555,7 +562,7 @@ describe( 'Model', () => {
 				'</div>' +
 				'<paragraph>foo</paragraph>' +
 				'<div>' +
-					'<image></image>' +
+					'<imageBlock></imageBlock>' +
 				'</div>' +
 				'<listItem></listItem>' +
 				'<listItem></listItem>' +

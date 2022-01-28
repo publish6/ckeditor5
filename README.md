@@ -54,7 +54,7 @@ CKEditor 5 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?styl
 
 [![npm version](https://badge.fury.io/js/ckeditor5.svg)](https://www.npmjs.com/package/ckeditor5)
 
-[![Build Status](https://travis-ci.org/ckeditor/ckeditor5.svg?branch=master)](https://travis-ci.org/ckeditor/ckeditor5)
+[![Build Status](https://travis-ci.com/ckeditor/ckeditor5.svg?branch=master)](https://travis-ci.com/ckeditor/ckeditor5)
 [![Dependency Status](https://img.shields.io/david/ckeditor/ckeditor5.svg)](https://david-dm.org/ckeditor/ckeditor5)
 [![devDependency Status](https://img.shields.io/david/dev/ckeditor/ckeditor5.svg)](https://david-dm.org/ckeditor/ckeditor5?type=dev)
 
@@ -68,7 +68,7 @@ A set of ready-to-use rich text editors created with a powerful framework. Made 
 ## Table of contents
 
 * [Quick start](#quick-start)
-   * [CKEditor 5 Builds](#ckeditor-5-builds)
+   * [CKEditor 5 builds](#ckeditor-5-builds)
    * [CKEditor 5 Framework](#ckeditor-5-framework)
 * [Documentation and FAQ](#documentation-and-faq)
 * [Contributing and project organization](#contributing-and-project-organization)
@@ -86,11 +86,11 @@ A set of ready-to-use rich text editors created with a powerful framework. Made 
 
 ## Quick start
 
-### CKEditor 5 Builds
+### CKEditor 5 builds
 
-CKEditor 5 Builds are a set of ready-to-use rich text editors. Every "build" provides a single type of editor with a set of features and a default configuration.
+CKEditor 5 builds are a set of ready-to-use rich text editors. Every "build" provides a single type of editor with a set of features and a default configuration.
 
-The following CKEditor 5 Builds are currently available:
+The following CKEditor 5 builds are currently available:
 
 * [Classic editor](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#classic-editor)
 * [Inline editor](https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#inline-editor)
@@ -135,7 +135,7 @@ To find out how to start with other builds check the [Quick start guide in the C
 
 ### CKEditor 5 Framework
 
-CKEditor 5 Builds allow you to quickly and easily initialize one of the many types of editors in your application. At the same time, CKEditor 5 is also a framework for creating custom-made rich text editing solutions.
+CKEditor 5 builds allow you to quickly and easily initialize one of the many types of editors in your application. At the same time, CKEditor 5 is also a framework for creating custom-made rich text editing solutions.
 
 To find out how to start building your own editor from scratch go to [CKEditor 5 Framework overview section of CKEditor 5 documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/guides/overview.html).
 
@@ -145,7 +145,7 @@ To find out more see the following [CKEditor 5 documentation](https://ckeditor.c
 
 * [API documentation](https://ckeditor.com/docs/ckeditor5/latest/api/index.html)
 * [CKEditor 5 Framework documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/index.html)
-* [CKEditor 5 Builds documentation](https://ckeditor.com/docs/ckeditor5/latest/builds/index.html)
+* [CKEditor 5 builds documentation](https://ckeditor.com/docs/ckeditor5/latest/builds/index.html)
 * [CKEditor 5 Features documentation](https://ckeditor.com/docs/ckeditor5/latest/features/index.html)
 * [CKEditor 5 Examples](https://ckeditor.com/docs/ckeditor5/latest/examples/index.html)
 
@@ -285,18 +285,6 @@ See CKEditor 5 release blog posts [on the CKEditor blog](https://ckeditor.com/bl
 	</td>
 	<td>
 		CKEditor 5's Cloud Services integration layer.
-	</td>
-</tr>
-
-<tr>
-	<td>
-		<a href="https://github.com/ckeditor/ckeditor5/tree/master/packages/ckeditor-cloud-services-core"><code>@ckeditor/ckeditor-cloud-services-core</code></a>
-	</td>
-	<td>
-		<a href="https://www.npmjs.com/package/@ckeditor/ckeditor-cloud-services-core"><img src="https://img.shields.io/npm/v/@ckeditor/ckeditor-cloud-services-core.svg" alt="@ckeditor/ckeditor-cloud-services-core npm package badge"></a>
-	</td>
-	<td>
-		CKEditor Cloud Services integration utils.
 	</td>
 </tr>
 
@@ -524,6 +512,18 @@ See CKEditor 5 release blog posts [on the CKEditor blog](https://ckeditor.com/bl
 
 <tr>
 	<td>
+		<a href="https://github.com/ckeditor/ckeditor5/tree/master/packages/ckeditor5-find-and-replace"><code>@ckeditor/ckeditor5-find-and-replace</code></a>
+	</td>
+	<td>
+		<a href="https://www.npmjs.com/package/@ckeditor/ckeditor5-find-and-replace"><img src="https://img.shields.io/npm/v/@ckeditor/ckeditor5-find-and-replace.svg" alt="@ckeditor/ckeditor5-find-and-replace npm package badge"></a>
+	</td>
+	<td>
+		The find and replace feature.
+	</td>
+</tr>
+
+<tr>
+	<td>
 		<a href="https://github.com/ckeditor/ckeditor5/tree/master/packages/ckeditor5-font"><code>@ckeditor/ckeditor5-font</code></a>
 	</td>
 	<td>
@@ -584,6 +584,18 @@ See CKEditor 5 release blog posts [on the CKEditor blog](https://ckeditor.com/bl
 
 <tr>
 	<td>
+		<a href="https://github.com/ckeditor/ckeditor5/tree/master/packages/ckeditor5-html-support"><code>@ckeditor/ckeditor5-html-support</code></a>
+	</td>
+	<td>
+		<a href="https://www.npmjs.com/package/@ckeditor/ckeditor5-html-support"><img src="https://img.shields.io/npm/v/@ckeditor/ckeditor5-html-support.svg" alt="@ckeditor/ckeditor5-html-support npm package badge"></a>
+	</td>
+	<td>
+		The General HTML Support feature.
+	</td>
+</tr>
+
+<tr>
+	<td>
 		<a href="https://github.com/ckeditor/ckeditor5/tree/master/packages/ckeditor5-image"><code>@ckeditor/ckeditor5-image</code></a>
 	</td>
 	<td>
@@ -603,6 +615,18 @@ See CKEditor 5 release blog posts [on the CKEditor blog](https://ckeditor.com/bl
 	</td>
 	<td>
 		The indentation (of lists and blocks) feature.
+	</td>
+</tr>
+
+<tr>
+	<td>
+		<a href="https://github.com/ckeditor/ckeditor5/tree/master/packages/ckeditor5-language"><code>@ckeditor/ckeditor5-language</code></a>
+	</td>
+	<td>
+		<a href="https://www.npmjs.com/package/@ckeditor/ckeditor5-language"><img src="https://img.shields.io/npm/v/@ckeditor/ckeditor5-language.svg" alt="@ckeditor/ckeditor5-language npm package badge"></a>
+	</td>
+	<td>
+		The text part language feature.
 	</td>
 </tr>
 
@@ -735,6 +759,18 @@ See CKEditor 5 release blog posts [on the CKEditor blog](https://ckeditor.com/bl
 	</td>
 	<td>
 		The "select all" feature.
+	</td>
+</tr>
+
+<tr>
+	<td>
+		<a href="https://github.com/ckeditor/ckeditor5/tree/master/packages/ckeditor5-source-editing"><code>@ckeditor/ckeditor5-source-editing</code></a>
+	</td>
+	<td>
+		<a href="https://www.npmjs.com/package/@ckeditor/ckeditor5-source-editing"><img src="https://img.shields.io/npm/v/@ckeditor/ckeditor5-source-editing.svg" alt="@ckeditor/ckeditor5-source-editing npm package badge"></a>
+	</td>
+	<td>
+		The source editing feature.
 	</td>
 </tr>
 

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -29,14 +29,31 @@ function tableHeadingRowsRefreshPostFixer( model ) {
 	const tablesToRefresh = new Set();
 
 	for ( const change of differ.getChanges() ) {
-		if ( change.type != 'attribute' ) {
-			continue;
-		}
+		if ( change.type === 'attribute' ) {
+			const element = change.range.start.nodeAfter;
 
-		const element = change.range.start.nodeAfter;
+			if ( element && element.is( 'element', 'table' ) && change.attributeKey === 'headingRows' ) {
+				tablesToRefresh.add( element );
+			}
+		} else {
+			/* istanbul ignore else */
+			if ( change.type === 'insert' || change.type === 'remove' ) {
+				if ( change.name === 'tableRow' ) {
+					const table = change.position.findAncestor( 'table' );
+					const headingRows = table.getAttribute( 'headingRows' ) || 0;
 
-		if ( element && element.is( 'element', 'table' ) && change.attributeKey == 'headingRows' ) {
-			tablesToRefresh.add( element );
+					if ( change.position.offset < headingRows ) {
+						tablesToRefresh.add( table );
+					}
+				} else if ( change.name === 'tableCell' ) {
+					const table = change.position.findAncestor( 'table' );
+					const headingColumns = table.getAttribute( 'headingColumns' ) || 0;
+
+					if ( change.position.offset < headingColumns ) {
+						tablesToRefresh.add( table );
+					}
+				}
+			}
 		}
 	}
 

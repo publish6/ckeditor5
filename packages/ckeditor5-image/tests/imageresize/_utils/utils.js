@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -17,7 +17,7 @@ export async function waitForAllImagesLoaded( editor ) {
 	const images = new Set();
 
 	for ( const curModel of root.getChildren() ) {
-		if ( curModel.is( 'element', 'image' ) ) {
+		if ( curModel.is( 'element', 'imageBlock' ) ) {
 			const imageView = editor.editing.mapper.toViewElement( curModel );
 			images.add( editingView.domConverter.viewToDom( imageView ).querySelector( 'img' ) );
 		}
@@ -26,12 +26,13 @@ export async function waitForAllImagesLoaded( editor ) {
 	editingView.addObserver( ImageLoadObserver );
 
 	return new Promise( resolve => {
+		// This listener should execute later than the one in ImageResizeHandles.
 		editingView.document.on( 'imageLoaded', ( evt, domEvent ) => {
 			images.delete( domEvent.target );
 
 			if ( images.size === 0 ) {
 				resolve();
 			}
-		} );
+		}, { priority: 'low' } );
 	} );
 }

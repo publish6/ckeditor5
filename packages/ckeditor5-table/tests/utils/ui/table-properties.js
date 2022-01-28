@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -339,6 +339,81 @@ describe( 'table utils', () => {
 				toolbar.items.last.fire( 'execute' );
 
 				expect( view.someProperty ).to.equal( '' );
+			} );
+
+			describe( 'skipping "nameToValue" callback', () => {
+				let view, locale, toolbar;
+
+				beforeEach( () => {
+					locale = { t: val => val };
+					view = new View( locale );
+					view.set( 'someProperty', 'foo' );
+					toolbar = new ToolbarView( locale );
+
+					fillToolbar( {
+						view, toolbar, icons, labels,
+						propertyName: 'someProperty'
+					} );
+				} );
+
+				afterEach( () => {
+					view.destroy();
+				} );
+
+				it( 'should make the buttons change the property value upon execution', () => {
+					toolbar.items.first.fire( 'execute' );
+
+					expect( view.someProperty ).to.equal( 'first' );
+
+					toolbar.items.get( 1 ).fire( 'execute' );
+
+					expect( view.someProperty ).to.equal( 'second' );
+
+					toolbar.items.last.fire( 'execute' );
+
+					expect( view.someProperty ).to.equal( 'third' );
+				} );
+			} );
+
+			describe( 'providing "defaultValue"', () => {
+				let view, locale, toolbar;
+
+				beforeEach( () => {
+					locale = { t: val => val };
+					view = new View( locale );
+					view.set( 'someProperty', 'foo' );
+					toolbar = new ToolbarView( locale );
+
+					fillToolbar( {
+						view, toolbar, icons, labels,
+						propertyName: 'someProperty',
+						defaultValue: 'third'
+					} );
+				} );
+
+				afterEach( () => {
+					view.destroy();
+				} );
+
+				it( 'should bind button #isOn to an observable property', () => {
+					view.someProperty = '';
+
+					expect( toolbar.items.first.isOn ).to.be.false;
+					expect( toolbar.items.get( 1 ).isOn ).to.be.false;
+					expect( toolbar.items.last.isOn ).to.be.true;
+
+					view.someProperty = 'third';
+
+					expect( toolbar.items.first.isOn ).to.be.false;
+					expect( toolbar.items.get( 1 ).isOn ).to.be.false;
+					expect( toolbar.items.last.isOn ).to.be.true;
+
+					view.someProperty = 'first';
+
+					expect( toolbar.items.first.isOn ).to.be.true;
+					expect( toolbar.items.get( 1 ).isOn ).to.be.false;
+					expect( toolbar.items.last.isOn ).to.be.false;
+				} );
 			} );
 		} );
 

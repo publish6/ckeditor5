@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -10,6 +10,7 @@
 /* global window */
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import pilcrow from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
 
 import BlockButtonView from './blockbuttonview';
 import BalloonPanelView from '../../panel/balloon/balloonpanelview';
@@ -24,7 +25,6 @@ import normalizeToolbarConfig from '../normalizetoolbarconfig';
 import ResizeObserver from '@ckeditor/ckeditor5-utils/src/dom/resizeobserver';
 
 import toUnit from '@ckeditor/ckeditor5-utils/src/dom/tounit';
-import iconPilcrow from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
 
 const toPx = toUnit( 'px' );
 
@@ -274,7 +274,7 @@ export default class BlockToolbar extends Plugin {
 
 		buttonView.set( {
 			label: t( 'Edit block' ),
-			icon: iconPilcrow,
+			icon: pilcrow,
 			withText: false
 		} );
 

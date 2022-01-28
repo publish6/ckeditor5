@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -21,30 +21,7 @@ import browseFiles from '@ckeditor/ckeditor5-ckfinder/theme/icons/browse-files.s
 
 import codeBlock from '@ckeditor/ckeditor5-code-block/theme/icons/codeblock.svg';
 
-import cancel from '@ckeditor/ckeditor5-core/theme/icons/cancel.svg';
-import check from '@ckeditor/ckeditor5-core/theme/icons/check.svg';
-import eraser from '@ckeditor/ckeditor5-core/theme/icons/eraser.svg';
-import lowVision from '@ckeditor/ckeditor5-core/theme/icons/low-vision.svg';
-import image from '@ckeditor/ckeditor5-core/theme/icons/image.svg';
-import alignBottom from '@ckeditor/ckeditor5-core/theme/icons/align-bottom.svg';
-import alignMiddle from '@ckeditor/ckeditor5-core/theme/icons/align-middle.svg';
-import alignTop from '@ckeditor/ckeditor5-core/theme/icons/align-top.svg';
-import alignLeft from '@ckeditor/ckeditor5-core/theme/icons/align-left.svg';
-import alignCenter from '@ckeditor/ckeditor5-core/theme/icons/align-center.svg';
-import alignRight from '@ckeditor/ckeditor5-core/theme/icons/align-right.svg';
-import alignJustify from '@ckeditor/ckeditor5-core/theme/icons/align-justify.svg';
-import objectLeft from '@ckeditor/ckeditor5-core/theme/icons/object-left.svg';
-import objectCenter from '@ckeditor/ckeditor5-core/theme/icons/object-center.svg';
-import objectRight from '@ckeditor/ckeditor5-core/theme/icons/object-right.svg';
-import objectFullWidth from '@ckeditor/ckeditor5-core/theme/icons/object-full-width.svg';
-import objectSizeFull from '@ckeditor/ckeditor5-core/theme/icons/object-size-full.svg';
-import objectSizeLarge from '@ckeditor/ckeditor5-core/theme/icons/object-size-large.svg';
-import objectSizeSmall from '@ckeditor/ckeditor5-core/theme/icons/object-size-small.svg';
-import objectSizeMedium from '@ckeditor/ckeditor5-core/theme/icons/object-size-medium.svg';
-import pencil from '@ckeditor/ckeditor5-core/theme/icons/pencil.svg';
-import pilcrow from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
-import quote from '@ckeditor/ckeditor5-core/theme/icons/quote.svg';
-import threeVerticalDots from '@ckeditor/ckeditor5-core/theme/icons/three-vertical-dots.svg';
+import { icons as coreIcons } from 'ckeditor5/src/core';
 
 import fontFamily from '@ckeditor/ckeditor5-font/theme/icons/font-family.svg';
 import fontSize from '@ckeditor/ckeditor5-font/theme/icons/font-size.svg';
@@ -86,6 +63,8 @@ import contentUnlock from '@ckeditor/ckeditor5-restricted-editing/theme/icons/co
 
 import selectAll from '@ckeditor/ckeditor5-select-all/theme/icons/select-all.svg';
 
+import sourceEditing from '@ckeditor/ckeditor5-source-editing/theme/icons/source-editing.svg';
+
 import specialCharacters from '@ckeditor/ckeditor5-special-characters/theme/icons/specialcharacters.svg';
 
 import table from '@ckeditor/ckeditor5-table/theme/icons/table.svg';
@@ -101,6 +80,8 @@ import previousArrow from '@ckeditor/ckeditor5-ui/theme/icons/previous-arrow.svg
 import undo from '@ckeditor/ckeditor5-undo/theme/icons/undo.svg';
 import redo from '@ckeditor/ckeditor5-undo/theme/icons/redo.svg';
 
+import loupe from '@ckeditor/ckeditor5-find-and-replace/theme/icons/find-replace.svg';
+
 import '../../theme/ckeditor5-ui/components/editorui/editorui.css';
 
 const icons = {
@@ -114,10 +95,7 @@ const icons = {
 	codeBlock,
 
 	// core
-	alignTop, alignBottom, alignMiddle, alignLeft, alignCenter, alignRight,
-	alignJustify, cancel, check, eraser, image, lowVision, objectCenter,
-	objectFullWidth, objectLeft, objectRight, objectSizeFull, objectSizeLarge,
-	objectSizeSmall, objectSizeMedium, pencil, pilcrow, quote, threeVerticalDots,
+	...coreIcons,
 
 	// font
 	fontFamily, fontSize, fontColor, fontBackground,
@@ -158,6 +136,9 @@ const icons = {
 	// select-all
 	selectAll,
 
+	// source-editing
+	sourceEditing,
+
 	// special-characters
 	specialCharacters,
 
@@ -169,7 +150,10 @@ const icons = {
 	nextArrow, previousArrow,
 
 	// undo
-	undo, redo
+	undo, redo,
+
+	// find and replace
+	loupe
 };
 
 const toolbar = new ToolbarView( new Locale() );

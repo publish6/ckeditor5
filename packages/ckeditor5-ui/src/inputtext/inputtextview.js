@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -125,7 +125,10 @@ export default class InputTextView extends View {
 				'aria-describedby': bind.to( 'ariaDescribedById' )
 			},
 			on: {
-				input: bind.to( 'input' ),
+				input: bind.to( ( ...args ) => {
+					this.fire( 'input', ...args );
+					this._updateIsEmpty();
+				} ),
 				change: bind.to( this._updateIsEmpty.bind( this ) )
 			}
 		} );
@@ -155,6 +158,15 @@ export default class InputTextView extends View {
 			this._setDomElementValue( value );
 			this._updateIsEmpty();
 		} );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	destroy() {
+		super.destroy();
+
+		this.focusTracker.destroy();
 	}
 
 	/**

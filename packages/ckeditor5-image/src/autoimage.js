@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -7,17 +7,20 @@
  * @module image/autoimage
  */
 
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import Clipboard from '@ckeditor/ckeditor5-clipboard/src/clipboard';
-import LiveRange from '@ckeditor/ckeditor5-engine/src/model/liverange';
-import LivePosition from '@ckeditor/ckeditor5-engine/src/model/liveposition';
-import Undo from '@ckeditor/ckeditor5-undo/src/undo';
-import global from '@ckeditor/ckeditor5-utils/src/dom/global';
-import { insertImage } from './image/utils';
+import { Plugin } from 'ckeditor5/src/core';
+import { Clipboard } from 'ckeditor5/src/clipboard';
+import { LivePosition, LiveRange } from 'ckeditor5/src/engine';
+import { Undo } from 'ckeditor5/src/undo';
+import { Delete } from 'ckeditor5/src/typing';
+import { global } from 'ckeditor5/src/utils';
+
+import ImageUtils from './imageutils';
 
 // Implements the pattern: http(s)://(www.)example.com/path/to/resource.ext?query=params&maybe=too.
-const IMAGE_URL_REGEXP = new RegExp( String( /^(http(s)?:\/\/)?[\w-]+(\.[\w-]+)+[\w._~:/?#[\]@!$&'()*+,;=%-]+/.source +
-	/\.(jpg|jpeg|png|gif|ico|JPG|JPEG|PNG|GIF|ICO)\??[\w._~:/#[\]@!$&'()*+,;=%-]*$/.source ) );
+const IMAGE_URL_REGEXP = new RegExp( String( /^(http(s)?:\/\/)?[\w-]+\.[\w.~:/[\]@!$&'()*+,;=%-]+/.source +
+	/\.(jpg|jpeg|png|gif|ico|webp|JPG|JPEG|PNG|GIF|ICO|WEBP)/.source +
+	/(\?[\w.~:/[\]@!$&'()*+,;=%-]*)?/.source +
+	/(#[\w.~:/[\]@!$&'()*+,;=%-]*)?$/.source ) );
 
 /**
  * The auto-image plugin. It recognizes image links in the pasted content and embeds
@@ -30,7 +33,7 @@ export default class AutoImage extends Plugin {
 	 * @inheritDoc
 	 */
 	static get requires() {
-		return [ Clipboard, Undo ];
+		return [ Clipboard, ImageUtils, Undo, Delete ];
 	}
 
 	/**
@@ -56,7 +59,7 @@ export default class AutoImage extends Plugin {
 		this._timeoutId = null;
 
 		/**
-		 * The position where the `<image>` element will be inserted after the timeout,
+		 * The position where the `<imageBlock>` element will be inserted after the timeout,
 		 * determined each time a new content is pasted into the document.
 		 *
 		 * @private
@@ -75,7 +78,7 @@ export default class AutoImage extends Plugin {
 		// We need to listen on `Clipboard#inputTransformation` because we need to save positions of selection.
 		// After pasting, the content between those positions will be checked for a URL that could be transformed
 		// into an image.
-		this.listenTo( editor.plugins.get( Clipboard ), 'inputTransformation', () => {
+		this.listenTo( editor.plugins.get( 'ClipboardPipeline' ), 'inputTransformation', () => {
 			const firstRange = modelDocument.selection.getFirstRange();
 
 			const leftLivePosition = LivePosition.fromPosition( firstRange.start );
@@ -116,6 +119,8 @@ export default class AutoImage extends Plugin {
 		// TODO: Use a marker instead of LiveRange & LivePositions.
 		const urlRange = new LiveRange( leftPosition, rightPosition );
 		const walker = urlRange.getWalker( { ignoreElementEnd: true } );
+		const selectionAttributes = Object.fromEntries( editor.model.document.selection.getAttributes() );
+		const imageUtils = this.editor.plugins.get( 'ImageUtils' );
 
 		let src = '';
 
@@ -142,7 +147,7 @@ export default class AutoImage extends Plugin {
 			// Do nothing if image element cannot be inserted at the current position.
 			// See https://github.com/ckeditor/ckeditor5/issues/2763.
 			// Condition must be checked after timeout - pasting may take place on an element, replacing it. The final position matters.
-			const imageCommand = editor.commands.get( 'imageInsert' );
+			const imageCommand = editor.commands.get( 'insertImage' );
 
 			if ( !imageCommand.isEnabled ) {
 				urlRange.detach();
@@ -164,11 +169,13 @@ export default class AutoImage extends Plugin {
 					insertionPosition = this._positionToInsert.toPosition();
 				}
 
-				insertImage( editor.model, { src }, insertionPosition );
+				imageUtils.insertImage( { ...selectionAttributes, src }, insertionPosition );
 
 				this._positionToInsert.detach();
 				this._positionToInsert = null;
 			} );
+
+			editor.plugins.get( 'Delete' ).requestUndoOnBackspace();
 		}, 100 );
 	}
 }

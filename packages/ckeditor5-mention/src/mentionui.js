@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -7,18 +7,12 @@
  * @module mention/mentionui
  */
 
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import Collection from '@ckeditor/ckeditor5-utils/src/collection';
-import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
-import { keyCodes } from '@ckeditor/ckeditor5-utils/src/keyboard';
-import env from '@ckeditor/ckeditor5-utils/src/env';
-import Rect from '@ckeditor/ckeditor5-utils/src/dom/rect';
-import CKEditorError, { logWarning } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
-import { debounce } from 'lodash-es';
+import { Plugin } from 'ckeditor5/src/core';
+import { ButtonView, ContextualBalloon, clickOutsideHandler } from 'ckeditor5/src/ui';
+import { Collection, keyCodes, env, Rect, CKEditorError, logWarning } from 'ckeditor5/src/utils';
+import { TextWatcher } from 'ckeditor5/src/typing';
 
-import TextWatcher from '@ckeditor/ckeditor5-typing/src/textwatcher';
+import { debounce } from 'lodash-es';
 
 import MentionsView from './ui/mentionsview';
 import DomWrapperView from './ui/domwrapperview';
@@ -26,13 +20,17 @@ import MentionListItemView from './ui/mentionlistitemview';
 
 const VERTICAL_SPACING = 3;
 
-// The key codes that mention UI handles when it is open.
-const handledKeyCodes = [
+// The key codes that mention UI handles when it is open (without commit keys).
+const defaultHandledKeyCodes = [
 	keyCodes.arrowup,
 	keyCodes.arrowdown,
-	keyCodes.enter,
-	keyCodes.tab,
 	keyCodes.esc
+];
+
+// Dropdown commit key codes.
+const defaultCommitKeyCodes = [
+	keyCodes.enter,
+	keyCodes.tab
 ];
 
 /**
@@ -96,6 +94,9 @@ export default class MentionUI extends Plugin {
 	init() {
 		const editor = this.editor;
 
+		const commitKeys = editor.config.get( 'mention.commitKeys' ) || defaultCommitKeyCodes;
+		const handledKeyCodes = defaultHandledKeyCodes.concat( commitKeys );
+
 		/**
 		 * The contextual balloon plugin instance.
 		 *
@@ -118,7 +119,7 @@ export default class MentionUI extends Plugin {
 					this._mentionsView.selectPrevious();
 				}
 
-				if ( data.keyCode == keyCodes.enter || data.keyCode == keyCodes.tab ) {
+				if ( commitKeys.includes( data.keyCode ) ) {
 					this._mentionsView.executeSelected();
 				}
 
@@ -169,8 +170,19 @@ export default class MentionUI extends Plugin {
 			this._mentionsConfigurations.set( marker, definition );
 		}
 
+		this.listenTo( editor, 'change:isReadOnly', () => {
+			this._hideUIAndRemoveMarker();
+		} );
 		this.on( 'requestFeed:response', ( evt, data ) => this._handleFeedResponse( data ) );
 		this.on( 'requestFeed:error', () => this._hideUIAndRemoveMarker() );
+
+		// Checks if a given key code is handled by the mention UI.
+		//
+		// @param {Number}
+		// @returns {Boolean}
+		function isHandledKey( keyCode ) {
+			return handledKeyCodes.includes( keyCode );
+		}
 	}
 
 	/**
@@ -210,6 +222,13 @@ export default class MentionUI extends Plugin {
 
 		mentionsView.items.bindTo( this._items ).using( data => {
 			const { item, marker } = data;
+
+			// Set to 10 by default for backwards compatibility. See: #10479
+			const dropdownLimit = this.editor.config.get( 'mention.dropdownLimit' ) || 10;
+
+			if ( mentionsView.items.length >= dropdownLimit ) {
+				return;
+			}
 
 			const listItemView = new MentionListItemView( locale );
 
@@ -454,7 +473,6 @@ export default class MentionUI extends Plugin {
 			this._balloon.add( {
 				view: this._mentionsView,
 				position: this._getBalloonPanelPositionData( markerMarker, this._mentionsView.position ),
-				withArrow: false,
 				singleViewMode: true
 			} );
 		}
@@ -577,7 +595,10 @@ function getBalloonPanelPositions( preferredPosition ) {
 			return {
 				top: targetRect.bottom + VERTICAL_SPACING,
 				left: targetRect.right,
-				name: 'caret_se'
+				name: 'caret_se',
+				config: {
+					withArrow: false
+				}
 			};
 		},
 
@@ -586,7 +607,10 @@ function getBalloonPanelPositions( preferredPosition ) {
 			return {
 				top: targetRect.top - balloonRect.height - VERTICAL_SPACING,
 				left: targetRect.right,
-				name: 'caret_ne'
+				name: 'caret_ne',
+				config: {
+					withArrow: false
+				}
 			};
 		},
 
@@ -595,7 +619,10 @@ function getBalloonPanelPositions( preferredPosition ) {
 			return {
 				top: targetRect.bottom + VERTICAL_SPACING,
 				left: targetRect.right - balloonRect.width,
-				name: 'caret_sw'
+				name: 'caret_sw',
+				config: {
+					withArrow: false
+				}
 			};
 		},
 
@@ -604,7 +631,10 @@ function getBalloonPanelPositions( preferredPosition ) {
 			return {
 				top: targetRect.top - balloonRect.height - VERTICAL_SPACING,
 				left: targetRect.right - balloonRect.width,
-				name: 'caret_nw'
+				name: 'caret_nw',
+				config: {
+					withArrow: false
+				}
 			};
 		}
 	};
@@ -684,20 +714,9 @@ function createFeedCallback( feedItems ) {
 
 				// The default feed is case insensitive.
 				return itemId.toLowerCase().includes( feedText.toLowerCase() );
-			} )
-			// Do not return more than 10 items.
-			.slice( 0, 10 );
-
+			} );
 		return filteredItems;
 	};
-}
-
-// Checks if a given key code is handled by the mention UI.
-//
-// @param {Number}
-// @returns {Boolean}
-function isHandledKey( keyCode ) {
-	return handledKeyCodes.includes( keyCode );
 }
 
 // Checks if position in inside or right after a text with a mention.

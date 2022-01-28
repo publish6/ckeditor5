@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -208,10 +208,10 @@ describe( 'DataController utils', () => {
 		} );
 
 		it( 'should save the reference to the original object', () => {
-			const content = new Element( 'image' );
+			const content = new Element( 'imageBlock' );
 
 			model.schema.register( 'paragraph', { inheritAllFrom: '$block' } );
-			model.schema.register( 'image', {
+			model.schema.register( 'imageBlock', {
 				allowWhere: '$text',
 				isObject: true
 			} );
@@ -298,14 +298,14 @@ describe( 'DataController utils', () => {
 
 				const schema = model.schema;
 
-				schema.register( 'image', {
+				schema.register( 'imageBlock', {
 					allowWhere: '$text',
 					isObject: true
 				} );
 				schema.register( 'disallowedElement' );
 
 				schema.extend( '$text', { allowIn: '$root' } );
-				schema.extend( 'image', { allowIn: '$root' } );
+				schema.extend( 'imageBlock', { allowIn: '$root' } );
 				// Otherwise it won't be passed to the temporary model fragment used inside insert().
 				schema.extend( 'disallowedElement', { allowIn: '$clipboardHolder' } );
 				schema.extend( '$text', {
@@ -376,18 +376,18 @@ describe( 'DataController utils', () => {
 
 			it( 'inserts an element', () => {
 				setData( model, 'f[]oo' );
-				const affectedRange = insertHelper( '<image></image>' );
+				const affectedRange = insertHelper( '<imageBlock></imageBlock>' );
 
-				expect( getData( model ) ).to.equal( 'f<image></image>[]oo' );
-				expect( stringify( root, affectedRange ) ).to.equal( 'f[<image></image>]oo' );
+				expect( getData( model ) ).to.equal( 'f<imageBlock></imageBlock>[]oo' );
+				expect( stringify( root, affectedRange ) ).to.equal( 'f[<imageBlock></imageBlock>]oo' );
 			} );
 
 			it( 'inserts a text and an element', () => {
 				setData( model, 'f[]oo' );
-				const affectedRange = insertHelper( 'xyz<image></image>' );
+				const affectedRange = insertHelper( 'xyz<imageBlock></imageBlock>' );
 
-				expect( getData( model ) ).to.equal( 'fxyz<image></image>[]oo' );
-				expect( stringify( root, affectedRange ) ).to.equal( 'f[xyz<image></image>]oo' );
+				expect( getData( model ) ).to.equal( 'fxyz<imageBlock></imageBlock>[]oo' );
+				expect( stringify( root, affectedRange ) ).to.equal( 'f[xyz<imageBlock></imageBlock>]oo' );
 			} );
 
 			it( 'strips a disallowed element', () => {
@@ -465,6 +465,7 @@ describe( 'DataController utils', () => {
 					inheritAllFrom: '$block',
 					allowAttributes: [ 'listType', 'listIndent' ]
 				} );
+				schema.extend( '$text', { allowAttributes: 'foo' } );
 			} );
 
 			it( 'inserts one text node', () => {
@@ -535,6 +536,29 @@ describe( 'DataController utils', () => {
 
 				expect( getData( model ) ).to.equal( '<heading1>bar[]</heading1>' );
 				expect( stringify( root, affectedRange ) ).to.equal( '[<heading1>bar</heading1>]' );
+			} );
+
+			// https://github.com/ckeditor/ckeditor5/issues/9794
+			it( 'should not insert a disallowed inline widget into a limit element', () => {
+				const schema = model.schema;
+
+				schema.register( 'limit', {
+					isLimit: true,
+					allowIn: '$root'
+				} );
+
+				schema.extend( '$text', {
+					allowIn: 'limit'
+				} );
+
+				const content = new DocumentFragment( [ new Element( 'inlineWidget' ) ] );
+
+				setData( model, '<limit>[]</limit>' );
+
+				const affectedRange = insertContent( model, content );
+
+				expect( getData( model ) ).to.equal( '<limit>[]</limit>' );
+				expect( stringify( root, affectedRange ) ).to.equal( '<limit>[]</limit>' );
 			} );
 
 			describe( 'block to block handling', () => {
@@ -838,31 +862,14 @@ describe( 'DataController utils', () => {
 					expect( stringify( root, affectedRange ) ).to.equal( '<paragraph>f[yyy</paragraph><paragraph>xxx]oo</paragraph>' );
 				} );
 
-				// This is the expected result, but it was so hard to achieve at this stage that I
-				// decided to go with the what the next test represents.
-				// it( 'inserts paragraph + text + inlineWidget + text', () => {
-				// 	setData( model, '<paragraph>f[]oo</paragraph>' );
-				// 	insertHelper( '<paragraph>yyy</paragraph>xxx<inlineWidget></inlineWidget>zzz' );
-				// 	expect( getData( model ) )
-				// 		.to.equal( '<paragraph>fyyy</paragraph><paragraph>xxx<inlineWidget></inlineWidget>zzz[]oo</paragraph>' );
-				// } );
-
-				// See the comment above.
 				it( 'inserts paragraph + text + inlineWidget + text', () => {
 					setData( model, '<paragraph>f[]oo</paragraph>' );
 					const affectedRange = insertHelper( '<paragraph>yyy</paragraph>xxx<inlineWidget></inlineWidget>zzz' );
 
-					expect( getData( model ) ).to.equal(
-						'<paragraph>fyyy</paragraph><paragraph>xxx</paragraph>' +
-						'<paragraph><inlineWidget></inlineWidget></paragraph>' +
-						'<paragraph>zzz[]oo</paragraph>'
-					);
-
-					expect( stringify( root, affectedRange ) ).to.equal(
-						'<paragraph>f[yyy</paragraph><paragraph>xxx</paragraph>' +
-						'<paragraph><inlineWidget></inlineWidget></paragraph>' +
-						'<paragraph>zzz]oo</paragraph>'
-					);
+					expect( getData( model ) )
+						.to.equal( '<paragraph>fyyy</paragraph><paragraph>xxx<inlineWidget></inlineWidget>zzz[]oo</paragraph>' );
+					expect( stringify( root, affectedRange ) )
+						.to.equal( '<paragraph>f[yyy</paragraph><paragraph>xxx<inlineWidget></inlineWidget>zzz]oo</paragraph>' );
 				} );
 
 				it( 'inserts paragraph + text + paragraph', () => {
@@ -1056,6 +1063,23 @@ describe( 'DataController utils', () => {
 
 					expect( stringify( root, affectedRange ) ).to.equal(
 						'<paragraph>foo</paragraph>[<paragraph><inlineWidget></inlineWidget></paragraph>]<paragraph>bar</paragraph>'
+					);
+				} );
+
+				it( 'inserts multiple text nodes with different attribute values', () => {
+					setData( model, '<paragraph>foo</paragraph>[<blockWidget></blockWidget>]<paragraph>bar</paragraph>' );
+					const affectedRange = insertHelper( '<$text foo="a">yyy</$text><$text foo="b">xxx</$text>' );
+
+					expect( getData( model ) ).to.equal(
+						'<paragraph>foo</paragraph>' +
+						'<paragraph><$text foo="a">yyy</$text><$text foo="b">xxx[]</$text></paragraph>' +
+						'<paragraph>bar</paragraph>'
+					);
+
+					expect( stringify( root, affectedRange ) ).to.equal(
+						'<paragraph>foo</paragraph>' +
+						'[<paragraph><$text foo="a">yyy</$text><$text foo="b">xxx</$text></paragraph>]' +
+						'<paragraph>bar</paragraph>'
 					);
 				} );
 			} );
@@ -1371,8 +1395,8 @@ describe( 'DataController utils', () => {
 				// Pasted content is forbidden in current selection.
 				const affectedRange = insertHelper( '<wrapper><limit><paragraph>foo</paragraph></limit></wrapper>' );
 
-				expect( getData( model ) ).to.equal( '<wrapper><limit>[]<paragraph></paragraph></limit></wrapper>' );
-				expect( stringify( root, affectedRange ) ).to.equal( '<wrapper><limit>[]<paragraph></paragraph></limit></wrapper>' );
+				expect( getData( model ) ).to.equal( '<wrapper><limit><paragraph>[]</paragraph></limit></wrapper>' );
+				expect( stringify( root, affectedRange ) ).to.equal( '<wrapper><limit><paragraph>[]</paragraph></limit></wrapper>' );
 			} );
 
 			it( 'should correctly paste allowed nodes', () => {

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -13,7 +13,6 @@ import Watchdog from './watchdog';
 import EditorWatchdog from './editorwatchdog';
 import areConnectedThroughProperties from './utils/areconnectedthroughproperties';
 import getSubNodes from './utils/getsubnodes';
-import toArray from '@ckeditor/ckeditor5-utils/src/toarray';
 
 /**
  * A watchdog for the {@link module:core/context~Context} class.
@@ -516,16 +515,18 @@ class ActionQueue {
 	}
 }
 
+// Transforms any value to an array. If the provided value is already an array, it is returned unchanged.
+//
+// @param {*} data The value to transform to an array.
+// @returns {Array} An array created from data.
+function toArray( data ) {
+	return Array.isArray( data ) ? data : [ data ];
+}
+
 /**
  * The watchdog item configuration interface.
  *
- * @typedef {module:watchdog/contextwatchdog~EditorWatchdogConfiguration} module:watchdog/contextwatchdog~WatchdogItemConfiguration
- */
-
-/**
- * The editor watchdog configuration interface specifies how editors should be created and destroyed.
- *
- * @typedef {Object} module:watchdog/contextwatchdog~EditorWatchdogConfiguration
+ * @typedef {Object} module:watchdog/contextwatchdog~WatchdogItemConfiguration
  *
  * @property {String} id A unique item identificator.
  *

@@ -1,6 +1,7 @@
 ---
 category: framework-architecture
 order: 20
+modified_at: 2021-10-25
 ---
 
 # Core editor architecture
@@ -150,6 +151,25 @@ enableBold();
 
 The command will now be disabled as long as you do not {@link module:utils/emittermixin~EmitterMixin#off off} this listener, regardless of how many times `someCommand.refresh()` is called.
 
+By default, editor commands are disabled when the editor is in the {@link module:core/editor/editor~Editor#isReadOnly read-only} mode. However, if your command does not change the editor data and you want it to stay enabled in the read-only mode, you can set the {@link module:core/command~Command#affectsData `affectsData`} flag to `false`:
+
+```js
+class MyAlwaysEnabledCommand extends Command {
+	constructor( editor ) {
+		super( editor );
+
+		// This command will remain enabled even when the editor is read-only.
+		this.affectsData = false;
+	}
+}
+```
+
+The {@link module:core/command~Command#affectsData `affectsData`} flag will also affect the command in {@link features/read-only#related-features other editor modes} that restrict user write permissions.
+
+<info-box>
+	The `affectsData` flag is set to `true` by default for all editor commands and, unless your command should be enabled when the editor is read-only, you do not need to change it. Also, please keep in mind that the flag is immutable during the lifetime of the editor.
+</info-box>
+
 ## Event system and observables
 
 CKEditor 5 has an event-based architecture so you can find {@link module:utils/emittermixin~EmitterMixin} and {@link module:utils/observablemixin~ObservableMixin} mixed all over the place. Both mechanisms allow for decoupling the code and make it extensible.
@@ -200,7 +220,7 @@ mix( Command, ObservableMixin );
 ```
 
 <info-box>
-	Check out the {@link framework/guides/deep-dive/observables deep dive into observables} guide to learn more about the advanced usage of observables with some additional examples.
+	Check out the {@link framework/guides/deep-dive/event-system event system deep dive guide} and the {@link framework/guides/deep-dive/observables observables deep dive guide} to learn more about the advanced usage of events and observables with some additional examples.
 </info-box>
 
 Besides decorating methods with events, observables allow to observe their chosen properties. For instance, the `Command` class makes its `#value` and `#isEnabled` observable by calling {@link module:utils/observablemixin~ObservableMixin#set `set()`}:

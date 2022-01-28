@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -11,10 +11,7 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
 import ToolbarView from '@ckeditor/ckeditor5-ui/src/toolbar/toolbarview';
 import BalloonPanelView from '@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview';
-import {
-	isWidget,
-	centeredBalloonPositionForLongWidgets
-} from './utils';
+import { isWidget } from './utils';
 import CKEditorError, { logWarning } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 
 /**
@@ -36,7 +33,7 @@ import CKEditorError, { logWarning } from '@ckeditor/ckeditor5-utils/src/ckedito
  *
  *				widgetToolbarRepository.register( 'image', {
  *					items: editor.config.get( 'image.toolbar' ),
- *					getRelatedElement: getSelectedImageWidget
+ *					getRelatedElement: getClosestSelectedImageWidget
  *				} );
  *			}
  *		}
@@ -289,7 +286,7 @@ function getBalloonPositionData( editor, relatedElement ) {
 			defaultPositions.southArrowNorth,
 			defaultPositions.southArrowNorthWest,
 			defaultPositions.southArrowNorthEast,
-			centeredBalloonPositionForLongWidgets
+			defaultPositions.viewportStickyNorth
 		]
 	};
 }

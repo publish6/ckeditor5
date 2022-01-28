@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -96,7 +96,7 @@ export default class LivePosition extends Position {
 	 *
 	 * @param {module:engine/model/position~Position} position
 	 * @param {module:engine/model/position~PositionStickiness} [stickiness]
-	 * @returns {module:engine/model/position~Position}
+	 * @returns {module:engine/model/liveposition~LivePosition}
 	 */
 	static fromPosition( position, stickiness ) {
 		return new this( position.root, position.path.slice(), stickiness ? stickiness : position.stickiness );

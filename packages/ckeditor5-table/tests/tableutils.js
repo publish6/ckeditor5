@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -7,12 +7,11 @@ import ModelTestEditor from '@ckeditor/ckeditor5-core/tests/_utils/modeltestedit
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import testUtils from '@ckeditor/ckeditor5-core/tests/_utils/utils';
 import { getData, setData } from '@ckeditor/ckeditor5-engine/src/dev-utils/model';
-import { assertEqualMarkup } from '@ckeditor/ckeditor5-utils/tests/_utils/utils';
+import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 
 import TableEditing from '../src/tableediting';
-import { modelTable } from './_utils/utils';
-
 import TableUtils from '../src/tableutils';
+import { modelTable } from './_utils/utils';
 
 describe( 'TableUtils', () => {
 	let editor, model, root, tableUtils;
@@ -27,6 +26,16 @@ describe( 'TableUtils', () => {
 			model = editor.model;
 			root = model.document.getRoot( 'main' );
 			tableUtils = editor.plugins.get( TableUtils );
+
+			model.schema.register( 'foo', {
+				allowIn: 'table',
+				allowContentOf: '$block',
+				isLimit: true
+			} );
+			editor.conversion.elementToElement( {
+				view: 'foo',
+				model: 'foo'
+			} );
 		} );
 	} );
 
@@ -66,7 +75,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertRows( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '12' ],
 				[ '', '' ],
 				[ '21', '22' ]
@@ -83,7 +92,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertRows( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '12' ],
 				[ '', '' ],
 				[ '21', '22' ]
@@ -98,7 +107,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertRows( root.getNodeByPath( [ 0 ] ) );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '', '' ],
 				[ '11[]', '12' ],
 				[ '21', '22' ]
@@ -114,7 +123,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertRows( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '12' ],
 				[ '', '' ],
 				[ '21', '22' ],
@@ -131,7 +140,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertRows( root.getNodeByPath( [ 0 ] ), { at: 2 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '12' ],
 				[ '21', '22' ],
 				[ '', '' ],
@@ -170,7 +179,7 @@ describe( 'TableUtils', () => {
 			// |         | 22 | 23 |
 			// +----+----+----+----+
 			//                     ^-- heading columns
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { contents: '00', colspan: 2 }, '02', '03' ],
 				[ { contents: '10[]', colspan: 2, rowspan: 5 }, '12', '13' ],
 				[ '', '' ],
@@ -209,7 +218,7 @@ describe( 'TableUtils', () => {
 			// +----+----+----+
 			// | 20 | 21 | 22 |
 			// +----+----+----+
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { contents: '00', rowspan: 2 }, '01', '02' ],
 				[ '11[]', '12' ],
 				[ '', '', '' ],
@@ -248,7 +257,7 @@ describe( 'TableUtils', () => {
 			// +----+----+----+
 			// | 20           |
 			// +----+----+----+
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { contents: '00', rowspan: 2 }, '01', '02' ],
 				[ '11[]', '12' ],
 				[ '', '', '' ],
@@ -266,13 +275,88 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertRows( root.getNodeByPath( [ 0 ] ), { at: 2, rows: 3 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '12' ],
 				[ '21', '22' ],
 				[ '', '' ],
 				[ '', '' ],
 				[ '', '' ]
 			] ) );
+		} );
+
+		it( 'should throw error when options.at is larger than the amount of rows in the table', () => {
+			setData( model, modelTable( [
+				[ '11[]', '12' ],
+				[ '21', '22' ]
+			] ) );
+
+			expect(
+				() => tableUtils.insertRows( root.getNodeByPath( [ 0 ] ), { at: 3, rows: 3 } )
+			).to.throw(
+				CKEditorError,
+				'tableutils-insertrows-insert-out-of-range'
+			);
+
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
+				[ '11[]', '12' ],
+				[ '21', '22' ]
+			] ) );
+		} );
+
+		it( 'should insert rows into a table with a non-row element', () => {
+			setData( model,
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'<tableCell><paragraph>11</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
+
+			tableUtils.insertRows( root.getNodeByPath( [ 0 ] ), { at: 2, rows: 3 } );
+
+			expect( getData( model ) ).to.equalMarkup(
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'<tableCell><paragraph>11</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
 		} );
 
 		describe( 'with copyStructureFrom enabled', () => {
@@ -298,7 +382,7 @@ describe( 'TableUtils', () => {
 				// +----+         +    +----+----+
 				// | 10 |         |    | 14      |
 				// +----+----+----+----+----+----+
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '', { contents: '', colspan: 2 }, '', '', '' ],
 					[ '00', { contents: '01', colspan: 2, rowspan: 2 }, { contents: '03', rowspan: 2 }, '04', '05' ],
 					[ '10', { contents: '14', colspan: 2 } ]
@@ -315,7 +399,7 @@ describe( 'TableUtils', () => {
 				// +----+         +    +----+----+
 				// | 10 |         |    | 14      |
 				// +----+----+----+----+----+----+
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', { contents: '01', colspan: 2, rowspan: 3 }, { contents: '03', rowspan: 3 }, '04', '05' ],
 					[ '', '', '' ],
 					[ '10', { contents: '14', colspan: 2 } ]
@@ -332,7 +416,7 @@ describe( 'TableUtils', () => {
 				// +----+----+----+----+----+----+
 				// |    |         |    |         |
 				// +----+----+----+----+----+----+
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', { contents: '01', colspan: 2, rowspan: 2 }, { contents: '03', rowspan: 2 }, '04', '05' ],
 					[ '10', { contents: '14', colspan: 2 } ],
 					[ '', { contents: '', colspan: 2 }, '', { contents: '', colspan: 2 } ]
@@ -349,7 +433,7 @@ describe( 'TableUtils', () => {
 				// +----+         +    +----+----+
 				// | 10 |         |    | 14      |
 				// +----+----+----+----+----+----+
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', { contents: '01', colspan: 2, rowspan: 3 }, { contents: '03', rowspan: 3 }, '04', '05' ],
 					[ '', { contents: '', colspan: 2 } ],
 					[ '10', { contents: '14', colspan: 2 } ]
@@ -371,7 +455,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '', '12' ],
 				[ '21', '', '22' ]
 			] ) );
@@ -387,7 +471,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '', '12' ],
 				[ '21', '', '22' ]
 			] ) );
@@ -401,7 +485,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ) );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '', '11[]', '12' ],
 				[ '', '21', '22' ]
 			] ) );
@@ -415,7 +499,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ) );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '', '11[]', '12' ],
 				[ '', '21', '22' ]
 			] ) );
@@ -431,7 +515,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 2, columns: 2 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00[]', '01', '', '' ],
 				[ { colspan: 2, contents: '10' }, '', '' ],
 				[ '20', { rowspan: 2, contents: '21' }, '', '' ],
@@ -450,7 +534,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 0, columns: 2 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '', '', '00[]', '01' ],
 				[ '', '', { colspan: 2, contents: '10' } ],
 				[ '', '', '20', { rowspan: 2, contents: '21' } ],
@@ -469,7 +553,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1, columns: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11', '', '12', '13' ],
 				[ '21', '', { colspan: 2, rowspan: 2, contents: '22[]' } ],
 				[ '31', '' ],
@@ -486,7 +570,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '', '12' ],
 				[ '21', '', '22' ],
 				[ '31', '', '32' ]
@@ -502,7 +586,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 2 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '11[]', '12', '', '13' ],
 				[ '21', '22', '', '23' ],
 				[ '31', '32', '', '33' ]
@@ -518,7 +602,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00[]', '', '01' ],
 				[ { colspan: 3, contents: '10' } ],
 				[ '20', '', '21' ]
@@ -550,7 +634,7 @@ describe( 'TableUtils', () => {
 			// | 20                          | 24      |
 			// +----+----+----+----+----+----+----+----+
 			//                               ^-- heading columns
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01[]', '', '', '02', '03', '04', '05' ],
 				[ '10', '11', '', '', { contents: '12', colspan: 2 }, '14', '15' ],
 				[ { contents: '20', colspan: 6 }, { contents: '24', colspan: 2 } ]
@@ -573,7 +657,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1, columns: 2 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { colspan: 4, rowspan: 2, contents: '00[]' }, '02' ],
 				[ '12' ],
 				[ '20', '', '', '21', '22' ]
@@ -590,12 +674,96 @@ describe( 'TableUtils', () => {
 
 			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1, columns: 1 } );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { rowspan: 4, contents: '00[]' }, '', { rowspan: 2, contents: '01' }, '02' ],
 				[ '', '12' ],
 				[ '', { rowspan: 2, contents: '21' }, '22' ],
 				[ '', '32' ]
 			], { headingColumns: 3 } ) );
+		} );
+
+		it( 'should ignore table element that is not a row', () => {
+			setData( model,
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>11[]</paragraph></tableCell>' +
+						'<tableCell><paragraph>12</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>21</paragraph></tableCell>' +
+						'<tableCell><paragraph>22</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>Bar</foo>' +
+				'</table>'
+			);
+
+			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
+
+			expect( getData( model ) ).to.equalMarkup(
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+						'<tableCell>' +
+							'<paragraph>11[]</paragraph>' +
+						'</tableCell>' +
+						'<tableCell>' +
+							'<paragraph>12</paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+						'<tableCell>' +
+							'<paragraph>21</paragraph>' +
+						'</tableCell>' +
+						'<tableCell>' +
+							'<paragraph>22</paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<foo>Bar</foo>' +
+				'</table>'
+			);
+		} );
+
+		it( 'should insert columns into a table with a non-row element', () => {
+			setData( model,
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'<tableCell><paragraph>11</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
+
+			tableUtils.insertColumns( root.getNodeByPath( [ 0 ] ), { at: 1, columns: 3 } );
+
+			expect( getData( model ) ).to.equalMarkup(
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph>11</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
 		} );
 	} );
 
@@ -610,7 +778,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 1 ] ), 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', { colspan: 3, contents: '01' }, '02' ],
 				[ '10', '[]11', '', '', '12' ],
 				[ '20', { colspan: 4, contents: '21' } ],
@@ -628,7 +796,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 1 ] ) );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', { colspan: 2, contents: '01' }, '02' ],
 				[ '10', '[]11', '', '12' ],
 				[ '20', { colspan: 3, contents: '21' } ],
@@ -646,7 +814,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 2, 1 ] ), 2 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01', '02' ],
 				[ '10', '11', '12' ],
 				[ '20', '21[]', '' ],
@@ -662,7 +830,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 0 ] ), 2 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01', '02' ],
 				[ { colspan: 2, contents: '10[]' }, '' ]
 			] ) );
@@ -676,7 +844,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 0 ] ), 2 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01', '02', '03' ],
 				[ { colspan: 2, contents: '10[]' }, { colspan: 2, contents: '' } ]
 			] ) );
@@ -691,7 +859,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 0 ] ), 2 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01', '02', '03', '04', '05' ],
 				[ { colspan: 3, rowspan: 2, contents: '10[]' }, { colspan: 2, rowspan: 2, contents: '' }, '15' ],
 				[ '25' ]
@@ -707,7 +875,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 0 ] ), 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { colspan: 2, contents: '00' }, '01', '02' ],
 				[ { rowspan: 2, contents: '10[]' }, { rowspan: 2, contents: '' }, { rowspan: 2, contents: '' }, '12' ],
 				[ '22' ]
@@ -722,7 +890,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 0 ] ), 6 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { colspan: 3, contents: '00' }, '01', '02', '03' ],
 				[ '10[]', '', '', '', '', '' ]
 			] ) );
@@ -736,10 +904,44 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 0 ] ), 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { colspan: 3, contents: '00' }, '01' ],
 				[ '10[]', '', '', '11' ]
 			], { headingColumns: 3 } ) );
+		} );
+
+		it( 'should split cells in a table with a non-row element', () => {
+			setData( model,
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'<tableCell><paragraph>11</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
+
+			tableUtils.splitCellVertically( root.getNodeByPath( [ 0, 1, 0 ] ), 3 );
+
+			expect( getData( model ) ).to.equalMarkup(
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell colspan="3"><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph></paragraph></tableCell>' +
+						'<tableCell><paragraph>11</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
 		} );
 	} );
 
@@ -753,7 +955,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( root.getNodeByPath( [ 0, 1, 1 ] ) );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01', '02' ],
 				[ { rowspan: 2, contents: '10' }, '[]11', { rowspan: 2, contents: '12' } ],
 				[ '' ],
@@ -770,7 +972,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( root.getNodeByPath( [ 0, 1, 1 ] ), 4 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01', '02' ],
 				[ { rowspan: 4, contents: '10' }, '[]11', { rowspan: 4, contents: '12' } ],
 				[ '' ],
@@ -789,7 +991,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( root.getNodeByPath( [ 0, 1, 0 ] ), 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { rowspan: 4, contents: '00' }, '01', { rowspan: 5, contents: '02' } ],
 				[ '[]11' ],
 				[ '' ],
@@ -809,7 +1011,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( tableCell, 2 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', '01[]' ],
 				[ '10', '' ],
 				[ '20', '21' ]
@@ -827,7 +1029,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( tableCell, 2 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', { colspan: 2, contents: '01[]' } ],
 				[ '10', { colspan: 2, contents: '' } ],
 				[ '20', '21', '22' ]
@@ -850,7 +1052,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( tableCell, 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00', { rowspan: 3, contents: '01[]' } ],
 				[ '10' ],
 				[ '20' ],
@@ -873,7 +1075,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( tableCell, 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { rowspan: 2, contents: '00' }, '01[]' ],
 				[ '' ],
 				[ '10', '' ],
@@ -891,7 +1093,7 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( tableCell, 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ { rowspan: 3, contents: '00' }, { colspan: 2, contents: '01[]' } ],
 				[ { colspan: 2, contents: '' } ],
 				[ { colspan: 2, contents: '' } ],
@@ -908,13 +1110,51 @@ describe( 'TableUtils', () => {
 
 			tableUtils.splitCellHorizontally( root.getNodeByPath( [ 0, 0, 0 ] ), 3 );
 
-			assertEqualMarkup( getData( model ), modelTable( [
+			expect( getData( model ) ).to.equalMarkup( modelTable( [
 				[ '00[]', { rowspan: 3, contents: '01' }, { rowspan: 3, contents: '02' } ],
 				[ '' ],
 				[ '' ],
 				[ '10', '11', '12' ],
 				[ '20', '21', '22' ]
 			], { headingRows: 3 } ) );
+		} );
+
+		it( 'should split cells in a table with a non-row element', () => {
+			setData( model,
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
+
+			tableUtils.splitCellHorizontally( root.getNodeByPath( [ 0, 0, 0 ] ), 3 );
+
+			expect( getData( model ) ).to.equalMarkup(
+				'[<table>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph>00</paragraph>' +
+						'</tableCell>' +
+						'<tableCell rowspan="3">' +
+							'<paragraph>01</paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell>' +
+							'<paragraph></paragraph>' +
+						'</tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>]'
+			);
 		} );
 	} );
 
@@ -956,6 +1196,24 @@ describe( 'TableUtils', () => {
 
 			expect( tableUtils.getRows( root.getNodeByPath( [ 0 ] ) ) ).to.equal( 3 );
 		} );
+
+		it( 'should return proper number of rows for a table with a non-row element', () => {
+			setData( model,
+				'<table>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'<tableCell><paragraph>01</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<tableRow>' +
+						'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'<tableCell><paragraph>11</paragraph></tableCell>' +
+					'</tableRow>' +
+					'<foo>An extra element</foo>' +
+				'</table>'
+			);
+
+			expect( tableUtils.getRows( root.getNodeByPath( [ 0 ] ) ) ).to.equal( 2 );
+		} );
 	} );
 
 	describe( 'removeRows()', () => {
@@ -969,7 +1227,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '10', '11' ],
 					[ '20', '21' ]
 				] ) );
@@ -983,7 +1241,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 1 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '01' ]
 				] ) );
 			} );
@@ -997,7 +1255,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 1 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '01' ],
 					[ '20', '21' ]
 				], { headingRows: 1 } ) );
@@ -1012,7 +1270,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '10', { contents: '11', rowspan: 2 } ],
 					[ '20' ]
 				] ) );
@@ -1055,7 +1313,7 @@ describe( 'TableUtils', () => {
 				// +----+----+----+----+----+
 				// | 50 | 51 | 52 | 53 | 54 |
 				// +----+----+----+----+----+
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '01', { contents: '02', rowspan: 2 }, { contents: '03', rowspan: 3 }, { contents: '04', rowspan: 4 } ],
 					[ '20', '21' ],
 					[ '30', '31', '32' ],
@@ -1074,7 +1332,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ { rowspan: 3, contents: '00' }, { rowspan: 2, contents: '01' }, { rowspan: 2, contents: '02' }, '03', '04' ],
 					[ '13', '14' ],
 					[ '31', '32', '33', '34' ]
@@ -1091,7 +1349,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ { rowspan: 2, contents: '00' }, '01', '12' ],
 					[ '21', '22' ],
 					[ '30', '31', '32' ]
@@ -1107,10 +1365,38 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 1 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', { rowspan: 2, contents: '01' }, '02', '03', '04' ],
 					[ '20', '12', '23', '24' ]
 				] ) );
+			} );
+
+			it( 'should remove row in a table with a non-row element', () => {
+				setData( model,
+					'<table>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>00</paragraph></tableCell>' +
+							'<tableCell><paragraph>01</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+							'<tableCell><paragraph>11</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<foo>An extra element</foo>' +
+					'</table>'
+				);
+
+				tableUtils.removeRows( root.getChild( 0 ), { at: 1 } );
+
+				expect( getData( model ) ).to.equalMarkup(
+					'<table>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>00</paragraph></tableCell>' +
+							'<tableCell><paragraph>01</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<foo>[]An extra element</foo>' +
+					'</table>'
+				);
 			} );
 		} );
 
@@ -1125,7 +1411,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 1, rows: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '01' ],
 					[ '30', '31' ]
 				] ) );
@@ -1141,7 +1427,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 2, rows: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '01' ],
 					[ '10', '11' ]
 				] ) );
@@ -1157,7 +1443,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 0, rows: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '20', '21' ],
 					[ '30', '31' ]
 				] ) );
@@ -1173,7 +1459,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 0, rows: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '20', '21' ],
 					[ '30', '31' ]
 				], { headingRows: 1 } ) );
@@ -1190,7 +1476,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 1, rows: 3 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '01' ],
 					[ '40', '41' ]
 				], { headingRows: 1 } ) );
@@ -1205,7 +1491,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 0, rows: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '20', '21' ]
 				] ) );
 			} );
@@ -1221,7 +1507,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 1, rows: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '01', '02', '03' ],
 					[ { rowspan: 2, contents: '10' }, '11', '32', { rowspan: 2, contents: '23' } ],
 					[ '41', '42' ]
@@ -1238,7 +1524,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeRows( root.getChild( 0 ), { at: 1, rows: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ { rowspan: 2, contents: '00' }, '01', '02', '03' ],
 					[ '31', '32', '33' ]
 				] ) );
@@ -1279,7 +1565,7 @@ describe( 'TableUtils', () => {
 				// +----+----+----+----+----+
 				// | 50 | 51 | 52 | 53 | 54 |
 				// +----+----+----+----+----+
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', { contents: '01', rowspan: 2 }, { contents: '02', rowspan: 2 }, { contents: '03', rowspan: 2 },
 						{ contents: '04', rowspan: 3 } ],
 					[ '10' ],
@@ -1310,6 +1596,29 @@ describe( 'TableUtils', () => {
 
 				expect( createdBatches.size ).to.equal( 1 );
 			} );
+
+			it( 'should throw the error when provided options point to a non-existent rows', () => {
+				setData( model,
+					'<table>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>00</paragraph></tableCell>' +
+							'<tableCell><paragraph>01</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+							'<tableCell><paragraph>11</paragraph></tableCell>' +
+						'</tableRow>' +
+					'<foo>An extra element</foo>' +
+					'</table>'
+				);
+
+				expect(
+					() => tableUtils.removeRows( root.getChild( 0 ), { at: 1, rows: 2 } )
+				).to.throw(
+					CKEditorError,
+					'tableutils-removerows-row-index-out-of-range'
+				);
+			} );
 		} );
 	} );
 
@@ -1324,7 +1633,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '02' ],
 					[ '10', '12' ],
 					[ '20', '22' ]
@@ -1340,7 +1649,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '01' ],
 					[ '11' ],
 					[ '21' ]
@@ -1356,7 +1665,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '01' ],
 					[ '11' ],
 					[ '21' ]
@@ -1374,7 +1683,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ { colspan: 3, contents: '00' }, '04' ],
 					[ { colspan: 2, contents: '10' }, '13', '14' ],
 					[ { colspan: 2, contents: '20' }, '23', '24' ],
@@ -1393,7 +1702,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ { colspan: 2, contents: '00' }, '03' ],
 					[ '10', '12', '13' ],
 					[ '21', '22', '23' ]
@@ -1408,7 +1717,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '01' ],
 					[ '11' ]
 				] ) );
@@ -1422,7 +1731,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00' ],
 					[ '10' ]
 				] ) );
@@ -1436,7 +1745,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '01' ]
 				] ) );
 			} );
@@ -1449,7 +1758,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 1 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00' ]
 				] ) );
 			} );
@@ -1463,7 +1772,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '01', '02' ],
 					[ '21', '22' ]
 				] ) );
@@ -1478,9 +1787,39 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '01', '02' ]
 				] ) );
+			} );
+
+			it( 'should remove column in a table with a non-row element', () => {
+				setData( model,
+					'<table>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>00</paragraph></tableCell>' +
+							'<tableCell><paragraph>01</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+							'<tableCell><paragraph>11</paragraph></tableCell>' +
+						'</tableRow>' +
+					'<foo>An extra element</foo>' +
+					'</table>'
+				);
+
+				tableUtils.removeColumns( root.getChild( 0 ), { at: 0 } );
+
+				expect( getData( model ) ).to.equalMarkup(
+					'<table>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>01</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>[]11</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<foo>An extra element</foo>' +
+					'</table>'
+				);
 			} );
 		} );
 
@@ -1495,7 +1834,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0, columns: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '02' ],
 					[ '12' ],
 					[ '22' ],
@@ -1513,7 +1852,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 1, columns: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '03' ],
 					[ '10', '13' ],
 					[ '20', '23' ],
@@ -1531,7 +1870,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 1, columns: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00' ],
 					[ '10' ],
 					[ '20' ],
@@ -1547,7 +1886,7 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 1, columns: 3 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00', '04' ],
 					[ '10', '14' ]
 				], { headingColumns: 1 } ) );
@@ -1562,11 +1901,41 @@ describe( 'TableUtils', () => {
 
 				tableUtils.removeColumns( root.getNodeByPath( [ 0 ] ), { at: 0, columns: 2 } );
 
-				assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+				expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 					[ '00' ],
 					[ '12' ],
 					[ '22' ]
 				] ) );
+			} );
+
+			it( 'should remove column in a table with a non-row element', () => {
+				setData( model,
+					'<table>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>00</paragraph></tableCell>' +
+							'<tableCell><paragraph>01</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+							'<tableCell><paragraph>11</paragraph></tableCell>' +
+						'</tableRow>' +
+					'<foo>An extra element</foo>' +
+					'</table>'
+				);
+
+				tableUtils.removeColumns( root.getChild( 0 ), { at: 1, columns: 1 } );
+
+				expect( getData( model ) ).to.equalMarkup(
+					'<table>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>00</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<tableRow>' +
+							'<tableCell><paragraph>[]10</paragraph></tableCell>' +
+						'</tableRow>' +
+						'<foo>An extra element</foo>' +
+					'</table>'
+				);
 			} );
 		} );
 	} );
@@ -1581,7 +1950,7 @@ describe( 'TableUtils', () => {
 				model.insertContent( table, model.document.selection.focus );
 			} );
 
-			assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+			expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 				[ '', '' ],
 				[ '', '' ],
 				[ '', '' ]
@@ -1597,7 +1966,7 @@ describe( 'TableUtils', () => {
 				model.insertContent( table, model.document.selection.focus );
 			} );
 
-			assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+			expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 				[ '', '' ],
 				[ '', '' ],
 				[ '', '' ]
@@ -1613,7 +1982,7 @@ describe( 'TableUtils', () => {
 				model.insertContent( table, model.document.selection.focus );
 			} );
 
-			assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+			expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 				[ '', '' ],
 				[ '', '' ],
 				[ '', '' ]
@@ -1629,11 +1998,26 @@ describe( 'TableUtils', () => {
 				model.insertContent( table, model.document.selection.focus );
 			} );
 
-			assertEqualMarkup( getData( model, { withoutSelection: true } ), modelTable( [
+			expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
 				[ '', '' ],
 				[ '', '' ],
 				[ '', '' ]
 			], { headingRows: 2, headingColumns: 1 } ) );
+		} );
+
+		it( 'should clamp table heading rows and columns to the rows and columns number', () => {
+			setData( model, '[]' );
+
+			model.change( writer => {
+				const table = tableUtils.createTable( writer, { rows: 2, columns: 2, headingRows: 3, headingColumns: 3 } );
+
+				model.insertContent( table, model.document.selection.focus );
+			} );
+
+			expect( getData( model, { withoutSelection: true } ) ).to.equalMarkup( modelTable( [
+				[ '', '' ],
+				[ '', '' ]
+			], { headingRows: 2, headingColumns: 2 } ) );
 		} );
 	} );
 } );

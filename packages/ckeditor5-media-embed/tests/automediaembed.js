@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -17,6 +17,7 @@ import Image from '@ckeditor/ckeditor5-image/src/image';
 import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import global from '@ckeditor/ckeditor5-utils/src/dom/global';
+import DomEventData from '@ckeditor/ckeditor5-engine/src/view/observer/domeventdata';
 import { getData, setData } from '@ckeditor/ckeditor5-engine/src/dev-utils/model';
 
 describe( 'AutoMediaEmbed - integration', () => {
@@ -90,6 +91,30 @@ describe( 'AutoMediaEmbed - integration', () => {
 			clock.tick( 100 );
 
 			editor.commands.execute( 'undo' );
+
+			expect( getData( editor.model ) ).to.equal(
+				'<paragraph>https://www.youtube.com/watch?v=H08tGjXNHO4[]</paragraph>'
+			);
+		} );
+
+		it( 'can undo auto-embeding by pressing backspace', () => {
+			const viewDocument = editor.editing.view.document;
+			const deleteEvent = new DomEventData(
+				viewDocument,
+				{ preventDefault: sinon.spy() },
+				{ direction: 'backward', unit: 'codePoint', sequence: 1 }
+			);
+
+			setData( editor.model, '<paragraph>[]</paragraph>' );
+			pasteHtml( editor, 'https://www.youtube.com/watch?v=H08tGjXNHO4' );
+
+			expect( getData( editor.model ) ).to.equal(
+				'<paragraph>https://www.youtube.com/watch?v=H08tGjXNHO4[]</paragraph>'
+			);
+
+			clock.tick( 100 );
+
+			viewDocument.fire( 'delete', deleteEvent );
 
 			expect( getData( editor.model ) ).to.equal(
 				'<paragraph>https://www.youtube.com/watch?v=H08tGjXNHO4[]</paragraph>'
@@ -327,15 +352,29 @@ describe( 'AutoMediaEmbed - integration', () => {
 			);
 		} );
 
+		// s/ckeditor5/3
+		it( 'should handle invalid URL with repeated characters', () => {
+			const invalidURL = 'a.' + 'a'.repeat( 100000 ) + '^';
+
+			setData( editor.model, '<paragraph>[]</paragraph>' );
+			pasteHtml( editor, invalidURL );
+
+			clock.tick( 100 );
+
+			expect( getData( editor.model ) ).to.equal(
+				`<paragraph>${ invalidURL }[]</paragraph>`
+			);
+		} );
+
 		// #47
 		it( 'does not transform a valid URL into a media if the element cannot be placed in the current position', () => {
-			setData( editor.model, '<image src="/assets/sample.png"><caption>Foo.[]</caption></image>' );
+			setData( editor.model, '<imageBlock src="/assets/sample.png"><caption>Foo.[]</caption></imageBlock>' );
 			pasteHtml( editor, 'https://www.youtube.com/watch?v=H08tGjXNHO4' );
 
 			clock.tick( 100 );
 
 			expect( getData( editor.model ) ).to.equal(
-				'<image src="/assets/sample.png"><caption>Foo.https://www.youtube.com/watch?v=H08tGjXNHO4[]</caption></image>'
+				'<imageBlock src="/assets/sample.png"><caption>Foo.https://www.youtube.com/watch?v=H08tGjXNHO4[]</caption></imageBlock>'
 			);
 		} );
 

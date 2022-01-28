@@ -4,9 +4,15 @@ category: builds-integration-frameworks
 order: 50
 ---
 
+{@snippet builds/frameworks/framework-integration}
+
 # Rich text editor component for Vue.js 3+
 
-[![npm version](https://badge.fury.io/js/%40ckeditor%2Fckeditor5-vue.svg)](https://www.npmjs.com/package/@ckeditor/ckeditor5-vue)
+<p>
+	<a href="https://www.npmjs.com/package/@ckeditor/ckeditor5-vue" target="_blank" rel="noopener">
+		<img src="https://badge.fury.io/js/%40ckeditor%2Fckeditor5-vue.svg" alt="npm version" loading="lazy">
+	</a>
+</p>
 
 <info-box>
 	**Important**: This guide is about the CKEditor 5 integration with Vue.js 3+. To learn more about the integration with Vue.js 2.x, check out the {@link builds/guides/frameworks/vuejs-v2 "Rich text editor component for Vue.js 2.x"} guide.
@@ -17,6 +23,10 @@ CKEditor 5 consists of the {@link builds/guides/overview ready-to-use editor bui
 The easiest way to use CKEditor 5 in your Vue.js application is by choosing one of the {@link builds/guides/overview#available-builds rich text editor builds} and simply passing it to the configuration of the Vue.js component. Read more about this solution in the [Quick start](#quick-start) section of this guide.
 
 Additionally, you can [integrate CKEditor 5 from source](#using-ckeditor-from-source) which is a much more flexible and powerful solution, but requires some additional configuration.
+
+<info-box>
+	The {@link features/watchdog watchdog feature} is available for the {@link builds/guides/frameworks/react React} and {@link builds/guides/frameworks/angular Angular} integrations, but is not supported in Vue yet.
+</info-box>
 
 ## Quick start
 
@@ -276,7 +286,7 @@ module.exports = {
 
 ### Using the editor from source
 
-Having configured `vue.config.js`, you can choose the building blocks of your editor. Install the packages necessary for your integration:
+Having configured `vue.config.js`, you can choose the building blocks of your editor. Install the packages necessary for your integration, but please remember that all packages (excluding `@ckeditor/ckeditor5-dev-*` and `@ckeditor/ckeditor5-vue`) {@link builds/guides/integration/installing-plugins#requirements must have the same version as the base editor package}.
 
 ```bash
 npm install --save \

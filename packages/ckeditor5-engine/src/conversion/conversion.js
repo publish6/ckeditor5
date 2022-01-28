@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -227,7 +227,7 @@ export default class Conversion {
 	 *		editor.conversion.elementToElement( {
 	 *			model: 'heading',
 	 *			view: 'h2',
-	 *			// Convert "headling-like" paragraphs to headings.
+	 *			// Convert "heading-like" paragraphs to headings.
 	 *			upcastAlso: viewElement => {
 	 *				const fontSize = viewElement.getStyle( 'font-size' );
 	 *
@@ -448,8 +448,8 @@ export default class Conversion {
 	}
 
 	/**
-	 * Sets up converters between the model and the view that convert a model attribute to a view attribute (and vice versa).
-	 * For example, `<image src='foo.jpg'></image>` is converted to `<img src='foo.jpg'></img>` (the same attribute key and value).
+	 * Sets up converters between the model and the view that convert a model attribute to a view attribute (and vice versa). For example,
+	 * `<imageBlock src='foo.jpg'></imageBlock>` is converted to `<img src='foo.jpg'></img>` (the same attribute key and value).
 	 * This type of converters is intended to be used with {@link module:engine/model/element~Element model element} nodes.
 	 * To convert text attributes {@link module:engine/conversion/conversion~Conversion#attributeToElement `attributeToElement converter`}
 	 * should be set up.
@@ -460,7 +460,7 @@ export default class Conversion {
 	 *		// Attribute values are strictly specified.
 	 *		editor.conversion.attributeToAttribute( {
 	 *			model: {
-	 *				name: 'image',
+	 *				name: 'imageInline',
 	 *				key: 'aside',
 	 *				values: [ 'aside' ]
 	 *			},
@@ -476,7 +476,7 @@ export default class Conversion {
 	 *		// Set the style attribute.
 	 *		editor.conversion.attributeToAttribute( {
 	 *			model: {
-	 *				name: 'image',
+	 *				name: 'imageInline',
 	 *				key: 'aside',
 	 *				values: [ 'aside' ]
 	 *			},

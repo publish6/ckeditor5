@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -7,7 +7,7 @@
  * @module markdown-gfm/gfmdataprocessor
  */
 
-import HtmlDataProcessor from '@ckeditor/ckeditor5-engine/src/dataprocessor/htmldataprocessor';
+import { HtmlDataProcessor } from 'ckeditor5/src/engine';
 
 import markdown2html from './markdown2html/markdown2html';
 import html2markdown, { turndownService } from './html2markdown/html2markdown';
@@ -83,4 +83,10 @@ export default class GFMDataProcessor {
 	registerRawContentMatcher( pattern ) {
 		this._htmlDP.registerRawContentMatcher( pattern );
 	}
+
+	/**
+	 * This method does not have any effect on the data processor result. It exists for compatibility with the
+	 * {@link module:engine/dataprocessor/dataprocessor~DataProcessor `DataProcessor` interface}.
+	 */
+	useFillerType() {}
 }

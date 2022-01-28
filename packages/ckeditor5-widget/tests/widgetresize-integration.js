@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -40,7 +40,7 @@ describe( 'WidgetResize - integration', () => {
 	it( 'should not fire viewDocument#mousedown events after starting resizing', async () => {
 		const eventSpy = sinon.spy().named( 'ViewDocument#mousedown' );
 
-		setModelData( model, '[<image src="/assets/sample.png"></image>]' );
+		setModelData( model, '[<imageBlock src="/assets/sample.png"></imageBlock>]' );
 
 		await waitForAllImagesLoaded( editor );
 
