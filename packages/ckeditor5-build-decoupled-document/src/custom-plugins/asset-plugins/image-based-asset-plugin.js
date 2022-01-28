@@ -57,7 +57,7 @@ export class ImageBasedAssetPlugin extends Plugin {
 			// Configure the editor to allow "asset-id" and "asset-type" attributes, as well as special handling
 			// classes. The idea here is to define mappings for upcasting and downcasting (going from view to
 			// model, and from model to view).
-			editor.model.schema.extend( 'image', { allowAttributes: [ 'src', 'id', ASSET_ID_PROPERTY_NAME, ASSET_TYPE_PROPERTY_NAME, 'specialHandling' ] } );
+			editor.model.schema.extend( 'imageBlock', { allowAttributes: [ 'src', 'id', ASSET_ID_PROPERTY_NAME, ASSET_TYPE_PROPERTY_NAME, 'specialHandling' ] } );
 			editor.conversion.attributeToAttribute( { model: ASSET_TYPE_PROPERTY_NAME, view: ASSET_TYPE_PROPERTY_NAME } );
 			editor.conversion.attributeToAttribute( { model: ASSET_ID_PROPERTY_NAME, view: ASSET_ID_PROPERTY_NAME } );
 			const specialHandlingModelToViewMap = {};
