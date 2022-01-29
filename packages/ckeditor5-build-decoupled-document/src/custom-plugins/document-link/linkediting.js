@@ -77,14 +77,6 @@ export default class LinkEditing extends Plugin {
 		]
 	 } );
 
-	 editor.model.schema.extend( '$block', { allowAttributes: [
-		'linkHref',
-		'linkAssetId', 
-		'linkAssetType',
-		'linkDisplay'
-	]
- } );
-
 	 editor.conversion.for( 'dataDowncast' )
 	 .attributeToElement( { model: 'linkHref', view: createLinkElement } );
 
@@ -115,7 +107,7 @@ export default class LinkEditing extends Plugin {
 			model: 'linkAssetId',
 			view: ( attributeValue, { writer } ) => {
 					const linkElement = writer.createAttributeElement( 'doclink', { assetid: attributeValue }, { priority: 5 } );
-					writer.setAttribute( 'assetid', true, linkElement );
+					writer.setAttribute( 'assetid', attributeValue, linkElement );
 
 					return linkElement;
 			},
@@ -136,7 +128,7 @@ export default class LinkEditing extends Plugin {
 			model: 'linkAssetType',
 			view: ( attributeValue, { writer } ) => {
 					const linkElement = writer.createAttributeElement( 'doclink', { assettype: attributeValue }, { priority: 5 } );
-					writer.setAttribute( 'assettype', true, linkElement );
+					writer.setAttribute( 'assettype', attributeValue, linkElement );
 
 					return linkElement;
 			},
@@ -157,7 +149,7 @@ export default class LinkEditing extends Plugin {
 			model: 'linkDisplay',
 			view: ( attributeValue, { writer } ) => {
 					const linkElement = writer.createAttributeElement( 'doclink', { linkdisplay: attributeValue }, { priority: 5 } );
-					writer.setAttribute( 'linkdisplay', true, linkElement );
+					writer.setAttribute( 'linkdisplay', attributeValue, linkElement );
 
 					return linkElement;
 			},
