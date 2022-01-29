@@ -176,6 +176,7 @@ export default class HTML5AudioPlugin extends Plugin {
 			allowWhere: '$block',
 			allowAttributes: allowedAttributes
 		});
+		editor.model.schema.extend( 'audio', { allowAttributes: 'specialHandling' } );
 
 		// Define how the model element is converted to HTML
 		const conversion = this.editor.conversion;
@@ -236,48 +237,6 @@ export default class HTML5AudioPlugin extends Plugin {
 			},
 			view: audioStyleViewDef
 		});
-
-		const specialHandlingModelToViewMap = {};
-		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingEO()] = {
-			name: 'figure',
-			key: 'class',
-			value: ['audio', ASSET_SH_EO_CLASS]
-		};
-		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingLD()] = {
-			name: 'figure',
-			key: 'class',
-			value: ['audio', ASSET_SH_LD_CLASS]
-		};
-		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRH()] = {
-			name: 'figure',
-			key: 'class',
-			value: ['audio', ASSET_SH_RH_CLASS]
-		};
-		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingRS()] = {
-			name: 'figure',
-			key: 'class',
-			value: ['audio', ASSET_SH_RS_CLASS]
-		};
-		specialHandlingModelToViewMap[AssetPluginHelper.getAbbrForSpecialHandlingNone()] = {
-			name: 'figure',
-			key: 'class',
-			value: ['audio', ASSET_SH_NONE_CLASS]
-		};
-
-		editor.conversion.attributeToAttribute({
-			model: {
-				name: 'audio',
-				key: 'specialHandling',
-				values: [
-					AssetPluginHelper.getAbbrForSpecialHandlingEO(),
-					AssetPluginHelper.getAbbrForSpecialHandlingLD(),
-					AssetPluginHelper.getAbbrForSpecialHandlingRS(),
-					AssetPluginHelper.getAbbrForSpecialHandlingRH(),
-					AssetPluginHelper.getAbbrForSpecialHandlingNone()
-				]
-			},
-			view: specialHandlingModelToViewMap
-		});
 	}
 }
 
@@ -295,6 +254,7 @@ class AddNewAudio extends Command {
 			const audioElement = writer.createElement( 'audio', newData );
 			caretPos = caretPos != null ? caretPos : this.editor.model.document.selection.getFirstPosition();
 			this.editor.model.insertContent( audioElement, caretPos );
+			writer.insertElement('caption', audioElement, 'end');
 		} );
 	}
 }

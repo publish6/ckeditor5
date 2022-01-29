@@ -47,6 +47,7 @@ import LinkInterceptor from './custom-plugins/link-interceptor/linkinterceptor';
 import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
 import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter';
 import DocumentLink from './custom-plugins/document-link/document-link';
+import SpecialHandling from './custom-plugins/special-handling/special-handling';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -69,6 +70,7 @@ DecoupledEditor.builtinPlugins = [
 	Underline,
 	BlockQuote,
 	Heading,
+	SpecialHandling,
 	Image,
 	ImageToolbar,
 	ImageCaption,

@@ -47,60 +47,21 @@ export class ImageBasedAssetPlugin extends Plugin {
 		this.editor.commands.add( 'editImageBasedAsset', new EditImage( this.editor ) );
 		this.editor.commands.add( 'replaceElementWithNewImage', new ReplaceElementWithNewImage( this.editor ) );
 
+		
+		// Configure the editor to allow "asset-id" and "asset-type" attributes, as well as special handling
+		// classes. The idea here is to define mappings for upcasting and downcasting (going from view to
+		// model, and from model to view).
+		editor.model.schema.extend( 'imageBlock', { allowAttributes: [ 'src', 'id', ASSET_ID_PROPERTY_NAME, ASSET_TYPE_PROPERTY_NAME ] } );
+		editor.model.schema.extend( 'imageBlock', { allowAttributes: 'specialHandling' } );
+		editor.conversion.attributeToAttribute( { model: ASSET_TYPE_PROPERTY_NAME, view: ASSET_TYPE_PROPERTY_NAME } );
+		editor.conversion.attributeToAttribute( { model: ASSET_ID_PROPERTY_NAME, view: ASSET_ID_PROPERTY_NAME } );
+
 		// Define the plugin
 		editor.ui.componentFactory.add( this.pluginName, locale => {
 			const view = new ButtonView( locale );
 
 			// Binds to the read only property of the editor so that it dynamically enables/disables itself
 			view.bind( 'isEnabled' ).to( editor, 'isReadOnly', isReadOnly => !isReadOnly );
-
-			// Configure the editor to allow "asset-id" and "asset-type" attributes, as well as special handling
-			// classes. The idea here is to define mappings for upcasting and downcasting (going from view to
-			// model, and from model to view).
-			editor.model.schema.extend( 'imageBlock', { allowAttributes: [ 'src', 'id', ASSET_ID_PROPERTY_NAME, ASSET_TYPE_PROPERTY_NAME, 'specialHandling' ] } );
-			editor.conversion.attributeToAttribute( { model: ASSET_TYPE_PROPERTY_NAME, view: ASSET_TYPE_PROPERTY_NAME } );
-			editor.conversion.attributeToAttribute( { model: ASSET_ID_PROPERTY_NAME, view: ASSET_ID_PROPERTY_NAME } );
-			const specialHandlingModelToViewMap = {};
-			specialHandlingModelToViewMap[ AssetPluginHelper.getAbbrForSpecialHandlingEO() ] = {
-				name: 'figure',
-				key: 'class',
-				value: [ 'image', ASSET_SH_EO_CLASS ]
-			};
-			specialHandlingModelToViewMap[ AssetPluginHelper.getAbbrForSpecialHandlingLD() ] = {
-				name: 'figure',
-				key: 'class',
-				value: [ 'image', ASSET_SH_LD_CLASS ]
-			};
-			specialHandlingModelToViewMap[ AssetPluginHelper.getAbbrForSpecialHandlingRH() ] = {
-				name: 'figure',
-				key: 'class',
-				value: [ 'image', ASSET_SH_RH_CLASS ]
-			};
-			specialHandlingModelToViewMap[ AssetPluginHelper.getAbbrForSpecialHandlingRS() ] = {
-				name: 'figure',
-				key: 'class',
-				value: [ 'image', ASSET_SH_RS_CLASS ]
-			};
-			specialHandlingModelToViewMap[ AssetPluginHelper.getAbbrForSpecialHandlingNone() ] = {
-				name: 'figure',
-				key: 'class',
-				value: [ 'image', ASSET_SH_NONE_CLASS ]
-			};
-
-			editor.conversion.attributeToAttribute( {
-				model: {
-					name: 'image',
-					key: 'specialHandling',
-					values: [
-						AssetPluginHelper.getAbbrForSpecialHandlingEO(),
-						AssetPluginHelper.getAbbrForSpecialHandlingLD(),
-						AssetPluginHelper.getAbbrForSpecialHandlingRS(),
-						AssetPluginHelper.getAbbrForSpecialHandlingRH(),
-						AssetPluginHelper.getAbbrForSpecialHandlingNone()
-					]
-				},
-				view: specialHandlingModelToViewMap
-			} );
 
 			// Create the button using the plugin label and the plugin icon
 			view.set( {
@@ -135,11 +96,12 @@ class AddNewImage extends Command {
 			};
 			newData[ ASSET_ID_PROPERTY_NAME ] = assetID;
 			newData[ ASSET_TYPE_PROPERTY_NAME ] = assetType;
-			const imageElement = writer.createElement( 'image', newData );
+			const imageElement = writer.createElement( 'imageBlock', newData );
 
 			// Insert the image in the current selection location.
 			selectedPosition = selectedPosition != null ? selectedPosition : this.editor.model.document.selection.getFirstPosition();
 			this.editor.model.insertContent( imageElement, selectedPosition );
+			writer.insertElement('caption', imageElement, 'end');
 		} );
 	}
 }
