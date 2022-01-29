@@ -144,6 +144,7 @@ DecoupledEditor.defaultConfig = {
 			'previewImageBasedAsset',
 			'|',
 			'imageStyle:alignLeft',
+			'imageStyle:alignCenter',
 			'imageStyle:full',
 			'imageStyle:alignRight',
 			'|',
