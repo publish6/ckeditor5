@@ -50,7 +50,7 @@ export default class ImageInterceptor extends Plugin {
 		// to find images that we accept. If we find any, we want to replace them with placeholder
 		// images (and tag them with UUIDs so that consumers can find them later) and return them
 		// in the callback so consumers can decide what to do with them
-		editor.plugins.get('Clipboard').on('inputTransformation', async (evt, data) => {
+		editor.plugins.get('ClipboardPipeline').on('inputTransformation', async (evt, data) => {
 			const selection = this.editor.model.document.selection.getFirstPosition().clone();
 
 			// Get the HTML data from the paste, and look for images

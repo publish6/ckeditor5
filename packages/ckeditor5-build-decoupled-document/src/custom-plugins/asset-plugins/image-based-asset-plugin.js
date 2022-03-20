@@ -101,7 +101,6 @@ class AddNewImage extends Command {
 			// Insert the image in the current selection location.
 			selectedPosition = selectedPosition != null ? selectedPosition : this.editor.model.document.selection.getFirstPosition();
 			this.editor.model.insertContent( imageElement, selectedPosition );
-			writer.insertElement('caption', imageElement, 'end');
 		} );
 	}
 }
@@ -118,7 +117,7 @@ class ReplaceElementWithNewImage extends Command {
 			};
 			newData[ ASSET_ID_PROPERTY_NAME ] = assetID;
 			newData[ ASSET_TYPE_PROPERTY_NAME ] = assetType;
-			const imageElement = writer.createElement( 'image', newData );
+			const imageElement = writer.createElement( 'imageBlock', newData );
 
 			const range = this.editor.model.createRangeIn(this.editor.model.document.getRoot());
 			for (const value of range.getWalker({shallow: false})) {

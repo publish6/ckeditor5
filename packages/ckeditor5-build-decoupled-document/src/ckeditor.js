@@ -48,12 +48,14 @@ import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
 import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter';
 import DocumentLink from './custom-plugins/document-link/document-link';
 import SpecialHandling from './custom-plugins/special-handling/special-handling';
+import { Clipboard } from '@ckeditor/ckeditor5-clipboard';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
 // Plugins to include in the build.
 DecoupledEditor.builtinPlugins = [
 	Essentials,
+	Clipboard,
 	Base64UploadAdapter,
 	Alignment,
 	Notification,
@@ -142,10 +144,11 @@ DecoupledEditor.defaultConfig = {
 		resizeUnit: 'px',
 		toolbar: [
 			'previewImageBasedAsset',
+			'toggleImageCaption',
 			'|',
 			'imageStyle:alignLeft',
 			'imageStyle:alignCenter',
-			'imageStyle:full',
+			'imageStyle:block',
 			'imageStyle:alignRight',
 			'|',
 			'editImageBasedAsset'
