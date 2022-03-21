@@ -10,8 +10,8 @@
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Image from '@ckeditor/ckeditor5-image/src/image';
-import LinkUI from './linkui';
-import LinkEditing from './linkediting';
+import DocumentLinkUI from './linkui';
+import DocumentLinkEditing from './linkediting';
 import { isImageWidget } from '@ckeditor/ckeditor5-image/src/image/utils';
 import { LINK_KEYSTROKE } from './utils';
 
@@ -25,12 +25,12 @@ import linkIcon from '../theme/icons/link.svg';
  *
  * @extends module:core/plugin~Plugin
  */
-export default class LinkImageUI extends Plugin {
+export default class dDocumentLinkImageUI extends Plugin {
 	/**
 	 * @inheritDoc
 	 */
 	static get requires() {
-		return [ Image, LinkEditing, LinkUI ];
+		return [ Image, DocumentLinkEditing, DocumentLinkUI ];
 	}
 
 	/**

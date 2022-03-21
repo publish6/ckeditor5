@@ -23,7 +23,7 @@ import linkIcon from '../theme/icons/link.svg';
  *
  * @extends module:core/plugin~Plugin
  */
-export default class LinkImageEditing extends Plugin {
+export default class DocumentLinkImageEditing extends Plugin {
 	/**
 	 * @inheritDoc
 	 */

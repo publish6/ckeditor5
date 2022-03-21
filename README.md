@@ -16,7 +16,7 @@ git pull upstream stable
 ```
 
 ## Developing CKEditor
-To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is packages/ckeditor5-build-decoupled-document) and run `yarn install`
+To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is `packages/ckeditor5-build-decoupled-document`) and run `yarn install`
 
 **NOTE FOR WSL users OR Ubuntu users**: Run the following commands to get yarn working
 ```
@@ -29,7 +29,7 @@ sudo apt install --no-install-recommends yarn
 # Run "sudo apt-get install yarn" if you don't already have node/npm installed
 ```
 
-Once you've made your changes, run `yarn run build`. As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project.
+Once you've made your changes, ensure you're in the editor build directory of your choosing (i.e. `packages/ckeditor5-build-decoupled-document`), and run `yarn run build`. As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project.
 
 To test out your changes, you can navigate to our build of the editor (at this time of writing, this is packages/ckeditor5-build-decoupled-document), build it, and then load sample/index.html in your browser.
 
@@ -39,13 +39,19 @@ To test out your changes, you can navigate to our build of the editor (at this t
     a. If someone has modified package.json, it's possible for it to get "out of sync" with the correct package.json, which may lead to multiple versions of the same core CKEditor module being pulled in.
 
 ## Exporting Editor CSS styles
-In order to render content produced by the editor in other environments (i.e. a mobile app, a PDF, etc), you will need the CSS styles from ALL of the editor features and plugins. To get this file, run the following command: `yarn docs:content-styles`.
+In order to render content produced by the editor in other environments (i.e. a mobile app, a PDF, etc), you will need the CSS styles from ALL of the editor features and plugins. To get this file, cd to the root of the repo (i.e. `~/pub6/ckeditor5/`) and run the following command: `node ./scripts/docs/build-content-styles.js `.
+
+**IMPORTANT NOTE:** As of March 2022, the ckeditor team has seemingly incorporated the `build-content-styles.js` script into a larger build process that we don't want/need, and have modified this script so it can no longer be run in a standalone way (despite their current documentation saying otherwise). As a result, the script no longer works when run standalone. I've modified it to work again. We should keep an eye on changes to see whether they officially update their documentation on how to generate the CSS styles. 
+
+For example, [this link](https://ckeditor.com/docs/ckeditor5/latest/framework/guides/contributing/development-environment.html#generating-content-styles) says to run `yarn docs:content-styles, which no longer exists as a command in package.json. So something is clearly not up to date.
 
 **Some VERY important things to keep in mind:**
-1. In order to apply the css rules to an HTML element, you need to add the "ck-content" class to the container. This is because ALL CKEDTIOR CSS rules are pre-fixed with 'ck-content'. This is done intentionally by the ckeditor team (and should ALSO be done for any custom plugins we write) so that the rules for documents are completely encapsulated from the rest of an app's css logic. 
+1. In order to apply the css rules to an HTML page where ckeditor is NOT loaded, you need to add the "ck-content" class to the container. This is because ALL CKEDTIOR CSS rules are pre-fixed with 'ck-content'. This is done intentionally by the ckeditor team (and should ALSO be done for any custom plugins we write) so that the rules for documents are completely encapsulated from the rest of an app's css logic. 
 2. In order for your plugin's CSS rules to get exported by the command above, it MUST adhere to the following rules:
     1. The plugin class name MUST ONLY contain letters and numbers. This means no hyphens or underscores!
 	2. Your plugin's main class (the one that matches the filename) MUST be exported as the default class (i.e. `export default class HTML5VideoPlugin extends Plugin`). It must also directly extend `Plugin`
+3. We've made a few changes to the source of the editor that address OUR app's concerns, so while we want to make an effort to keep our repo in line with ckeditor's own "stable" branch, care must be taken during the merge process so that our existing changes aren't blown away, and our custom plugins still work (api changes have broken our plugins in the past, and will certainly do so again).
+    1. 
 These rules are necessary due to implementation oversights by the ckeditor team in the build-content-styles.js script
 
 ===== Original Readme contents below ======

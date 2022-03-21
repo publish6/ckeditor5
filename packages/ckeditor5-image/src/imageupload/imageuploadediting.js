@@ -325,10 +325,6 @@ export default class ImageUploadEditing extends Plugin {
 			} )
 			.then( data => {
 				model.enqueueChange( 'transparent', writer => {
-<<<<<<< HEAD
-					writer.setAttributes( { uploadStatus: 'complete', src: data.default, blah: "HELLO" }, imageElement );
-					this._parseAndSetSrcsetAttributeOnImage( data, imageElement, writer );
-=======
 					const imageElement = imageUploadElements.get( loader.id );
 
 					writer.setAttribute( 'uploadStatus', 'complete', imageElement );
@@ -362,7 +358,6 @@ export default class ImageUploadEditing extends Plugin {
 					 * model {@link module:engine/model/element~Element image element} that can be customized.
 					 */
 					this.fire( 'uploadComplete', { data, imageElement } );
->>>>>>> 792037f52c440d72a7645d63a0f894911f481847
 				} );
 
 				clean();

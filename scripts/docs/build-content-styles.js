@@ -17,7 +17,7 @@ const ROOT_DIRECTORY = path.join( __dirname, '..', '..' );
 const DESTINATION_DIRECTORY = path.join( __dirname, '..', '..', 'build', 'content-styles' );
 const OUTPUT_FILE_PATH = path.join( DESTINATION_DIRECTORY, 'content-styles.css' );
 
-const DOCUMENTATION_URL = 'https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/content-styles.html';
+const DOCUMENTATION_URL = 'https://ckeditor.com/docs/ckeditor5/latest/installation/advanced/content-styles.html';
 
 const VARIABLE_DEFINITION_REGEXP = /(--[\w-]+):\s+(.*);/g;
 const VARIABLE_USAGE_REGEXP = /var\((--[\w-]+)\)/g;
@@ -31,51 +31,8 @@ const contentRules = {
 const packagesPath = path.join( ROOT_DIRECTORY, 'packages' );
 const version = getLastFromChangelog( ROOT_DIRECTORY );
 
-<<<<<<< HEAD
-		let promise = Promise.resolve();
-		const ckeditor5Modules = [];
-
-		for ( const modulePath of files ) {
-			promise = promise.then( () => {
-				return checkWhetherIsCKEditor5Plugin( modulePath )
-					.then( isModule => {
-						if ( isModule ) {
-							ckeditor5Modules.push( path.join( cwd, modulePath ) );
-						}
-					} );
-			} );
-		}
-
-		return promise.then( () => ckeditor5Modules );
-	} )
-	.then( ckeditor5Modules => {
-		console.log( `Found ${ ckeditor5Modules.length } plugins.` );
-		logProcess( 'Generating source file...' );
-
-		// TODO: for some reason, mkdirp returns nothing...return mkdirp( DESTINATION_DIRECTORY ).then( () => generateCKEditor5Source( ckeditor5Modules ) );
-		return generateCKEditor5Source( ckeditor5Modules );
-	} )
-	.then( ckeditor5Modules => {
-		foundModules = ckeditor5Modules;
-
-		logProcess( 'Building the editor...' );
-		const webpackConfig = getWebpackConfig();
-
-		return runWebpack( webpackConfig );
-	} )
-	.then( () => {
-		logProcess( 'Preparing the content styles file...' );
-
-		// All variables are placed inside the `:root` selector. Let's extract their names and values as a map.
-		const cssVariables = new Map( contentRules.variables
-			.map( rule => {
-				// Let's extract all of them as an array of pairs: [ name, value ].
-				const allRules = [];
-				let match;
-=======
-module.exports = () => {
+//module.exports = () => {
 	console.log( 'Building content styles...' );
->>>>>>> 792037f52c440d72a7645d63a0f894911f481847
 
 	return new Promise( resolve => {
 		getCkeditor5Plugins()
@@ -187,7 +144,8 @@ module.exports = () => {
 			.catch( err => {
 				console.log( err );
 			} );
-	} ); };
+	} ); 
+	//};
 
 /**
  * Prepares the configuration for webpack.

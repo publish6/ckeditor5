@@ -35,7 +35,7 @@ const EXTERNAL_LINKS_REGEXP = /^(https?:)?\/\//;
  *
  * @extends module:core/plugin~Plugin
  */
-export default class LinkEditing extends Plugin {
+export default class DocumentLinkEditing extends Plugin {
 	/**
 	 * @inheritDoc
 	 */
@@ -108,6 +108,7 @@ export default class LinkEditing extends Plugin {
 			view: ( attributeValue, { writer } ) => {
 					const linkElement = writer.createAttributeElement( 'doclink', { assetid: attributeValue }, { priority: 5 } );
 					writer.setAttribute( 'assetid', attributeValue, linkElement );
+					writer.setCustomProperty( 'link', true, linkElement );
 
 					return linkElement;
 			},
@@ -129,7 +130,7 @@ export default class LinkEditing extends Plugin {
 			view: ( attributeValue, { writer } ) => {
 					const linkElement = writer.createAttributeElement( 'doclink', { assettype: attributeValue }, { priority: 5 } );
 					writer.setAttribute( 'assettype', attributeValue, linkElement );
-
+					writer.setCustomProperty( 'link', true, linkElement );
 					return linkElement;
 			},
 			converterPriority: 'low'
@@ -150,7 +151,7 @@ export default class LinkEditing extends Plugin {
 			view: ( attributeValue, { writer } ) => {
 					const linkElement = writer.createAttributeElement( 'doclink', { linkdisplay: attributeValue }, { priority: 5 } );
 					writer.setAttribute( 'linkdisplay', attributeValue, linkElement );
-
+					writer.setCustomProperty( 'link', true, linkElement );
 					return linkElement;
 			},
 			converterPriority: 'low'

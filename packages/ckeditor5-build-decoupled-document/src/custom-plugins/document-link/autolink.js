@@ -55,12 +55,12 @@ const URL_GROUP_IN_MATCH = 2;
  *
  * @extends module:core/plugin~Plugin
  */
-export default class AutoLink extends Plugin {
+export default class DocumentAutoLink extends Plugin {
 	/**
 	 * @inheritDoc
 	 */
 	static get pluginName() {
-		return 'AutoLink';
+		return 'DocumentAutoLink';
 	}
 
 	/**

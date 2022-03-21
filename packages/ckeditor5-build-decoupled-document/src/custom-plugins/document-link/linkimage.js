@@ -8,8 +8,8 @@
  */
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import LinkImageEditing from './linkimageediting';
-import LinkImageUI from './linkimageui';
+import DocumentLinkImageEditing from './linkimageediting';
+import DocumentLinkImageUI from './linkimageui';
 
 import '../theme/linkimage.css';
 
@@ -21,12 +21,12 @@ import '../theme/linkimage.css';
  *
  * @extends module:core/plugin~Plugin
  */
-export default class LinkImage extends Plugin {
+export default class DocumentLinkImage extends Plugin {
 	/**
 	 * @inheritDoc
 	 */
 	static get requires() {
-		return [ LinkImageEditing, LinkImageUI ];
+		return [ DocumentLinkImageEditing, DocumentLinkImageUI ];
 	}
 
 	/**
