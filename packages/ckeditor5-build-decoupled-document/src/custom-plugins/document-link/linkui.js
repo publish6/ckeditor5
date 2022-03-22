@@ -645,7 +645,6 @@ export default class DocumentLinkUI extends Plugin {
 	_getSelectedLinkElement() {
 		const view = this.editor.editing.view;
 		const selection = view.document.selection;
-		console.error(selection);
 
 		if ( selection.isCollapsed ) {
 			return findLinkElementAncestor( selection.getFirstPosition() );
@@ -729,7 +728,5 @@ export default class DocumentLinkUI extends Plugin {
 // @param {module:engine/view/position~Position} View position to analyze.
 // @returns {module:engine/view/attributeelement~AttributeElement|null} Link element at the position or null.
 function findLinkElementAncestor( position ) {
-	console.error("ANCESTORS");
-	console.error(position.getAncestors());
 	return position.getAncestors().find( ancestor => isLinkElement( ancestor ) );
 }
