@@ -141,17 +141,45 @@ DecoupledEditor.defaultConfig = {
 		]
 	},
 	image: {
-		resizeUnit: 'px',
+		resizeOptions: [
+			{
+				name: 'resizeImage:original',
+				value: null,
+				label: 'Original'
+			},
+			{
+				name: 'resizeImage:25',
+				value: '25',
+				label: '25%'
+			},
+			{
+				name: 'resizeImage:50',
+				value: '50',
+				label: '50%'
+			},
+			{
+				name: 'resizeImage:75',
+				value: '75',
+				label: '75%'
+			},
+			{
+				name: 'resizeImage:100',
+				value: '100',
+				label: '100%'
+			}
+		],
 		toolbar: [
 			'previewImageBasedAsset',
-			'toggleImageCaption',
+			'editImageBasedAsset',
 			'|',
 			'imageStyle:alignLeft',
-			'imageStyle:alignCenter',
 			'imageStyle:block',
 			'imageStyle:alignRight',
 			'|',
-			'editImageBasedAsset'
+			'toggleImageCaption',
+			'|',
+			'resizeImage'
+			
 		]
 	},
 	table: {

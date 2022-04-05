@@ -96,7 +96,7 @@ const DEFAULT_OPTIONS = {
 	// This option is equal to the situation when no style is applied.
 	block: {
 		name: 'block',
-		title: 'Full Size Image',
+		title: 'Centered',
 		icon: objectFullWidth,
 		modelElements: [ 'imageBlock' ],
 		isDefault: true

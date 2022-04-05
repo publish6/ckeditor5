@@ -1,9 +1,5 @@
 .ck-content {
 	& .image-style-align-center {
-		max-width: 50%;
-	}
-
-	& .image-style-align-center {
 		margin-left: auto;
 		margin-right: auto;
 	}
