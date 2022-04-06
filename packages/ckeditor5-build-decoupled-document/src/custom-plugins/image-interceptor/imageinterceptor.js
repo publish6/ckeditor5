@@ -62,6 +62,7 @@ export default class ImageInterceptor extends Plugin {
 			// covers drop events (i.e. drag/drop a file on top of the editor) because both paste and drop
 			// invoke the "inputTransformation" event.
 			if (images == null || images.length == 0) {
+				console.warn(data);
 				const files = AssetPluginHelper.getNested(data, "dataTransfer", "files");
 				handleDataTransferFile(evt, data, files, imageCallback, selection);
 			} else {
@@ -78,6 +79,7 @@ export default class ImageInterceptor extends Plugin {
 					// NOTE: we need to do all of the logic of removing/replacing <img> tags BEFORE we wait on any promises.
 					// Otherwise, it's possible for the parsed <img> tags from the paste to reach the editor, which we don't want.
 					// If they do, then it's possible that the press app could save images in a format that we don't support.
+					console.log(src);
 					if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:image/png;') 
 						|| src.startsWith('data:image/jpeg;') || src.startsWith('data:image/jpg;')) {
 						const placeholder = writer.createElement("p", { "data-uuid": uniqueID });
@@ -115,7 +117,7 @@ function handleDataTransferFile(evt, data, files, imageCallback, selection) {
 		const invalidImages = [];
 		for (let i = 0; i < files.length; i++) {
 			let imageFile = files[i];
-			if (imageFile.type == "image/png" || imageFile.type == "image/jpg" || imageFile == "image/jpeg") {
+			if (imageFile.type == "image/png" || imageFile.type == "image/jpg" || imageFile.type == "image/jpeg") {
 				imageFiles.push(imageFile);
 			} else if (imageFile.type.startsWith("image/")) {
 				// If it's an image, but a format we don't support, fail the entire thing.
