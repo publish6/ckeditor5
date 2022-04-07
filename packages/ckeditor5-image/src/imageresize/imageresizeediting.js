@@ -133,7 +133,7 @@ export default class ImageResizeEditing extends Plugin {
 				},
 				model: {
 					key: 'width',
-					value: viewElement => viewElement.getStyle( 'width' )
+					value: viewElement => {console.error(viewElement.getStyle( 'width' )); return viewElement.getStyle( 'width' )}
 				}
 			} );
 	}

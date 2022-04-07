@@ -152,7 +152,12 @@ mix( ResizeState, ObservableMixin );
 // @param {module:utils/dom/rect~Rect} resizeHostRect
 // @returns {Number}
 function calculateHostPercentageWidth( domResizeHost, resizeHostRect ) {
-	const domResizeHostParent = domResizeHost.parentElement;
+	let domResizeHostParent = domResizeHost.parentElement;
+
+	// TODO: ALEX CAMPBELL PUB6 CUSTOM CHANGES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	if (domResizeHostParent != null && domResizeHostParent.nodeName == 'CKEDITOR') {
+		domResizeHostParent = domResizeHostParent.firstElementChild;
+	}
 	// Need to use computed style as it properly excludes parent's paddings from the returned value.
 	const parentWidth = parseFloat( domResizeHostParent.ownerDocument.defaultView.getComputedStyle( domResizeHostParent ).width );
 
