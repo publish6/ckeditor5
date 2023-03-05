@@ -9,6 +9,12 @@
  * **in the theme** when compiling the editor.
  */
 
- doclink {     cursor:pointer;
+ doclink {     
+  cursor:pointer;
   color:rgb(0, 116, 204);
-  text-decoration:underline;}
+  text-decoration:underline;
+}
+
+doclink[href^="#"] {
+    text-decoration: none !important;
+}

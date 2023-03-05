@@ -17,6 +17,7 @@ import FontBackgroundColor from '@ckeditor/ckeditor5-font/src/fontbackgroundcolo
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
+import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
@@ -70,6 +71,7 @@ DecoupledEditor.builtinPlugins = [
 	Italic,
 	Strikethrough,
 	Underline,
+	Superscript,
 	BlockQuote,
 	Heading,
 	SpecialHandling,

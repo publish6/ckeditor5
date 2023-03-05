@@ -16,7 +16,7 @@ git pull upstream stable
 ```
 
 ## Developing CKEditor
-To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is `packages/ckeditor5-build-decoupled-document`) and run `yarn install`
+To add or modify our CKEditor build, navigate to the package of the build that we're using (at this time of writing, this is `packages/ckeditor5-build-decoupled-document`) and run `yarn install --check-files`
 
 **NOTE FOR WSL users OR Ubuntu users**: Run the following commands to get yarn working
 ```
