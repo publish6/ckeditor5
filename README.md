@@ -20,16 +20,23 @@ To add or modify our CKEditor build, navigate to the package of the build that w
 
 **NOTE FOR WSL users OR Ubuntu users**: Run the following commands to get yarn working
 ```
-sudo apt remove cmdtest
-sudo apt remove yarn
+sudo apt install -y curl
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo apt update
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt-get update  
+sudo apt update
 sudo apt install --no-install-recommends yarn
-# Run "sudo apt-get install yarn" if you don't already have node/npm installed
 ```
 
-Once you've made your changes, ensure you're in the editor build directory of your choosing (i.e. `packages/ckeditor5-build-decoupled-document`), and run `yarn run build`. As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project.
+Next, navigate to `ckeditor5/packages/ckeditor5-build-decoupled-document` and run the following commands to get builds working:
+```
+yarn
+yarn run build
+```
+
+As long as this command succeeds (i.e. no compilation errors), this will produce a `ckeditor.js` file under `build/`. You can then copy this file into your project. If this doesn't succeed, just give up and use ckeditor4.
 
 To test out your changes, you can navigate to our build of the editor (at this time of writing, this is packages/ckeditor5-build-decoupled-document), build it, and then load sample/index.html in your browser.
 
