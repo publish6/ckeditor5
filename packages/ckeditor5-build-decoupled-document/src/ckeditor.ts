@@ -6,6 +6,7 @@
 // The editor creator to use.
 import DecoupledEditorBase from '@ckeditor/ckeditor5-editor-decoupled/src/decouplededitor';
 
+import {SimpleUploadAdapter} from '@ckeditor/ckeditor5-upload';
 import { Essentials } from '@ckeditor/ckeditor5-essentials';
 import { Alignment } from '@ckeditor/ckeditor5-alignment';
 import { FontSize, FontFamily, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font';
@@ -65,7 +66,8 @@ export default class DecoupledEditor extends DecoupledEditorBase {
 		PictureEditing,
 		Table,
 		TableToolbar,
-		TextTransformation
+		TextTransformation,
+		SimpleUploadAdapter
 	];
 
 	public static override defaultConfig = {
