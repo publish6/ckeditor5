@@ -5,7 +5,7 @@
 
 // The editor creator to use.
 import { DecoupledEditor as DecoupledEditorBase } from '@ckeditor/ckeditor5-editor-decoupled';
-
+import { EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import { Essentials } from '@ckeditor/ckeditor5-essentials';
 import { Alignment } from '@ckeditor/ckeditor5-alignment';
 import { FontSize, FontFamily, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font';
@@ -27,6 +27,30 @@ import { PasteFromOffice } from '@ckeditor/ckeditor5-paste-from-office';
 import { Table, TableToolbar } from '@ckeditor/ckeditor5-table';
 import { TextTransformation } from '@ckeditor/ckeditor5-typing';
 import { CloudServices } from '@ckeditor/ckeditor5-cloud-services';
+import { RealTimeCollaborativeEditing } from '@ckeditor/ckeditor5-real-time-collaboration';
+
+
+// The following plugins enable real-time collaborative comments.
+// You do not need to import them if you do not want this integration.
+import { Comments } from '@ckeditor/ckeditor5-comments';
+import { RealTimeCollaborativeComments } from '@ckeditor/ckeditor5-real-time-collaboration';
+import Redact from './custom-plugins/redact/redact';
+
+// The following plugins enable real-time collaborative track changes and are optional.
+// They depend on the `Comments` and `RealTimeCollaborativeComments` from above, so make sure to include
+// them in the editor plugins if you want to integrate the real-time collaborative track changes.
+// You do not need to import them if you do not want this integration.
+//import { RealTimeCollaborativeTrackChanges } from '@ckeditor/ckeditor5-real-time-collaboration';
+//import { TrackChanges } from '@ckeditor/ckeditor5-track-changes';
+
+// The following plugins enable revision history for real-time collaboration.
+// You do not need to import them if you do not want this integration.
+//import { RealTimeCollaborativeRevisionHistory } from '@ckeditor/ckeditor5-real-time-collaboration';
+//import { RevisionHistory } from '@ckeditor/ckeditor5-revision-history';
+
+// The following plugin enables the users presence list and is optional.
+// You do not need to import it if you do not want to integrate the user list.
+//import { PresenceList } from '@ckeditor/ckeditor5-real-time-collaboration';
 
 export default class DecoupledEditor extends DecoupledEditorBase {
 	public static override builtinPlugins = [
@@ -65,7 +89,14 @@ export default class DecoupledEditor extends DecoupledEditorBase {
 		PictureEditing,
 		Table,
 		TableToolbar,
-		TextTransformation
+		TextTransformation,
+		//Comments,
+		Redact
+		//RealTimeCollaborativeEditing,
+		//Comments, RealTimeCollaborativeComments,
+		//TrackChanges, RealTimeCollaborativeTrackChanges,
+		//RevisionHistory, RealTimeCollaborativeRevisionHistory,
+		//PresenceList
 	];
 
 	public static override defaultConfig = {
@@ -75,7 +106,7 @@ export default class DecoupledEditor extends DecoupledEditorBase {
 				'|', 'heading',
 				'|', 'fontfamily', 'fontsize', 'fontColor', 'fontBackgroundColor',
 				'|', 'bold', 'italic', 'underline', 'strikethrough',
-				'|', 'link', 'uploadImage', 'insertTable', 'blockQuote', 'mediaEmbed',
+				'|', 'redact', 'link', 'uploadImage', 'insertTable', 'blockQuote', 'mediaEmbed',
 				'|', 'alignment',
 				'|', 'bulletedList', 'numberedList', 'outdent', 'indent'
 			]

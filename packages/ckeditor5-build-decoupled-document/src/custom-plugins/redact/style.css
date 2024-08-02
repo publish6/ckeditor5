@@ -1,0 +1,12 @@
+.ck *[data-inline-classification] {
+    border-bottom: 1px dotted black;
+  }
+  p:before {
+  display: none;
+  }
+  
+  p[data-classification]:before {
+  content: '(' attr(data-classification) ') ';
+  display: inline;
+  color: gray;
+  }
